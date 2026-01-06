@@ -3,14 +3,23 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
+import { toProviderError } from "@/server/providers/errors";
 import { ProviderType } from "@/server/providers/types";
+import { listGoogleLocationCandidates, toUiError } from "@/server/services/google-business-profile";
+import { getLocationProviderLink } from "@/server/services/location-provider-links";
 import { getLocationById } from "@/server/services/locations";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { listPostsForOrganization } from "@/server/services/posts";
 import { listProviderConnections } from "@/server/services/provider-connections";
 import { listProviderStatus } from "@/server/services/providers";
+import { getProviderAccount } from "@/server/services/provider-accounts";
+import { listLatestReviewReplies } from "@/server/services/review-replies";
 import { listReviewsForLocation } from "@/server/services/reviews";
+
+import { GoogleGbpPanel } from "./GoogleGbpPanel";
+import { ReviewReplyForm } from "./ReviewReplyForm";
 
 const statusLabels = {
   disabled: "パートナー限定/無効",
@@ -36,10 +45,59 @@ export default async function LocationDetailPage({
 
   const user = await getSessionUser();
   const org = user ? await getPrimaryOrganization(user.id) : null;
+  const role = user && org ? await getMembershipRole(user.id, org.id) : null;
+  const canEdit = hasRequiredRole(role, "admin");
   const providerStatus = listProviderStatus();
   const connections = org ? await listProviderConnections(org.id, user?.id) : [];
   const reviews = await listReviewsForLocation(location.id);
   const posts = org ? await listPostsForOrganization(org.id) : [];
+
+  const googleAccount = org
+    ? await getProviderAccount(org.id, ProviderType.GoogleBusinessProfile)
+    : null;
+  const googleLink = await getLocationProviderLink(
+    location.id,
+    ProviderType.GoogleBusinessProfile
+  );
+
+  let googleCandidates = [] as Array<{
+    id: string;
+    name: string;
+    address?: string | null;
+    metadata?: Record<string, unknown>;
+  }>;
+  let googleCandidatesError: { cause: string; nextAction: string } | null = null;
+  if (org) {
+    try {
+      googleCandidates = await listGoogleLocationCandidates({
+        organizationId: org.id,
+        actorUserId: user?.id ?? null,
+      });
+    } catch (error) {
+      const providerError = toProviderError(
+        ProviderType.GoogleBusinessProfile,
+        error
+      );
+      googleCandidatesError = toUiError(providerError);
+    }
+  }
+
+  const googleConnection = connections.find(
+    (item) => item.provider === ProviderType.GoogleBusinessProfile
+  );
+  const googleStatusLabel =
+    googleConnection?.status === "connected"
+      ? "接続済み"
+      : googleConnection?.status === "reauth_required"
+      ? "再認可が必要"
+      : "未接続";
+  const googleApiWarning =
+    googleAccount?.metadata?.api_access === false
+      ? "Google Business ProfileのAPI承認が必要です。"
+      : null;
+  const lastSyncAt = (googleLink?.metadata?.last_review_sync_at as string) ?? null;
+
+  const replyMap = await listLatestReviewReplies(reviews.map((review) => review.id));
 
   const connectionLabels = {
     connected: "接続済み",
@@ -175,6 +233,37 @@ export default async function LocationDetailPage({
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold text-slate-900">
+            Google Business Profile
+          </h2>
+          <p className="text-xs text-slate-500">
+            GBPロケーションの紐付けとレビュー同期を行います。
+          </p>
+        </CardHeader>
+        <CardContent>
+          <GoogleGbpPanel
+            locationId={location.id}
+            canEdit={canEdit}
+            connectionLabel={googleStatusLabel}
+            connectionMessage={googleConnection?.message ?? null}
+            apiAccessWarning={googleApiWarning}
+            link={
+              googleLink
+                ? {
+                    externalLocationId: googleLink.externalLocationId,
+                    metadata: googleLink.metadata,
+                  }
+                : null
+            }
+            candidates={googleCandidates}
+            candidatesError={googleCandidatesError}
+            lastSyncAt={lastSyncAt}
+          />
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
@@ -192,7 +281,27 @@ export default async function LocationDetailPage({
                   </p>
                   <Badge variant="success">{review.rating}</Badge>
                 </div>
+                <p className="text-[11px] text-slate-400">
+                  投稿日時: {review.createdAt}
+                </p>
                 <p className="text-xs text-slate-500">{review.comment}</p>
+                {review.provider === ProviderType.GoogleBusinessProfile && (
+                  <div className="mt-3">
+                    <ReviewReplyForm
+                      locationId={location.id}
+                      reviewId={review.id}
+                      canEdit={canEdit}
+                      existingReply={
+                        replyMap[review.id]
+                          ? {
+                              replyText: replyMap[review.id].replyText,
+                              createdAt: replyMap[review.id].createdAt,
+                            }
+                          : null
+                      }
+                    />
+                  </div>
+                )}
               </div>
             ))}
             {reviews.length === 0 && (
