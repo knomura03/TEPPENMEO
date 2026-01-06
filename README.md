@@ -141,6 +141,9 @@ pnpm dev
 - アーキテクチャ: `docs/architecture.md`
 - セキュリティ: `docs/security.md`
 - トラブルシューティング: `docs/runbooks/troubleshooting.md`
+- 手動スモークテスト: `docs/runbooks/manual-smoke-test.md`
+- main保護設定: `docs/runbooks/github-branch-protection.md`
+- ロードマップ: `docs/roadmap.md`
 - プロバイダ手順書: `docs/providers/*.md`
 
 ## 機能対応表（最小版想定）

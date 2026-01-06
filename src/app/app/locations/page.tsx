@@ -4,11 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
 import { ProviderType } from "@/server/providers/types";
 import { listLocations } from "@/server/services/locations";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { searchPlaces } from "@/server/services/places";
+import { isSupabaseConfigured } from "@/server/utils/env";
+
+import { LocationCreateForm } from "./LocationCreateForm";
 
 const searchProviders = [
   { value: ProviderType.BingMaps, label: "Bing Maps" },
@@ -28,6 +32,9 @@ export default async function LocationsPage({
   const user = await getSessionUser();
   const org = user ? await getPrimaryOrganization(user.id) : null;
   const locations = org ? await listLocations(org.id) : [];
+  const role = user && org ? await getMembershipRole(user.id, org.id) : null;
+  const canCreate = hasRequiredRole(role, "admin");
+  const supabaseConfigured = isSupabaseConfigured();
 
   const providerValue = searchProviders.some(
     (provider) => provider.value === searchParams.provider
@@ -45,6 +52,18 @@ export default async function LocationsPage({
     }
   }
 
+  let createDisabledReason: string | null = null;
+  if (!supabaseConfigured) {
+    createDisabledReason = "Supabaseが未設定のため作成できません。";
+  } else if (!user) {
+    createDisabledReason = "ログインが必要です。";
+  } else if (!org) {
+    createDisabledReason = "所属組織が見つかりません。管理者に確認してください。";
+  } else if (!canCreate) {
+    createDisabledReason =
+      "権限がありません。管理者に権限付与を依頼してください。";
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -53,6 +72,20 @@ export default async function LocationsPage({
           店舗ロケーションとプロバイダ連携を管理します。
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold text-slate-900">
+            ロケーション新規作成
+          </h2>
+          <p className="text-xs text-slate-500">
+            ロケーションを追加してプロバイダ連携の対象を増やします。
+          </p>
+        </CardHeader>
+        <CardContent>
+          <LocationCreateForm disabledReason={createDisabledReason} />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
