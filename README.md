@@ -127,6 +127,16 @@ pnpm dev
 - 暗号化キー変更による復号失敗の可能性
 - 既存トークンは再認可して再保存
 
+## 開発運用（PR必須）
+- 変更は必ずブランチ作成 → コミット → push → PR作成の順で進める
+- main への直接pushは禁止（緊急時は理由を記録）
+- PRでCI（lint/test/typecheck）がすべて成功することを確認
+- PR本文に「変更点要約 / 動作確認手順（クリック順） / 実行コマンド結果 / 影響範囲とロールバック観点」を記載
+- PR作成前に `git diff` `git status` を確認し、疑わしい文字列があれば `git grep` で検査
+
+### GitHub main保護の推奨設定（リンク）
+- GitHub Docs: 保護されたブランチの設定
+
 ## ドキュメント
 - アーキテクチャ: `docs/architecture.md`
 - セキュリティ: `docs/security.md`
