@@ -1,5 +1,3 @@
-import { httpRequestJson } from "@/server/utils/http";
-import { getEnv } from "@/server/utils/env";
 import { isMockMode } from "@/server/utils/feature-flags";
 import { ProviderError } from "@/server/providers/errors";
 import {
@@ -13,6 +11,10 @@ import {
   ProviderReview,
   ProviderType,
 } from "@/server/providers/types";
+import {
+  exchangeCodeForToken,
+  getGoogleEnv,
+} from "@/server/providers/google_gbp/oauth";
 
 const capabilities = {
   canConnectOAuth: true,
@@ -24,20 +26,8 @@ const capabilities = {
   canSearchPlaces: false,
 };
 
-function requireGoogleEnv() {
-  const env = getEnv();
-  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
-    throw new ProviderError(
-      ProviderType.GoogleBusinessProfile,
-      "not_configured",
-      "Google OAuthの認証情報が未設定です"
-    );
-  }
-  return env;
-}
-
 async function getAuthUrl(params: ProviderAuthParams): Promise<string> {
-  const env = requireGoogleEnv();
+  const env = getGoogleEnv();
   const redirectUri =
     params.redirectUri ??
     env.GOOGLE_REDIRECT_URI ??
@@ -75,29 +65,15 @@ async function handleOAuthCallback(params: {
     };
   }
 
-  const env = requireGoogleEnv();
+  const env = getGoogleEnv();
   const redirectUri =
     params.redirectUri ??
     env.GOOGLE_REDIRECT_URI ??
     `${env.APP_BASE_URL ?? ""}/api/providers/google/callback`;
 
-  const body = new URLSearchParams({
+  const response = await exchangeCodeForToken({
     code: params.code,
-    client_id: env.GOOGLE_CLIENT_ID ?? "",
-    client_secret: env.GOOGLE_CLIENT_SECRET ?? "",
-    redirect_uri: redirectUri,
-    grant_type: "authorization_code",
-  });
-
-  const response = await httpRequestJson<{
-    access_token: string;
-    refresh_token?: string;
-    expires_in: number;
-    scope?: string;
-  }>("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
+    redirectUri,
   });
 
   return {

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getSessionUser } from "@/server/auth/session";
+import { ProviderType } from "@/server/providers/types";
 import { getLocationById } from "@/server/services/locations";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { listPostsForOrganization } from "@/server/services/posts";
@@ -35,9 +36,15 @@ export default async function LocationDetailPage({
   const user = await getSessionUser();
   const org = user ? await getPrimaryOrganization(user.id) : null;
   const providerStatus = listProviderStatus();
-  const connections = await listProviderConnections();
+  const connections = org ? await listProviderConnections(org.id, user?.id) : [];
   const reviews = await listReviewsForLocation(location.id);
   const posts = org ? await listPostsForOrganization(org.id) : [];
+
+  const connectionLabels = {
+    connected: "接続済み",
+    not_connected: "未接続",
+    reauth_required: "再認可が必要",
+  } as const;
 
   return (
     <div className="space-y-8">
@@ -61,9 +68,12 @@ export default async function LocationDetailPage({
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           {providerStatus.map((provider) => {
-            const connected = connections.find(
+            const connection = connections.find(
               (item) => item.provider === provider.type
-            )?.connected;
+            );
+            const connectionStatus = connection?.status ?? "not_connected";
+            const connectionMessage = connection?.message;
+            const isGoogle = provider.type === ProviderType.GoogleBusinessProfile;
 
             return (
               <div
@@ -79,13 +89,18 @@ export default async function LocationDetailPage({
                       {statusLabels[provider.status]}
                     </p>
                   </div>
-                  <Badge variant={connected ? "success" : "muted"}>
-                    {connected ? "接続済み" : "未接続"}
+                  <Badge
+                    variant={connectionStatus === "connected" ? "success" : "muted"}
+                  >
+                    {connectionLabels[connectionStatus]}
                   </Badge>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {provider.status === "disabled" && (
                     <Badge variant="warning">承認待ち</Badge>
+                  )}
+                  {connectionStatus === "reauth_required" && (
+                    <Badge variant="warning">再認可</Badge>
                   )}
                   {provider.capabilities.canReadReviews && (
                     <Badge variant="default">レビュー</Badge>
@@ -102,18 +117,56 @@ export default async function LocationDetailPage({
                       <Badge variant="muted">スタブ</Badge>
                     )}
                 </div>
-                <div className="mt-4 flex gap-2">
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    disabled={!provider.enabled}
-                  >
-                    {provider.capabilities.canConnectOAuth
-                      ? connected
-                        ? "再接続"
-                        : "接続"
-                      : "未対応"}
-                  </Button>
+                {connectionMessage && (
+                  <p className="mt-3 text-xs text-amber-700">
+                    {connectionMessage}
+                  </p>
+                )}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {isGoogle ? (
+                    <>
+                      {connectionStatus !== "connected" && (
+                        <a
+                          className={`flex h-10 w-full items-center justify-center rounded-md text-sm font-semibold ${
+                            provider.enabled
+                              ? "bg-slate-900 text-white"
+                              : "pointer-events-none bg-slate-200 text-slate-500"
+                          }`}
+                          href={
+                            provider.enabled
+                              ? `/api/providers/google/connect?locationId=${location.id}`
+                              : undefined
+                          }
+                          aria-disabled={!provider.enabled}
+                        >
+                          {connectionStatus === "reauth_required"
+                            ? "再認可"
+                            : "接続"}
+                        </a>
+                      )}
+                      {connectionStatus === "connected" && (
+                        <form
+                          action={`/api/providers/google/disconnect?locationId=${location.id}`}
+                          method="post"
+                          className="w-full"
+                        >
+                          <Button variant="secondary" className="w-full">
+                            切断
+                          </Button>
+                        </form>
+                      )}
+                    </>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      className="w-full"
+                      disabled={!provider.enabled}
+                    >
+                      {provider.capabilities.canConnectOAuth
+                        ? "接続"
+                        : "未対応"}
+                    </Button>
+                  )}
                 </div>
               </div>
             );

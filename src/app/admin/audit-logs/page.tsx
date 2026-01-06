@@ -3,7 +3,9 @@ import { listAuditLogs } from "@/server/services/audit-logs";
 
 const actionLabels: Record<string, string> = {
   "provider.connect": "プロバイダ接続",
+  "provider.connect_failed": "プロバイダ接続失敗",
   "provider.disconnect": "プロバイダ切断",
+  "provider.reauth_required": "再認可要求",
   "reviews.sync": "レビュー同期",
   "posts.publish": "投稿公開",
 };

@@ -33,3 +33,25 @@ export async function listAuditLogs(): Promise<AuditLog[]> {
     metadata: row.metadata_json ?? {},
   }));
 }
+
+export async function writeAuditLog(input: {
+  actorUserId?: string | null;
+  organizationId?: string | null;
+  action: string;
+  targetType?: string;
+  targetId?: string;
+  metadata?: Record<string, unknown>;
+}) {
+  if (!isSupabaseConfigured()) return;
+  const admin = getSupabaseAdmin();
+  if (!admin) return;
+
+  await admin.from("audit_logs").insert({
+    actor_user_id: input.actorUserId ?? null,
+    organization_id: input.organizationId ?? null,
+    action: input.action,
+    target_type: input.targetType ?? null,
+    target_id: input.targetId ?? null,
+    metadata_json: input.metadata ?? {},
+  });
+}
