@@ -31,6 +31,69 @@ test("管理診断はサインインまたは診断が表示される", async ({
   expect(hasDiagnostics || hasSignIn).toBeTruthy();
 });
 
+test("ユーザー管理はサインインまたはユーザー管理が表示される", async ({ page }) => {
+  await page.goto("/admin/users", { waitUntil: "domcontentloaded" });
+  const hasUsers = await page
+    .getByRole("heading", { name: "ユーザー管理" })
+    .isVisible();
+  const hasSignIn = await page
+    .getByRole("heading", { name: "サインイン", exact: true })
+    .isVisible();
+
+  if (hasUsers) {
+    await expect(
+      page.getByRole("heading", { name: "ユーザー管理" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "ユーザーを作成" })
+    ).toBeVisible();
+  } else {
+    expect(hasSignIn).toBeTruthy();
+  }
+});
+
+test("組織一覧はサインインまたは組織管理が表示される", async ({ page }) => {
+  await page.goto("/admin/organizations", { waitUntil: "domcontentloaded" });
+  const hasOrganizations = await page
+    .getByRole("heading", { name: "組織管理" })
+    .isVisible();
+  const hasSignIn = await page
+    .getByRole("heading", { name: "サインイン", exact: true })
+    .isVisible();
+
+  if (hasOrganizations) {
+    await expect(
+      page.getByRole("heading", { name: "組織管理" })
+    ).toBeVisible();
+    await expect(page.getByText("組織一覧", { exact: true })).toBeVisible();
+  } else {
+    expect(hasSignIn).toBeTruthy();
+  }
+});
+
+test("組織メンバー管理はサインインまたはメンバー一覧が表示される", async ({
+  page,
+}) => {
+  await page.goto("/admin/organizations/org-1", {
+    waitUntil: "domcontentloaded",
+  });
+  const hasMembers = await page
+    .getByRole("heading", { name: "組織メンバー管理" })
+    .isVisible();
+  const hasSignIn = await page
+    .getByRole("heading", { name: "サインイン", exact: true })
+    .isVisible();
+
+  if (hasMembers) {
+    await expect(
+      page.getByRole("heading", { name: "組織メンバー管理" })
+    ).toBeVisible();
+    await expect(page.getByText("メンバー一覧", { exact: true })).toBeVisible();
+  } else {
+    expect(hasSignIn).toBeTruthy();
+  }
+});
+
 test("ロケーション詳細でGoogleセクションが表示される", async ({ page }) => {
   await page.goto("/app/locations/loc-1", { waitUntil: "domcontentloaded" });
   const hasGoogleSection = await page

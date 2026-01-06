@@ -8,12 +8,14 @@
 - PRは自動マージ禁止（ユーザーがGitHub上でマージする）
 - 1フェーズ=1PR（大きい場合は分割）
 - PR本文に必ず含める: 変更点要約 / 動作確認手順（クリック順） / 実行コマンド結果（lint/test/typecheck/e2e） / 影響範囲とロールバック観点
-- PR作成後、最終報告にPR URLを必ず記載する
-- secrets混入防止: `.env.local` や鍵/トークンは絶対コミット禁止。PR作成前に `git diff` と `git status` を確認し、疑わしい文字列があれば `git grep` で検査
+- PR作成後、最終報告の先頭にPR URLを必ず記載する
+- secrets混入防止: `.env.local` や鍵/トークンは絶対コミット禁止。PR作成前に `git status` と `git diff` を確認し、疑わしければ `git grep -nE \"(SUPABASE|SECRET|TOKEN|KEY=|BEGIN PRIVATE)\" .` を実行
 - 変更の粒度は「1フェーズ=1コミット/1PR」。破壊的変更はさらに分割
 - 各PRのレビュー手順は `pnpm lint` `pnpm test` `pnpm typecheck` `pnpm e2e` を実行し記録（不可なら理由を明記）
+- UI変更があるPRは `pnpm e2e` を必須とし、実行不可なら代替確認手順を明記
 - push/PRに失敗した場合の手順（SSH/gh auth）は runbook に記録し、変更があれば更新する
 - 外部API実装のPRは `docs/providers` と `docs/spec` の更新が必須（更新なしは禁止）
+- 外部に影響する運用機能（ユーザー/権限）のPRは `docs/spec` 更新が必須（更新なしは禁止）
 - 秘密情報はコミット禁止。`.env.example` のみ
 - モジュール分割・小さな関数・責務分離を徹底
 - 迷ったら選択肢とトレードオフを提示し、最小安全案を選ぶ
