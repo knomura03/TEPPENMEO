@@ -14,22 +14,29 @@ export type CreateLocationState = {
 };
 
 const optionalNumber = (min: number, max: number, label: string) =>
-  z.preprocess(
-    (value) => {
-      if (typeof value !== "string") return value;
-      const trimmed = value.trim();
-      if (!trimmed) return undefined;
-      const numberValue = Number(trimmed);
-      return Number.isFinite(numberValue) ? numberValue : value;
-    },
-    z
-      .number({
-        invalid_type_error: `${label}は数値で入力してください`,
-      })
-      .min(min, `${label}は${min}以上で入力してください`)
-      .max(max, `${label}は${max}以下で入力してください`)
-      .optional()
-  );
+  z
+    .string()
+    .trim()
+    .optional()
+    .transform((value, ctx) => {
+      if (!value) return undefined;
+      const numberValue = Number(value);
+      if (!Number.isFinite(numberValue)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${label}は数値で入力してください`,
+        });
+        return z.NEVER;
+      }
+      if (numberValue < min || numberValue > max) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${label}は${min}〜${max}の範囲で入力してください`,
+        });
+        return z.NEVER;
+      }
+      return numberValue;
+    });
 
 const locationSchema = z.object({
   name: z
