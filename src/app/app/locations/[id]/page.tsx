@@ -7,10 +7,17 @@ import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
 import { toProviderError } from "@/server/providers/errors";
 import { ProviderType } from "@/server/providers/types";
-import { listGoogleLocationCandidates, toUiError } from "@/server/services/google-business-profile";
+import {
+  listGoogleLocationCandidates,
+  toUiError as toGoogleUiError,
+} from "@/server/services/google-business-profile";
 import { getLocationProviderLink } from "@/server/services/location-provider-links";
 import { getLocationById } from "@/server/services/locations";
 import { getPrimaryOrganization } from "@/server/services/organizations";
+import {
+  listMetaPageCandidates,
+  toUiError as toMetaUiError,
+} from "@/server/services/meta";
 import { listPostsForOrganization } from "@/server/services/posts";
 import { listProviderConnections } from "@/server/services/provider-connections";
 import { listProviderStatus } from "@/server/services/providers";
@@ -19,6 +26,7 @@ import { listLatestReviewReplies } from "@/server/services/review-replies";
 import { listReviewsForLocation } from "@/server/services/reviews";
 
 import { GoogleGbpPanel } from "./GoogleGbpPanel";
+import { MetaPanel } from "./MetaPanel";
 import { ReviewReplyForm } from "./ReviewReplyForm";
 
 const statusLabels = {
@@ -59,6 +67,7 @@ export default async function LocationDetailPage({
     location.id,
     ProviderType.GoogleBusinessProfile
   );
+  const metaLink = await getLocationProviderLink(location.id, ProviderType.Meta);
 
   let googleCandidates = [] as Array<{
     id: string;
@@ -78,17 +87,44 @@ export default async function LocationDetailPage({
         ProviderType.GoogleBusinessProfile,
         error
       );
-      googleCandidatesError = toUiError(providerError);
+      googleCandidatesError = toGoogleUiError(providerError);
+    }
+  }
+
+  let metaCandidates = [] as Array<{
+    id: string;
+    name: string;
+    instagram?: { id: string; username?: string | null } | null;
+  }>;
+  let metaCandidatesError: { cause: string; nextAction: string } | null = null;
+  if (org) {
+    try {
+      metaCandidates = await listMetaPageCandidates({
+        organizationId: org.id,
+        actorUserId: user?.id ?? null,
+      });
+    } catch (error) {
+      const providerError = toProviderError(ProviderType.Meta, error);
+      metaCandidatesError = toMetaUiError(providerError);
     }
   }
 
   const googleConnection = connections.find(
     (item) => item.provider === ProviderType.GoogleBusinessProfile
   );
+  const metaConnection = connections.find(
+    (item) => item.provider === ProviderType.Meta
+  );
   const googleStatusLabel =
     googleConnection?.status === "connected"
       ? "接続済み"
       : googleConnection?.status === "reauth_required"
+      ? "再認可が必要"
+      : "未接続";
+  const metaStatusLabel =
+    metaConnection?.status === "connected"
+      ? "接続済み"
+      : metaConnection?.status === "reauth_required"
       ? "再認可が必要"
       : "未接続";
   const googleApiWarning =
@@ -133,6 +169,17 @@ export default async function LocationDetailPage({
             const connectionStatus = connection?.status ?? "not_connected";
             const connectionMessage = connection?.message;
             const isGoogle = provider.type === ProviderType.GoogleBusinessProfile;
+            const isMeta = provider.type === ProviderType.Meta;
+            const connectHref = isGoogle
+              ? `/api/providers/google/connect?locationId=${location.id}`
+              : isMeta
+              ? `/api/providers/meta/connect?locationId=${location.id}`
+              : null;
+            const disconnectAction = isGoogle
+              ? `/api/providers/google/disconnect?locationId=${location.id}`
+              : isMeta
+              ? `/api/providers/meta/disconnect?locationId=${location.id}`
+              : null;
 
             return (
               <div
@@ -182,7 +229,7 @@ export default async function LocationDetailPage({
                   </p>
                 )}
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {isGoogle ? (
+                  {isGoogle || isMeta ? (
                     <>
                       {connectionStatus !== "connected" && (
                         <a
@@ -191,11 +238,7 @@ export default async function LocationDetailPage({
                               ? "bg-slate-900 text-white"
                               : "pointer-events-none bg-slate-200 text-slate-500"
                           }`}
-                          href={
-                            provider.enabled
-                              ? `/api/providers/google/connect?locationId=${location.id}`
-                              : undefined
-                          }
+                          href={provider.enabled ? connectHref ?? undefined : undefined}
                           aria-disabled={!provider.enabled}
                         >
                           {connectionStatus === "reauth_required"
@@ -205,7 +248,7 @@ export default async function LocationDetailPage({
                       )}
                       {connectionStatus === "connected" && (
                         <form
-                          action={`/api/providers/google/disconnect?locationId=${location.id}`}
+                          action={disconnectAction ?? undefined}
                           method="post"
                           className="w-full"
                         >
@@ -260,6 +303,36 @@ export default async function LocationDetailPage({
             candidates={googleCandidates}
             candidatesError={googleCandidatesError}
             lastSyncAt={lastSyncAt}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold text-slate-900">
+            Meta（Facebook/Instagram）
+          </h2>
+          <p className="text-xs text-slate-500">
+            Facebookページの紐付けと投稿作成を行います。
+          </p>
+        </CardHeader>
+        <CardContent>
+          <MetaPanel
+            locationId={location.id}
+            canEdit={canEdit}
+            connectionStatus={metaConnection?.status ?? "not_connected"}
+            connectionLabel={metaStatusLabel}
+            connectionMessage={metaConnection?.message ?? null}
+            link={
+              metaLink
+                ? {
+                    externalLocationId: metaLink.externalLocationId,
+                    metadata: metaLink.metadata,
+                  }
+                : null
+            }
+            candidates={metaCandidates}
+            candidatesError={metaCandidatesError}
           />
         </CardContent>
       </Card>

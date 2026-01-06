@@ -113,3 +113,18 @@ export async function updateLocationProviderLinkMetadata(input: {
   if (error || !data) return null;
   return mapLocationProviderLink(data as Record<string, unknown>);
 }
+
+export async function deleteLocationProviderLink(input: {
+  locationId: string;
+  provider: ProviderType;
+}): Promise<void> {
+  if (!isSupabaseConfigured()) return;
+  const admin = getSupabaseAdmin();
+  if (!admin) return;
+
+  await admin
+    .from("location_provider_links")
+    .delete()
+    .eq("location_id", input.locationId)
+    .eq("provider", input.provider);
+}

@@ -22,15 +22,27 @@ export default async function AdminDiagnosticsPage() {
   const googleConnection = connections.find(
     (item) => item.provider === ProviderType.GoogleBusinessProfile
   );
+  const metaConnection = connections.find(
+    (item) => item.provider === ProviderType.Meta
+  );
 
   const googleStatus = org
     ? googleConnection?.status ?? "not_connected"
     : "unknown";
+  const metaStatus = org ? metaConnection?.status ?? "not_connected" : "unknown";
 
   const googleStatusLabel =
     googleStatus === "unknown"
       ? "未判定"
       : connectionLabels[googleStatus];
+  const metaStatusLabel =
+    metaStatus === "unknown" ? "未判定" : connectionLabels[metaStatus];
+
+  const metaEnvOk = Boolean(
+    process.env.META_APP_ID &&
+      process.env.META_APP_SECRET &&
+      process.env.META_REDIRECT_URI
+  );
 
   const nextSteps: string[] = [];
   if (envError) {
@@ -53,6 +65,15 @@ export default async function AdminDiagnosticsPage() {
   }
   if (org && googleStatus === "not_connected") {
     nextSteps.push("ロケーション詳細でGoogle接続を開始してください。");
+  }
+  if (org && metaStatus === "reauth_required") {
+    nextSteps.push("Metaの再認可を実行してください。");
+  }
+  if (org && metaStatus === "not_connected") {
+    nextSteps.push("ロケーション詳細でMeta接続を開始してください。");
+  }
+  if (!metaEnvOk) {
+    nextSteps.push("Metaの環境変数を設定してください。");
   }
 
   return (
@@ -132,9 +153,28 @@ export default async function AdminDiagnosticsPage() {
                 {googleStatusLabel}
               </Badge>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">Meta接続</span>
+              <Badge
+                variant={metaStatus === "connected" ? "success" : "warning"}
+              >
+                {metaStatusLabel}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">Meta環境変数</span>
+              <Badge variant={metaEnvOk ? "success" : "warning"}>
+                {metaEnvOk ? "設定済み" : "未設定"}
+              </Badge>
+            </div>
             {googleConnection?.message && (
               <p className="text-xs text-amber-300">
                 {googleConnection.message}
+              </p>
+            )}
+            {metaConnection?.message && (
+              <p className="text-xs text-amber-300">
+                {metaConnection.message}
               </p>
             )}
             <p className="text-[11px] text-slate-400">
