@@ -36,3 +36,95 @@ export async function listPostsForOrganization(
     createdAt: row.created_at,
   }));
 }
+
+export async function createPostRecord(input: {
+  organizationId: string;
+  locationId?: string | null;
+  content: string;
+  media: string[];
+  status: string;
+}): Promise<{ id: string } | null> {
+  if (!isSupabaseConfigured()) {
+    return { id: "mock-post" };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) return null;
+
+  const { data, error } = await admin
+    .from("posts")
+    .insert({
+      organization_id: input.organizationId,
+      location_id: input.locationId ?? null,
+      content: input.content,
+      media: input.media,
+      status: input.status,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) return null;
+  return { id: data.id as string };
+}
+
+export async function updatePostStatus(
+  postId: string,
+  status: string
+): Promise<void> {
+  if (!isSupabaseConfigured()) return;
+  const admin = getSupabaseAdmin();
+  if (!admin) return;
+
+  await admin.from("posts").update({ status }).eq("id", postId);
+}
+
+export async function createPostTargetRecord(input: {
+  postId: string;
+  provider: string;
+  status: string;
+  externalPostId?: string | null;
+  error?: string | null;
+}): Promise<{ id: string } | null> {
+  if (!isSupabaseConfigured()) {
+    return { id: "mock-target" };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) return null;
+
+  const { data, error } = await admin
+    .from("post_targets")
+    .insert({
+      post_id: input.postId,
+      provider: input.provider,
+      status: input.status,
+      external_post_id: input.externalPostId ?? null,
+      error: input.error ?? null,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) return null;
+  return { id: data.id as string };
+}
+
+export async function updatePostTargetRecord(input: {
+  id?: string | null;
+  status: string;
+  externalPostId?: string | null;
+  error?: string | null;
+}): Promise<void> {
+  if (!input.id) return;
+  if (!isSupabaseConfigured()) return;
+  const admin = getSupabaseAdmin();
+  if (!admin) return;
+
+  await admin
+    .from("post_targets")
+    .update({
+      status: input.status,
+      external_post_id: input.externalPostId ?? null,
+      error: input.error ?? null,
+    })
+    .eq("id", input.id);
+}

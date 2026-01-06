@@ -34,7 +34,7 @@ export const mockLocations = [
 
 export const mockProviderConnections: Record<ProviderType, boolean> = {
   [ProviderType.GoogleBusinessProfile]: true,
-  [ProviderType.Meta]: false,
+  [ProviderType.Meta]: true,
   [ProviderType.YahooPlace]: false,
   [ProviderType.AppleBusinessConnect]: false,
   [ProviderType.BingMaps]: true,

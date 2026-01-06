@@ -11,6 +11,7 @@ import {
 } from "@/server/services/provider-accounts";
 import { writeAuditLog } from "@/server/services/audit-logs";
 import { refreshGoogleAccessToken } from "@/server/providers/google_gbp/oauth";
+import { exchangeForLongLivedToken } from "@/server/providers/meta/oauth";
 
 export type ProviderConnectionStatus =
   | "connected"
@@ -119,6 +120,70 @@ async function maybeRefreshGoogleAccount(
   }
 }
 
+async function maybeRefreshMetaAccount(
+  organizationId: string,
+  actorUserId?: string | null
+) {
+  const account = await getProviderAccount(organizationId, ProviderType.Meta);
+  if (!account) return account;
+
+  const metadata = account.metadata ?? {};
+  if (metadata.reauth_required) return account;
+
+  if (!account.expiresAt) return account;
+  const expiresAt = new Date(account.expiresAt).getTime();
+  if (Number.isNaN(expiresAt)) return account;
+
+  const shouldRefresh = expiresAt - Date.now() <= REFRESH_THRESHOLD_MS;
+  if (!shouldRefresh) return account;
+
+  if (!account.tokenEncrypted) {
+    const message =
+      "認証の有効期限が近づいています。Metaで再接続してください。";
+    await markProviderError(organizationId, ProviderType.Meta, message, true);
+    await writeAuditLog({
+      actorUserId: actorUserId ?? null,
+      organizationId,
+      action: "provider.reauth_required",
+      targetType: "provider",
+      targetId: ProviderType.Meta,
+      metadata: { reason: "token_missing" },
+    });
+    return {
+      ...account,
+      metadata: { ...metadata, reauth_required: true, last_error: message },
+    };
+  }
+
+  try {
+    const accessToken = decryptSecret(account.tokenEncrypted);
+    const refreshed = await exchangeForLongLivedToken({ accessToken });
+    const updated = await upsertProviderAccount(organizationId, ProviderType.Meta, {
+      tokenEncrypted: encryptSecret(refreshed.access_token),
+      expiresAt: refreshed.expires_in
+        ? new Date(Date.now() + refreshed.expires_in * 1000).toISOString()
+        : account.expiresAt,
+      metadata: { reauth_required: false, last_error: null },
+    });
+    return updated ?? account;
+  } catch {
+    const message = "認証の更新に失敗しました。Metaで再接続してください。";
+    await markProviderError(organizationId, ProviderType.Meta, message, true);
+    await writeAuditLog({
+      actorUserId: actorUserId ?? null,
+      organizationId,
+      action: "provider.reauth_required",
+      targetType: "provider",
+      targetId: ProviderType.Meta,
+      metadata: { reason: "refresh_failed" },
+    });
+    return {
+      ...account,
+      metadata: { ...metadata, reauth_required: true, last_error: message },
+    };
+  }
+}
+
 export async function listProviderConnections(
   organizationId: string,
   actorUserId?: string | null
@@ -131,6 +196,7 @@ export async function listProviderConnections(
   if (!admin) return mapMockConnections();
 
   await maybeRefreshGoogleAccount(organizationId, actorUserId);
+  await maybeRefreshMetaAccount(organizationId, actorUserId);
 
   const { data } = await admin
     .from("provider_accounts")

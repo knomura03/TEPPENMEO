@@ -4,14 +4,15 @@
 - [ ] Meta開発者アカウント
 - [ ] Facebookページの管理者権限
 - [ ] Instagramプロアカウント（ビジネス/クリエイター）
-- [ ] **App Review（Advanced Access）が必要な権限あり**
-- [ ] 本番利用にはBusiness Verificationが求められる可能性あり
+- [ ] App Review（Advanced Access）が必要な権限あり
+- [ ] 本番利用はBusiness Verificationが求められる可能性あり
 
 ## 画面操作の手順（クリック単位）
 
 ### 1) Metaアプリ作成
 - [ ] https://developers.facebook.com/apps にアクセス
-- [ ] **アプリを作成** → 種類: **ビジネス**
+- [ ] **アプリを作成**
+- [ ] 種類: **ビジネス**
 - [ ] アプリ名: `TEPPEN MEO`
 - [ ] **アプリを作成**
 
@@ -61,21 +62,39 @@
 ## 必要な環境変数（意味/取得場所）
 - `META_APP_ID` : アプリID（Meta Developers → アプリ設定）
 - `META_APP_SECRET` : アプリシークレット（同上）
-- `META_REDIRECT_URI` : リダイレクトURI
+- `META_REDIRECT_URI` : リダイレクトURI（本番運用時は必須）
+
+## TEPPEN MEOでの接続/投稿手順
+
+### 接続
+- [ ] `PROVIDER_MOCK_MODE=false`
+- [ ] `/app/locations/{id}` を開く
+- [ ] **Meta 接続** をクリック
+- [ ] Meta同意画面で権限を許可
+- [ ] 画面に戻り **接続済み** を確認
+
+### Facebookページ紐付け
+- [ ] ロケーション詳細 → **Meta（Facebook/Instagram）**
+- [ ] ページ候補から対象ページを選択
+- [ ] **紐付けを更新** をクリック
+- [ ] 「現在の紐付け」が更新されることを確認
+
+### 投稿（Facebook）
+- [ ] 投稿本文を入力
+- [ ] （任意）画像URLを入力
+- [ ] **Facebookに投稿** をオン
+- [ ] **投稿を送信**
+
+### 投稿（Instagram）
+- [ ] FacebookページとInstagramが連携済みであることを確認
+- [ ] 画像URLを入力（必須）
+- [ ] **Instagramに投稿** をオン
+- [ ] **投稿を送信**
 
 ## 動作確認手順（成功/失敗の見分け方）
-
-### チェックリスト
-- [ ] `.env.local` にMetaの値が入っている
-- [ ] `PROVIDER_MOCK_MODE=false`
-- [ ] `/app/locations/{id}` から Meta の**接続**を実行
-- [ ] Metaの同意画面に遷移する
-- [ ] 許可後、アプリに戻り**接続済み**表示になる
-
-### 失敗時の確認ポイント
-- リダイレクトURIが一致しているか
-- 必要権限が承認されているか
-- アプリが「開発」モードのままか（本番は「公開」必要）
+- [ ] 接続後に **接続済み** 表示になる
+- [ ] ページ紐付け後に **現在の紐付け** が表示される
+- [ ] 投稿送信後、投稿一覧に **公開済み** が追加される
 
 ## よくある詰まり（エラーメッセージ例と対処）
 
@@ -85,21 +104,33 @@
 - `App not active`
   - アプリを公開モードに切り替える
 
-- `Missing permissions`
-  - App Reviewで権限が承認済みか確認
+- `OAuthException (code 190)`
+  - トークンが無効。再認可を実施
 
-- `Permissions error`（Instagram投稿時）
-  - IGプロアカウント連携が完了しているか確認
+- `(#200) Requires pages_manage_posts permission`
+  - 権限が未承認。App Reviewで権限追加
 
-## 承認待ち時の代替手順
+- Instagramに投稿できない
+  - IGがプロアカウントか確認
+  - FacebookページとIGが連携済みか確認
+  - 画像URLが入力されているか確認
+
+## 承認が必要で今日できない場合の代替手順
 
 ### モック運用
 - [ ] `PROVIDER_MOCK_MODE=true` で画面フロー確認
 
 ### 手動運用
 - [ ] Facebook/Instagram側で投稿を手動実施
-- [ ] TEPPEN MEO は進捗管理のみ
+- [ ] TEPPEN MEO は投稿履歴管理のみ
 
 ## 実装状況（現時点）
-- OAuthフロー: スキャフォールド済み
-- 実投稿API: 未実装（今後対応）
+- OAuthフロー: 実装済み（state検証/トークン暗号化保存/期限管理）
+- Facebookページ紐付け: 実装済み
+- Facebook投稿: 実装済み（本文+画像URL）
+- Instagram投稿: 画像URL必須/ページ連携必須（最小実装）
+
+## トークンの扱い（補足）
+- OAuth直後に長期トークンへ交換を試みる
+- 有効期限が近い場合は再認可が必要になる
+- 失敗時は「再認可が必要」と表示されるため、再接続で復旧する

@@ -50,3 +50,28 @@ test("ロケーション詳細でGoogleセクションが表示される", async
     expect(hasSignIn).toBeTruthy();
   }
 });
+
+test("ロケーション詳細でMetaセクションが表示される", async ({ page }) => {
+  await page.goto("/app/locations/loc-1", { waitUntil: "domcontentloaded" });
+  const hasMetaSection = await page
+    .getByRole("heading", { name: "Meta（Facebook/Instagram）", exact: true })
+    .isVisible();
+  const hasSignIn = await page
+    .getByRole("heading", { name: "サインイン", exact: true })
+    .isVisible();
+
+  if (hasMetaSection) {
+    await expect(
+      page.getByText("Facebookページ紐付け", { exact: true })
+    ).toBeVisible();
+    const postButton = page.getByRole("button", { name: "投稿を送信" });
+    if (await postButton.isEnabled()) {
+      await postButton.click();
+      await expect(
+        page.getByRole("heading", { name: "Meta（Facebook/Instagram）", exact: true })
+      ).toBeVisible();
+    }
+  } else {
+    expect(hasSignIn).toBeTruthy();
+  }
+});

@@ -1,20 +1,25 @@
-import { httpRequestJson } from "@/server/utils/http";
-import { getEnv } from "@/server/utils/env";
 import { isMockMode } from "@/server/utils/feature-flags";
 import { ProviderError } from "@/server/providers/errors";
 import {
   ProviderAdapter,
   ProviderAuthParams,
   ProviderCreatePostInput,
+  ProviderLocation,
   ProviderOAuthResult,
   ProviderPost,
   ProviderRequestContext,
   ProviderType,
 } from "@/server/providers/types";
+import { listMetaPages } from "@/server/providers/meta/api";
+import {
+  exchangeCodeForToken,
+  exchangeForLongLivedToken,
+  getMetaEnv,
+} from "@/server/providers/meta/oauth";
 
 const capabilities = {
   canConnectOAuth: true,
-  canListLocations: false,
+  canListLocations: true,
   canReadReviews: false,
   canReplyReviews: false,
   canCreatePosts: true,
@@ -22,20 +27,16 @@ const capabilities = {
   canSearchPlaces: false,
 };
 
-function requireMetaEnv() {
-  const env = getEnv();
-  if (!env.META_APP_ID || !env.META_APP_SECRET) {
-    throw new ProviderError(
-      ProviderType.Meta,
-      "not_configured",
-      "Metaアプリの認証情報が未設定です"
-    );
-  }
-  return env;
-}
+const metaScopes = [
+  "pages_show_list",
+  "pages_manage_posts",
+  "pages_read_engagement",
+  "instagram_basic",
+  "instagram_content_publish",
+];
 
 async function getAuthUrl(params: ProviderAuthParams): Promise<string> {
-  const env = requireMetaEnv();
+  const env = getMetaEnv();
   const redirectUri =
     params.redirectUri ??
     env.META_REDIRECT_URI ??
@@ -45,17 +46,9 @@ async function getAuthUrl(params: ProviderAuthParams): Promise<string> {
   url.searchParams.set("client_id", env.META_APP_ID ?? "");
   url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("response_type", "code");
-  url.searchParams.set(
-    "scope",
-    [
-      "pages_show_list",
-      "pages_manage_posts",
-      "pages_read_engagement",
-      "instagram_basic",
-      "instagram_content_publish",
-    ].join(",")
-  );
+  url.searchParams.set("scope", metaScopes.join(","));
   url.searchParams.set("state", params.state);
+  url.searchParams.set("auth_type", "rerequest");
   return url.toString();
 }
 
@@ -74,29 +67,62 @@ async function handleOAuthCallback(params: {
     };
   }
 
-  const env = requireMetaEnv();
+  const env = getMetaEnv();
   const redirectUri =
     params.redirectUri ??
     env.META_REDIRECT_URI ??
     `${env.APP_BASE_URL ?? ""}/api/providers/meta/callback`;
 
-  const url = new URL("https://graph.facebook.com/v20.0/oauth/access_token");
-  url.searchParams.set("client_id", env.META_APP_ID ?? "");
-  url.searchParams.set("client_secret", env.META_APP_SECRET ?? "");
-  url.searchParams.set("redirect_uri", redirectUri);
-  url.searchParams.set("code", params.code);
+  const response = await exchangeCodeForToken({
+    code: params.code,
+    redirectUri,
+  });
 
-  const response = await httpRequestJson<{
-    access_token: string;
-    expires_in?: number;
-  }>(url.toString());
+  let accessToken = response.access_token;
+  let expiresIn = response.expires_in;
+
+  try {
+    const extended = await exchangeForLongLivedToken({ accessToken });
+    accessToken = extended.access_token;
+    expiresIn = extended.expires_in ?? expiresIn;
+  } catch {
+    // 長期化に失敗しても短期トークンで継続する
+  }
 
   return {
-    accessToken: response.access_token,
-    expiresAt: response.expires_in
-      ? new Date(Date.now() + response.expires_in * 1000).toISOString()
+    accessToken,
+    expiresAt: expiresIn
+      ? new Date(Date.now() + expiresIn * 1000).toISOString()
       : undefined,
   };
+}
+
+async function listLocations(
+  context: ProviderRequestContext
+): Promise<ProviderLocation[]> {
+  if (isMockMode()) {
+    return [
+      {
+        id: "meta-page-1",
+        name: "TEPPEN 公式ページ",
+      },
+    ];
+  }
+
+  const accessToken = context.account?.auth?.accessToken;
+  if (!accessToken) {
+    throw new ProviderError(
+      ProviderType.Meta,
+      "auth_required",
+      "Meta接続が必要です"
+    );
+  }
+
+  const pages = await listMetaPages(accessToken);
+  return pages.map((page) => ({
+    id: page.id,
+    name: page.name,
+  }));
 }
 
 async function createPost(
@@ -127,5 +153,6 @@ export const metaProvider: ProviderAdapter = {
   requiredEnv: ["META_APP_ID", "META_APP_SECRET", "META_REDIRECT_URI"],
   getAuthUrl,
   handleOAuthCallback,
+  listLocations,
   createPost,
 };
