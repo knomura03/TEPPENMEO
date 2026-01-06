@@ -15,6 +15,14 @@ export type Location = {
   longitude?: number | null;
 };
 
+export type CreateLocationInput = {
+  organizationId: string;
+  name: string;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
 export async function listLocations(
   organizationId: string
 ): Promise<Location[]> {
@@ -44,6 +52,44 @@ export async function listLocations(
     latitude: row.latitude,
     longitude: row.longitude,
   }));
+}
+
+export async function createLocation(
+  input: CreateLocationInput
+): Promise<Location | null> {
+  if (!isSupabaseConfigured()) {
+    return null;
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) return null;
+
+  const { data, error } = await admin
+    .from("locations")
+    .insert({
+      organization_id: input.organizationId,
+      name: input.name,
+      address: input.address ?? null,
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) return null;
+
+  return {
+    id: data.id,
+    organizationId: data.organization_id,
+    name: data.name,
+    address: data.address,
+    city: data.city,
+    region: data.region,
+    postalCode: data.postal_code,
+    country: data.country,
+    latitude: data.latitude,
+    longitude: data.longitude,
+  };
 }
 
 export async function getLocationById(
