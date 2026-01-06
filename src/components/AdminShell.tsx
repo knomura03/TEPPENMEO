@@ -9,6 +9,8 @@ const navItems = [
   { href: "/admin/providers", label: "プロバイダ" },
   { href: "/admin/audit-logs", label: "監査ログ" },
   { href: "/admin/diagnostics", label: "診断" },
+  { href: "/admin/users", label: "ユーザー" },
+  { href: "/admin/organizations", label: "組織" },
 ];
 
 type AdminShellProps = {

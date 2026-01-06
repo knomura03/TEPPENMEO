@@ -5,6 +5,38 @@ export const mockOrganization = {
   name: "TEPPEN デモ組織",
 };
 
+export const mockAdminUsers = [
+  {
+    id: "user-1",
+    email: "admin@example.com",
+    createdAt: new Date().toISOString(),
+    lastSignInAt: new Date().toISOString(),
+    isSystemAdmin: true,
+    isDisabled: false,
+  },
+  {
+    id: "user-2",
+    email: "member@example.com",
+    createdAt: new Date().toISOString(),
+    lastSignInAt: null,
+    isSystemAdmin: false,
+    isDisabled: false,
+  },
+];
+
+export const mockMemberships = [
+  {
+    organizationId: mockOrganization.id,
+    userId: "user-1",
+    role: "owner",
+  },
+  {
+    organizationId: mockOrganization.id,
+    userId: "user-2",
+    role: "member",
+  },
+];
+
 export const mockLocations = [
   {
     id: "loc-1",
