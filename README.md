@@ -127,6 +127,15 @@ pnpm dev
 - 暗号化キー変更による復号失敗の可能性
 - 既存トークンは再認可して再保存
 
+## 開発時の注意（LANアクセス/警告抑制）
+- `next.config.ts` で `turbopack.root` を明示済み
+- `allowedDevOrigins` は `localhost` と `192.168.*.*` を許可
+- 10.* など別の範囲でLANアクセスする場合は `allowedDevOrigins` に追加する
+
+## E2E（Playwright）
+- 初回のみ: `pnpm exec playwright install`
+- 実行: `pnpm e2e`
+
 ## 開発運用（PR必須）
 - 変更は必ずブランチ作成 → コミット → push → PR作成の順で進める
 - main への直接pushは禁止（緊急時は理由を記録）
@@ -143,6 +152,11 @@ pnpm dev
 - トラブルシューティング: `docs/runbooks/troubleshooting.md`
 - 手動スモークテスト: `docs/runbooks/manual-smoke-test.md`
 - main保護設定: `docs/runbooks/github-branch-protection.md`
+- MCP（Playwright連携）: `docs/runbooks/mcp-playwright.md`
+- 仕様（ユーザー）: `docs/spec/user-app.md`
+- 仕様（管理）: `docs/spec/admin.md`
+- 仕様（画面一覧）: `docs/spec/screens.md`
+- 仕様（合格基準）: `docs/spec/acceptance.md`
 - ロードマップ: `docs/roadmap.md`
 - プロバイダ手順書: `docs/providers/*.md`
 
@@ -164,3 +178,4 @@ pnpm dev
 - テスト: `pnpm test`
 - 型チェック: `pnpm typecheck`
 - シード: `pnpm seed`
+- E2E: `pnpm e2e`

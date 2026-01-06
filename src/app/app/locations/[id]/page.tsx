@@ -28,9 +28,10 @@ const postStatusLabels: Record<string, string> = {
 export default async function LocationDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const location = await getLocationById(params.id);
+  const resolvedParams = await params;
+  const location = await getLocationById(resolvedParams.id);
   if (!location) notFound();
 
   const user = await getSessionUser();

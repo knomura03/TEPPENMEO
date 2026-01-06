@@ -27,8 +27,9 @@ type SearchParams = {
 export default async function LocationsPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
+  const resolvedSearchParams: SearchParams = (await searchParams) ?? {};
   const user = await getSessionUser();
   const org = user ? await getPrimaryOrganization(user.id) : null;
   const locations = org ? await listLocations(org.id) : [];
@@ -37,16 +38,16 @@ export default async function LocationsPage({
   const supabaseConfigured = isSupabaseConfigured();
 
   const providerValue = searchProviders.some(
-    (provider) => provider.value === searchParams.provider
+    (provider) => provider.value === resolvedSearchParams.provider
   )
-    ? (searchParams.provider as ProviderType)
+    ? (resolvedSearchParams.provider as ProviderType)
     : ProviderType.BingMaps;
 
   let results = [] as Awaited<ReturnType<typeof searchPlaces>>;
   let searchError: string | null = null;
-  if (searchParams.query && searchParams.query.length > 1) {
+  if (resolvedSearchParams.query && resolvedSearchParams.query.length > 1) {
     try {
-      results = await searchPlaces(providerValue, searchParams.query);
+      results = await searchPlaces(providerValue, resolvedSearchParams.query);
     } catch (error) {
       searchError = error instanceof Error ? error.message : "検索に失敗しました";
     }
@@ -141,7 +142,7 @@ export default async function LocationsPage({
               <Input
                 name="query"
                 placeholder="店舗名や住所を入力"
-                defaultValue={searchParams.query}
+                defaultValue={resolvedSearchParams.query}
               />
               <button className="h-10 w-full rounded-md bg-slate-900 text-sm font-semibold text-white">
                 検索する
@@ -165,7 +166,7 @@ export default async function LocationsPage({
               {searchError && (
                 <p className="text-xs text-amber-600">{searchError}</p>
               )}
-              {results.length === 0 && searchParams.query && (
+              {results.length === 0 && resolvedSearchParams.query && (
                 <p className="text-xs text-slate-500">
                   結果がありません。別のキーワードを試してください。
                 </p>
