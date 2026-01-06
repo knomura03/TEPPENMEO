@@ -41,11 +41,27 @@ export const mockProviderConnections: Record<ProviderType, boolean> = {
   [ProviderType.YahooYolp]: true,
 };
 
+export const mockLocationProviderLinks = [
+  {
+    id: "link-1",
+    locationId: "loc-1",
+    provider: ProviderType.GoogleBusinessProfile,
+    externalLocationId: "accounts/123/locations/456",
+    metadata: {
+      account_name: "TEPPEN デモアカウント",
+      location_name: "TEPPEN 渋谷",
+      last_review_sync_at: new Date().toISOString(),
+    },
+  },
+];
+
 export const mockReviews: Record<
   string,
   Array<{
     id: string;
     provider: ProviderType;
+    externalReviewId: string;
+    locationId: string;
     rating: number;
     author: string;
     comment: string;
@@ -56,6 +72,8 @@ export const mockReviews: Record<
     {
       id: "review-1",
       provider: ProviderType.GoogleBusinessProfile,
+      externalReviewId: "review-1",
+      locationId: "loc-1",
       rating: 5,
       author: "空",
       comment: "対応が早くて助かりました。",

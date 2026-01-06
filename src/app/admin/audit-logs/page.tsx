@@ -6,7 +6,12 @@ const actionLabels: Record<string, string> = {
   "provider.connect_failed": "プロバイダ接続失敗",
   "provider.disconnect": "プロバイダ切断",
   "provider.reauth_required": "再認可要求",
+  "provider.link_location": "ロケーション紐付け",
+  "provider.link_location_failed": "ロケーション紐付け失敗",
   "reviews.sync": "レビュー同期",
+  "reviews.sync_failed": "レビュー同期失敗",
+  "reviews.reply": "レビュー返信",
+  "reviews.reply_failed": "レビュー返信失敗",
   "posts.publish": "投稿公開",
 };
 

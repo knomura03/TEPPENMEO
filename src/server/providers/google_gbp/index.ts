@@ -15,6 +15,11 @@ import {
   exchangeCodeForToken,
   getGoogleEnv,
 } from "@/server/providers/google_gbp/oauth";
+import {
+  listGoogleLocations,
+  listGoogleReviews,
+  replyGoogleReview,
+} from "@/server/providers/google_gbp/api";
 
 const capabilities = {
   canConnectOAuth: true,
@@ -87,7 +92,6 @@ async function handleOAuthCallback(params: {
 async function listLocations(
   _context: ProviderRequestContext
 ): Promise<ProviderLocation[]> {
-  void _context;
   if (isMockMode()) {
     return [
       {
@@ -100,17 +104,20 @@ async function listLocations(
     ];
   }
 
-  throw new ProviderError(
-    ProviderType.GoogleBusinessProfile,
-    "not_supported",
-    "GBPのロケーション同期は未実装です"
-  );
+  const accessToken = _context.account?.auth?.accessToken;
+  if (!accessToken) {
+    throw new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "auth_required",
+      "Google接続が必要です"
+    );
+  }
+  return listGoogleLocations(accessToken);
 }
 
 async function listReviews(
   _context: ProviderRequestContext
 ): Promise<ProviderReview[]> {
-  void _context;
   if (isMockMode()) {
     return [
       {
@@ -123,11 +130,22 @@ async function listReviews(
     ];
   }
 
-  throw new ProviderError(
-    ProviderType.GoogleBusinessProfile,
-    "not_supported",
-    "GBPのレビュー取得は未実装です"
-  );
+  const accessToken = _context.account?.auth?.accessToken;
+  if (!accessToken) {
+    throw new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "auth_required",
+      "Google接続が必要です"
+    );
+  }
+  if (!_context.locationId) {
+    throw new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "validation_error",
+      "GBPロケーションが未紐付けです"
+    );
+  }
+  return listGoogleReviews(accessToken, _context.locationId);
 }
 
 async function replyReview(
@@ -135,16 +153,24 @@ async function replyReview(
   _reviewId: string,
   _reply: string
 ): Promise<void> {
-  void _context;
-  void _reviewId;
-  void _reply;
   if (isMockMode()) return;
 
-  throw new ProviderError(
-    ProviderType.GoogleBusinessProfile,
-    "not_supported",
-    "GBPのレビュー返信は未実装です"
-  );
+  const accessToken = _context.account?.auth?.accessToken;
+  if (!accessToken) {
+    throw new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "auth_required",
+      "Google接続が必要です"
+    );
+  }
+  if (!_context.locationId) {
+    throw new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "validation_error",
+      "GBPロケーションが未紐付けです"
+    );
+  }
+  await replyGoogleReview(accessToken, _context.locationId, _reviewId, _reply);
 }
 
 async function createPost(
