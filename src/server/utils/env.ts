@@ -51,3 +51,8 @@ export function isSupabaseConfigured(): boolean {
   const env = getEnv();
   return Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
+
+export function isSupabaseAdminConfigured(): boolean {
+  const env = getEnv();
+  return Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
+}

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
-import { getSessionUser } from "@/server/auth/session";
+import { getActiveSessionUser } from "@/server/auth/session";
 import { createLocation } from "@/server/services/locations";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { isSupabaseConfigured } from "@/server/utils/env";
@@ -58,7 +58,7 @@ export async function createLocationAction(
     return { error: "Supabaseが未設定のため作成できません。" };
   }
 
-  const user = await getSessionUser();
+  const user = await getActiveSessionUser();
   if (!user) {
     return { error: "ログインが必要です。" };
   }

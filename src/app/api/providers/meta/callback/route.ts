@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 import { ProviderType } from "@/server/providers/types";
-import { getSessionUser } from "@/server/auth/session";
+import { getActiveSessionUser } from "@/server/auth/session";
 import { getMembershipRole } from "@/server/auth/rbac";
 import { encryptSecret } from "@/server/utils/crypto";
 import { verifyOAuthState } from "@/server/utils/oauth-state";
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
     return redirectWithStateClear(buildRedirectTarget(request.url));
   }
 
-  const user = await getSessionUser();
+  const user = await getActiveSessionUser();
   if (!user) {
     return NextResponse.redirect(new URL("/auth/sign-in", request.url));
   }

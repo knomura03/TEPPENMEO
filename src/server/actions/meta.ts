@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
-import { getSessionUser } from "@/server/auth/session";
+import { getActiveSessionUser } from "@/server/auth/session";
 import { toProviderError } from "@/server/providers/errors";
 import { ProviderType } from "@/server/providers/types";
 import {
@@ -44,7 +44,9 @@ const postSchema = z.object({
   publishInstagram: z.boolean(),
 });
 
-type SessionUser = NonNullable<Awaited<ReturnType<typeof getSessionUser>>>;
+type SessionUser = NonNullable<
+  Awaited<ReturnType<typeof getActiveSessionUser>>
+>;
 type PrimaryOrg = NonNullable<Awaited<ReturnType<typeof getPrimaryOrganization>>>;
 type LocationRecord = NonNullable<Awaited<ReturnType<typeof getLocationById>>>;
 
@@ -57,7 +59,7 @@ type AccessResult =
     };
 
 async function requireLocationAccess(locationId: string): Promise<AccessResult> {
-  const user = await getSessionUser();
+  const user = await getActiveSessionUser();
   if (!user) {
     return { error: { cause: "ログインが必要です。", nextAction: "サインインしてください。" } };
   }
