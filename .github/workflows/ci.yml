@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+      - name: pnpmセットアップ
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Node.jsセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: 依存関係インストール
+        run: pnpm install --frozen-lockfile
+      - name: リント
+        run: pnpm lint
+      - name: テスト
+        run: pnpm test
+      - name: 型チェック
+        run: pnpm typecheck
