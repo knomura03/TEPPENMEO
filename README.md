@@ -26,13 +26,15 @@ Supabaseダッシュボード → **Project Settings** → **API** から取得:
 - `anon public key`
 - `service_role key`（取り扱い注意）
 
-### 3) SQLを適用（`0001_init.sql`）
+### 3) SQLを適用（`0001_init.sql` + `0002_user_blocks.sql`）
 
 #### 方法A: SQL Editor
 1. Supabaseダッシュボード → **SQL Editor**
 2. **New query**
 3. `supabase/migrations/0001_init.sql` を全文貼り付け
 4. **Run** で実行
+5. 続けて `supabase/migrations/0002_user_blocks.sql` を貼り付け
+6. **Run** で実行
 
 #### 方法B: Supabase CLI
 1. CLIをインストール

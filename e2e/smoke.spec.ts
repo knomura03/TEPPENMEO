@@ -47,6 +47,12 @@ test("ユーザー管理はサインインまたはユーザー管理が表示�
     await expect(
       page.getByRole("button", { name: "ユーザーを作成" })
     ).toBeVisible();
+    await expect(
+      page.locator("select[name='mode'] option[value='invite_link']")
+    ).toHaveCount(1);
+    await expect(
+      page.locator("summary", { hasText: "無効化" }).first()
+    ).toBeVisible();
   } else {
     expect(hasSignIn).toBeTruthy();
   }

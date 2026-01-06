@@ -15,7 +15,8 @@
 - UI変更があるPRは `pnpm e2e` を必須とし、実行不可なら代替確認手順を明記
 - push/PRに失敗した場合の手順（SSH/gh auth）は runbook に記録し、変更があれば更新する
 - 外部API実装のPRは `docs/providers` と `docs/spec` の更新が必須（更新なしは禁止）
-- 外部に影響する運用機能（ユーザー/権限）のPRは `docs/spec` 更新が必須（更新なしは禁止）
+- 外部に影響する運用機能（ユーザー/権限/監査）のPRは `docs/spec` と `docs/runbooks` の更新が必須（更新なしは禁止）
+- Playwrightの生成物（`test-results/` など）は `.gitignore` で管理し、作業ツリーを汚さない
 - 秘密情報はコミット禁止。`.env.example` のみ
 - モジュール分割・小さな関数・責務分離を徹底
 - 迷ったら選択肢とトレードオフを提示し、最小安全案を選ぶ
