@@ -73,7 +73,7 @@ export default async function AdminUsersPage({
       </div>
 
       {!supabaseReady && (
-        <Card className="border-amber-400/40 bg-amber-900/20 text-amber-100">
+        <Card tone="amber">
           <CardHeader>
             <p className="text-sm font-semibold">Supabase未設定</p>
           </CardHeader>
@@ -92,7 +92,7 @@ export default async function AdminUsersPage({
       )}
 
       {userBlocksSchema.status !== "ok" && (
-        <Card className="border-amber-400/40 bg-amber-900/20 text-amber-100">
+        <Card tone="amber">
           <CardHeader>
             <p className="text-sm font-semibold">マイグレーション未適用</p>
           </CardHeader>
@@ -113,7 +113,7 @@ export default async function AdminUsersPage({
         </Card>
       )}
 
-      <Card className="border-slate-700 bg-slate-900 text-slate-100">
+      <Card tone="dark">
         <CardHeader>
           <p className="text-sm font-semibold">ユーザー作成</p>
           <p className="text-xs text-slate-400">
@@ -125,7 +125,7 @@ export default async function AdminUsersPage({
         </CardContent>
       </Card>
 
-      <Card className="border-slate-700 bg-slate-900 text-slate-100">
+      <Card tone="dark">
         <CardHeader>
           <p className="text-sm font-semibold">招待テンプレ</p>
           <p className="text-xs text-slate-400">
@@ -137,7 +137,7 @@ export default async function AdminUsersPage({
         </CardContent>
       </Card>
 
-      <Card className="border-slate-700 bg-slate-900 text-slate-100">
+      <Card tone="dark">
         <CardHeader>
           <p className="text-sm font-semibold">ユーザー一覧</p>
           <form className="mt-2 flex flex-wrap gap-2" action="/admin/users">

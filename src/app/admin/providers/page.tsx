@@ -28,7 +28,7 @@ export default function AdminProvidersPage() {
         </p>
       </div>
 
-      <Card className="border-slate-700 bg-slate-900">
+      <Card tone="dark">
         <CardHeader>
           <h2 className="text-lg font-semibold text-white">機能フラグ</h2>
         </CardHeader>
@@ -51,7 +51,7 @@ export default function AdminProvidersPage() {
 
       <div className="grid gap-6">
         {providers.map((provider) => (
-          <Card key={provider.type} className="border-slate-700 bg-slate-900">
+          <Card key={provider.type} tone="dark">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>

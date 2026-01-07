@@ -35,7 +35,7 @@ export default async function AdminOrganizationDetailPage({
       </div>
 
       {!supabaseReady && (
-        <Card className="border-amber-400/40 bg-amber-900/20 text-amber-100">
+        <Card tone="amber">
           <CardHeader>
             <p className="text-sm font-semibold">Supabase未設定</p>
           </CardHeader>
@@ -45,7 +45,7 @@ export default async function AdminOrganizationDetailPage({
         </Card>
       )}
 
-      <Card className="border-slate-700 bg-slate-900 text-slate-100">
+      <Card tone="dark">
         <CardHeader>
           <p className="text-sm font-semibold">メンバー追加</p>
           <p className="text-xs text-slate-400">
@@ -57,7 +57,7 @@ export default async function AdminOrganizationDetailPage({
         </CardContent>
       </Card>
 
-      <Card className="border-slate-700 bg-slate-900 text-slate-100">
+      <Card tone="dark">
         <CardHeader>
           <p className="text-sm font-semibold">メンバー一覧</p>
         </CardHeader>

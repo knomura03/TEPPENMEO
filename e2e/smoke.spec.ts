@@ -31,6 +31,33 @@ test("管理診断はサインインまたは診断が表示される", async ({
   expect(hasDiagnostics || hasSignIn).toBeTruthy();
 });
 
+test(
+  "管理概要はサインインまたは管理概要が表示される",
+  async ({ page }, testInfo) => {
+    await page.goto("/admin", { waitUntil: "domcontentloaded" });
+    const hasOverview = await page
+      .getByRole("heading", { name: "管理概要", exact: true })
+      .isVisible();
+    const hasSignIn = await page
+      .getByRole("heading", { name: "サインイン", exact: true })
+      .isVisible();
+
+    const screenshot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("admin-overview", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+
+    if (hasOverview) {
+      await expect(
+        page.getByRole("heading", { name: "管理概要", exact: true })
+      ).toBeVisible();
+    } else {
+      expect(hasSignIn).toBeTruthy();
+    }
+  }
+);
+
 test("監査ログはサインインまたは監査ログが表示される", async ({ page }) => {
   await page.goto("/admin/audit-logs", { waitUntil: "domcontentloaded" });
   const hasAuditLogs = await page
@@ -65,7 +92,9 @@ test("監査ログはサインインまたは監査ログが表示される", as
   }
 });
 
-test("ユーザー管理はサインインまたはユーザー管理が表示される", async ({ page }) => {
+test(
+  "ユーザー管理はサインインまたはユーザー管理が表示される",
+  async ({ page }, testInfo) => {
   await page.goto("/admin/users", { waitUntil: "domcontentloaded" });
   const hasUsers = await page
     .getByRole("heading", { name: "ユーザー管理" })
@@ -73,6 +102,12 @@ test("ユーザー管理はサインインまたはユーザー管理が表示�
   const hasSignIn = await page
     .getByRole("heading", { name: "サインイン", exact: true })
     .isVisible();
+
+  const screenshot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("admin-users", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   if (hasUsers) {
     await expect(

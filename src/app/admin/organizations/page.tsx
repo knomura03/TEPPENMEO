@@ -15,7 +15,7 @@ export default async function AdminOrganizationsPage() {
         </p>
       </div>
 
-      <Card className="border-slate-700 bg-slate-900 text-slate-100">
+      <Card tone="dark">
         <CardHeader>
           <p className="text-sm font-semibold">組織一覧</p>
         </CardHeader>

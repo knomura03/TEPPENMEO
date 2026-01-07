@@ -178,7 +178,7 @@ export default async function AdminAuditLogsPage({
         </p>
       </div>
 
-      <Card className="border-slate-700 bg-slate-900 text-slate-100">
+      <Card tone="dark">
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -310,7 +310,7 @@ export default async function AdminAuditLogsPage({
         </CardContent>
       </Card>
 
-      <Card className="border-slate-700 bg-slate-900 text-slate-100">
+      <Card tone="dark">
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
