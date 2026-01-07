@@ -19,3 +19,6 @@
 ## 画面遷移の基本
 - 未ログイン時は `/auth/sign-in` へ誘導
 - 管理画面は system_admin のみ表示
+
+## 外部API契約書
+- 公式仕様の根拠は `docs/providers/api-contracts.md` を参照

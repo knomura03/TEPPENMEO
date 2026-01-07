@@ -5,20 +5,19 @@
 
 ## Google Business Profile（GBP）
 
-| 機能 | 実装関数（ファイル/関数） | HTTP method + URL | 必須スコープ | 必須フィールド（最小） | 失敗しやすい条件 / 次にやること | 公式URL |
-| --- | --- | --- | --- | --- | --- | --- |
-| 投稿作成 | `src/server/providers/google_gbp/api.ts:createGooglePost` | POST `https://mybusiness.googleapis.com/v4/{locationName}/localPosts` | `https://www.googleapis.com/auth/business.manage` | `languageCode`, `summary`, `topicType`, `media[].sourceUrl`（画像時） | API承認不足/権限不足 → 申請/権限確認後に再接続。画像URL不可達 → 署名URLやURLの到達性を確認。 | https://developers.google.com/my-business/reference/rest/v4/accounts.locations.localPosts/create / https://developers.google.com/my-business/content/posts-data |
-| レビュー返信 | `src/server/providers/google_gbp/api.ts:replyGoogleReview` | PUT `https://mybusiness.googleapis.com/v4/{locationName}/reviews/{reviewId}/reply` | `https://www.googleapis.com/auth/business.manage` | `comment` | API未承認/再認可 → 再接続。レビューID不一致 → 取得済みレビューを再確認。 | https://developers.google.com/my-business/reference/rest/v4/accounts.locations.reviews/reply |
+| 機能 | 実装関数（ファイル/関数） | HTTP method + URL | 必須スコープ | 必須フィールド（最小） | 失敗しやすい条件 / 次にやること | 公式URL | 確認日 | 備考 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 投稿作成 | `src/server/providers/google_gbp/api.ts:createGooglePost` | POST `https://mybusiness.googleapis.com/v4/{locationName}/localPosts` | `https://www.googleapis.com/auth/business.manage` | `languageCode`, `summary`, `topicType`, `media[].sourceUrl`（画像時） | API承認不足/権限不足 → 申請/権限確認後に再接続。画像URL不可達 → 署名URLやURLの到達性を確認。 | https://developers.google.com/my-business/reference/rest/v4/accounts.locations.localPosts/create / https://developers.google.com/my-business/content/posts-data | 2026-01-07 | CTA/イベント/オファーなどの詳細項目は未対応 |
+| レビュー返信 | `src/server/providers/google_gbp/api.ts:replyGoogleReview` | PUT `https://mybusiness.googleapis.com/v4/{locationName}/reviews/{reviewId}/reply` | `https://www.googleapis.com/auth/business.manage` | `comment` | API未承認/再認可 → 再接続。レビューID不一致 → 取得済みレビューを再確認。 | https://developers.google.com/my-business/reference/rest/v4/accounts.locations.reviews/reply | 2026-01-07 | テンプレ返信/多言語対応は未対応 |
 
 ## Meta（Facebook Pages / Instagram Graph）
 
-| 機能 | 実装関数（ファイル/関数） | HTTP method + URL | 必須permission | 必須フィールド（最小） | 失敗しやすい条件 / 次にやること | 公式URL |
-| --- | --- | --- | --- | --- | --- | --- |
-| Facebookページ投稿（テキスト） | `src/server/providers/meta/api.ts:publishFacebookPost` | POST `https://graph.facebook.com/v20.0/{page-id}/feed` | `pages_manage_posts` | `message`, `access_token` | App Review未完了/権限不足 → 権限追加と再認可。ページの権限不足 → 管理権限を確認。 | https://developers.facebook.com/docs/pages-api/posts/ / https://developers.facebook.com/docs/permissions/ |
-| Facebookページ投稿（画像） | `src/server/providers/meta/api.ts:publishFacebookPost` | POST `https://graph.facebook.com/v20.0/{page-id}/photos` | `pages_manage_posts` | `url`, `caption`, `published`, `access_token` | 画像URL不可達 → 署名URL/URL到達性を確認。権限不足 → App Review/権限追加。 | https://developers.facebook.com/docs/pages-api/posts/ / https://developers.facebook.com/docs/permissions/ |
-| Instagram投稿 | `src/server/providers/meta/api.ts:publishInstagramPost`（内部で `createInstagramMedia` → `publishInstagramMedia`） | POST `https://graph.facebook.com/v20.0/{ig-user-id}/media` → POST `https://graph.facebook.com/v20.0/{ig-user-id}/media_publish` | `instagram_content_publish`, `instagram_basic`, `pages_show_list` | `image_url`, `access_token`（media作成） / `creation_id`, `access_token`（publish） | IGがプロアカウント未設定/ページ未連携 → 連携を確認。権限不足 → App Review/権限追加。 | https://developers.facebook.com/docs/instagram-platform/content-publishing/ / https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/media/ / https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/media_publish/ / https://developers.facebook.com/docs/permissions/ |
+| 機能 | 実装関数（ファイル/関数） | HTTP method + URL | 必須permission | 必須フィールド（最小） | 失敗しやすい条件 / 次にやること | 公式URL | 確認日 | 備考 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Facebookページ投稿（テキスト） | `src/server/providers/meta/api.ts:publishFacebookPost` | POST `https://graph.facebook.com/v20.0/{page-id}/feed` | `pages_manage_posts` | `message`, `access_token` | App Review未完了/権限不足 → 権限追加と再認可。ページの権限不足 → 管理権限を確認。 | https://developers.facebook.com/docs/pages-api/posts/ / https://developers.facebook.com/docs/permissions/ | 2026-01-07 | リンク投稿/予約投稿は未対応 |
+| Facebookページ投稿（画像） | `src/server/providers/meta/api.ts:publishFacebookPost` | POST `https://graph.facebook.com/v20.0/{page-id}/photos` | `pages_manage_posts` | `url`, `caption`, `published`, `access_token` | 画像URL不可達 → 署名URL/URL到達性を確認。権限不足 → App Review/権限追加。 | https://developers.facebook.com/docs/pages-api/posts/ / https://developers.facebook.com/docs/permissions/ | 2026-01-07 | アルバム指定/タグ付けは未対応 |
+| Instagram投稿 | `src/server/providers/meta/api.ts:publishInstagramPost`（内部で `createInstagramMedia` → `publishInstagramMedia`） | POST `https://graph.facebook.com/v20.0/{ig-user-id}/media` → POST `https://graph.facebook.com/v20.0/{ig-user-id}/media_publish` | `instagram_content_publish`, `instagram_basic`, `pages_show_list` | `image_url`, `access_token`（media作成） / `creation_id`, `access_token`（publish） | IGがプロアカウント未設定/ページ未連携 → 連携を確認。権限不足 → App Review/権限追加。 | https://developers.facebook.com/docs/instagram-platform/content-publishing/ / https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/media/ / https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/media_publish/ / https://developers.facebook.com/docs/permissions/ | 2026-01-07 | 画像のみ対応（動画/カルーセル未対応） |
 
 ## Contract test（回帰防止）
 - `src/server/providers/google_gbp/api.contract.test.ts`
 - `src/server/providers/meta/api.contract.test.ts`
-
