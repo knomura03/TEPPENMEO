@@ -157,6 +157,7 @@ pnpm dev
 - MCP（Playwright連携）: `docs/runbooks/mcp-playwright.md`
 - Supabaseマイグレーション: `docs/runbooks/supabase-migrations.md`
 - 監査ログ調査: `docs/runbooks/audit-log-debugging.md`
+- 監査ログ保存方針: `docs/runbooks/audit-log-retention.md`
 - 仕様（ユーザー）: `docs/spec/user-app.md`
 - 仕様（管理）: `docs/spec/admin.md`
 - 仕様（画面一覧）: `docs/spec/screens.md`

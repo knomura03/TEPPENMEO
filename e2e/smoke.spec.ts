@@ -53,6 +53,13 @@ test("監査ログはサインインまたは監査ログが表示される", as
     await expect(
       page.getByRole("heading", { name: "監査ログ", exact: true })
     ).toBeVisible();
+    const exportLink = page.getByRole("link", { name: "CSVエクスポート" });
+    await expect(exportLink).toBeVisible();
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      exportLink.click(),
+    ]);
+    expect(download.suggestedFilename()).toContain("audit-logs");
   } else {
     expect(hasSignIn).toBeTruthy();
   }
