@@ -19,7 +19,7 @@ export default async function AdminOverviewPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-xs text-slate-400">有効なプロバイダ</p>
             <h2 className="text-3xl font-semibold">{enabled}</h2>
@@ -28,7 +28,7 @@ export default async function AdminOverviewPage() {
             現在有効な連携数です。
           </CardContent>
         </Card>
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-xs text-slate-400">監査イベント</p>
             <h2 className="text-3xl font-semibold">{audits.length}</h2>
@@ -37,7 +37,7 @@ export default async function AdminOverviewPage() {
             直近50件まで表示します。
           </CardContent>
         </Card>
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-xs text-slate-400">プラットフォーム状態</p>
             <div className="mt-2">

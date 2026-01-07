@@ -120,7 +120,7 @@ export default async function AdminDiagnosticsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-sm font-semibold">必須環境変数</p>
             <p className="text-xs text-slate-400">
@@ -145,7 +145,7 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-sm font-semibold">Supabase接続</p>
             <p className="text-xs text-slate-400">簡易接続テストの結果です。</p>
@@ -163,7 +163,7 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-sm font-semibold">マイグレーション</p>
             <p className="text-xs text-slate-400">
@@ -229,7 +229,7 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-sm font-semibold">プロバイダ状態</p>
             <p className="text-xs text-slate-400">
@@ -283,7 +283,7 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-sm font-semibold">画像アップロード</p>
             <p className="text-xs text-slate-400">
@@ -331,7 +331,7 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+        <Card tone="dark">
           <CardHeader>
             <p className="text-sm font-semibold">次にやること</p>
             <p className="text-xs text-slate-400">
