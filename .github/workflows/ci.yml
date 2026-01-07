@@ -28,6 +28,8 @@ jobs:
         run: pnpm test
       - name: 型チェック
         run: pnpm typecheck
+      - name: Playwrightブラウザをインストール
+        run: pnpm exec playwright install --with-deps
       - name: E2E
         run: pnpm e2e
       - name: Playwrightレポートを保存
