@@ -9,6 +9,7 @@ const initialState: AdminUserActionState = {
   error: null,
   success: null,
   tempPassword: null,
+  inviteLink: null,
 };
 
 export function DeleteUserForm({

@@ -12,7 +12,7 @@ import {
 } from "@/server/services/admin-organizations";
 import { findUserIdByEmail } from "@/server/services/admin-users";
 import { writeAuditLog } from "@/server/services/audit-logs";
-import { isSupabaseConfigured } from "@/server/utils/env";
+import { isSupabaseAdminConfigured } from "@/server/utils/env";
 
 export type AdminOrgActionState = {
   error: string | null;
@@ -41,6 +41,12 @@ async function requireSystemAdmin() {
   if (!user) {
     return { error: "ログインが必要です。", userId: null };
   }
+  if (user.isBlocked) {
+    return {
+      error: "このアカウントは無効化されています。管理者に連絡してください。",
+      userId: null,
+    };
+  }
 
   const admin = await isSystemAdmin(user.id);
   if (!admin) {
@@ -64,7 +70,7 @@ export async function addOrganizationMemberAction(
     return { error: parsed.error.issues[0]?.message ?? "入力内容が不正です。", success: null };
   }
 
-  if (!isSupabaseConfigured()) {
+  if (!isSupabaseAdminConfigured()) {
     return { error: "Supabaseが未設定のため操作できません。", success: null };
   }
 
@@ -115,7 +121,7 @@ export async function updateOrganizationMemberRoleAction(
     return { error: "入力内容が不正です。", success: null };
   }
 
-  if (!isSupabaseConfigured()) {
+  if (!isSupabaseAdminConfigured()) {
     return { error: "Supabaseが未設定のため操作できません。", success: null };
   }
 
@@ -160,7 +166,7 @@ export async function removeOrganizationMemberAction(
     return { error: "入力内容が不正です。", success: null };
   }
 
-  if (!isSupabaseConfigured()) {
+  if (!isSupabaseAdminConfigured()) {
     return { error: "Supabaseが未設定のため操作できません。", success: null };
   }
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { metaProvider } from "@/server/providers/meta";
 import { ProviderType } from "@/server/providers/types";
-import { getSessionUser } from "@/server/auth/session";
+import { getActiveSessionUser } from "@/server/auth/session";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { getLocationById } from "@/server/services/locations";
 import { getMembershipRole } from "@/server/auth/rbac";
@@ -14,7 +14,7 @@ function buildRedirectUri(requestUrl: string) {
 }
 
 export async function GET(request: Request) {
-  const user = await getSessionUser();
+  const user = await getActiveSessionUser();
   if (!user) {
     return NextResponse.redirect(new URL("/auth/sign-in", request.url));
   }

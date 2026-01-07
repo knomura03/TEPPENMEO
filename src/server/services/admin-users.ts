@@ -1,13 +1,15 @@
 import crypto from "crypto";
 
 import { getSupabaseAdmin } from "@/server/db/supabase-admin";
-import { isSupabaseConfigured } from "@/server/utils/env";
+import { listBlockedUserIds } from "@/server/services/user-blocks";
+import { getEnv, isSupabaseConfigured } from "@/server/utils/env";
 import { mockAdminUsers, mockMemberships } from "@/server/services/mock-data";
 
 export type AdminUser = {
   id: string;
   email: string | null;
   createdAt: string | null;
+  invitedAt: string | null;
   lastSignInAt: string | null;
   membershipCount: number;
   isSystemAdmin: boolean;
@@ -20,6 +22,14 @@ export type CreateUserResult = {
   tempPassword?: string;
   invited: boolean;
 };
+
+export type InviteLinkResult = {
+  userId: string;
+  email: string;
+  inviteLink: string;
+};
+
+const DEFAULT_BAN_DURATION = "87600h";
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
@@ -43,6 +53,7 @@ export async function listAdminUsers(
       membershipCount: mockMemberships.filter(
         (member) => member.userId === user.id
       ).length,
+      invitedAt: user.invitedAt ?? null,
     }));
   }
 
@@ -66,6 +77,8 @@ export async function listAdminUsers(
   const adminSet = new Set(
     (admins.data ?? []).map((row) => row.user_id as string)
   );
+  const blocked = await listBlockedUserIds();
+  const blockedSet = blocked.ids;
 
   const normalizedQuery = query ? normalizeEmail(query) : null;
 
@@ -76,16 +89,19 @@ export async function listAdminUsers(
     })
     .map((user) => {
       const bannedUntil = (user as { banned_until?: string | null }).banned_until;
+      const invitedAt = (user as { invited_at?: string | null }).invited_at ?? null;
+      const banActive = bannedUntil
+        ? new Date(bannedUntil).getTime() > Date.now()
+        : false;
       return {
         id: user.id,
         email: user.email ?? null,
         createdAt: user.created_at ?? null,
+        invitedAt,
         lastSignInAt: user.last_sign_in_at ?? null,
         membershipCount: membershipCount.get(user.id) ?? 0,
         isSystemAdmin: adminSet.has(user.id),
-        isDisabled: bannedUntil
-          ? new Date(bannedUntil).getTime() > Date.now()
-          : false,
+        isDisabled: banActive || blockedSet.has(user.id),
       };
     });
 }
@@ -124,13 +140,48 @@ export async function createInviteUser(
   const admin = getSupabaseAdmin();
   if (!admin) return null;
 
-  const response = await admin.auth.admin.inviteUserByEmail(email);
+  const env = getEnv();
+  const redirectTo = env.APP_BASE_URL
+    ? `${env.APP_BASE_URL}/auth/sign-in`
+    : undefined;
+  const response = await admin.auth.admin.inviteUserByEmail(email, {
+    redirectTo,
+  });
   if (response.error || !response.data?.user) return null;
 
   return {
     userId: response.data.user.id,
     email: response.data.user.email ?? email,
     invited: true,
+  };
+}
+
+export async function generateInviteLink(
+  email: string
+): Promise<InviteLinkResult | null> {
+  if (!isSupabaseConfigured()) return null;
+  const admin = getSupabaseAdmin();
+  if (!admin) return null;
+
+  const env = getEnv();
+  const redirectTo = env.APP_BASE_URL
+    ? `${env.APP_BASE_URL}/auth/sign-in`
+    : undefined;
+
+  const response = await admin.auth.admin.generateLink({
+    type: "invite",
+    email,
+    options: redirectTo ? { redirectTo } : undefined,
+  });
+
+  if (response.error || !response.data?.user) return null;
+  const actionLink = response.data.properties?.action_link;
+  if (!actionLink) return null;
+
+  return {
+    userId: response.data.user.id,
+    email: response.data.user.email ?? email,
+    inviteLink: actionLink,
   };
 }
 
@@ -156,6 +207,30 @@ export async function createTempPasswordUser(
     tempPassword,
     invited: false,
   };
+}
+
+export async function disableAdminUser(userId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const admin = getSupabaseAdmin();
+  if (!admin) return false;
+
+  const response = await admin.auth.admin.updateUserById(userId, {
+    ban_duration: DEFAULT_BAN_DURATION,
+  });
+
+  return !response.error;
+}
+
+export async function enableAdminUser(userId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const admin = getSupabaseAdmin();
+  if (!admin) return false;
+
+  const response = await admin.auth.admin.updateUserById(userId, {
+    ban_duration: "none",
+  });
+
+  return !response.error;
 }
 
 export async function deleteAdminUser(userId: string): Promise<boolean> {

@@ -1,16 +1,27 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { isSupabaseConfigured } from "@/server/utils/env";
+import { isSupabaseAdminConfigured } from "@/server/utils/env";
 import { listAdminUsers } from "@/server/services/admin-users";
 
 import { CreateUserForm } from "./CreateUserForm";
 import { DeleteUserForm } from "./DeleteUserForm";
+import { ToggleUserStatusForm } from "./ToggleUserStatusForm";
 
 function formatDate(value: string | null) {
   if (!value) return "不明";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "不明";
   return date.toLocaleString("ja-JP");
+}
+
+function getStatusLabel(user: Awaited<ReturnType<typeof listAdminUsers>>[number]) {
+  if (user.isDisabled) {
+    return { label: "無効", variant: "warning" as const };
+  }
+  if (user.invitedAt && !user.lastSignInAt) {
+    return { label: "招待中", variant: "muted" as const };
+  }
+  return { label: "有効", variant: "success" as const };
 }
 
 export default async function AdminUsersPage({
@@ -21,14 +32,14 @@ export default async function AdminUsersPage({
   const resolved = await searchParams;
   const query = resolved.q ?? "";
   const users = await listAdminUsers(query);
-  const supabaseReady = isSupabaseConfigured();
+  const supabaseReady = isSupabaseAdminConfigured();
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-white">ユーザー管理</h1>
         <p className="text-sm text-slate-300">
-          システム管理者がユーザーの作成と削除を行います。
+          システム管理者がユーザーの招待、無効化、削除を行います。
         </p>
       </div>
 
@@ -38,7 +49,15 @@ export default async function AdminUsersPage({
             <p className="text-sm font-semibold">Supabase未設定</p>
           </CardHeader>
           <CardContent className="text-xs text-amber-100/80">
-            実際のユーザー操作はサービスロールキーが必要です。
+            招待・無効化・削除などの管理操作は
+            <code className="mx-1 rounded bg-amber-100/20 px-1">
+              SUPABASE_SERVICE_ROLE_KEY
+            </code>
+            が必要です。
+            <code className="mx-1 rounded bg-amber-100/20 px-1">
+              .env.local
+            </code>
+            に設定し、SupabaseのAPI設定を確認してください。
           </CardContent>
         </Card>
       )}
@@ -47,7 +66,7 @@ export default async function AdminUsersPage({
         <CardHeader>
           <p className="text-sm font-semibold">ユーザー作成</p>
           <p className="text-xs text-slate-400">
-            招待メールまたは仮パスワード方式で作成します。
+            招待メール、招待リンク、仮パスワード方式で作成します。
           </p>
         </CardHeader>
         <CardContent>
@@ -98,12 +117,22 @@ export default async function AdminUsersPage({
                     </Badge>
                   </td>
                   <td className="py-3 pr-4">
-                    <Badge variant={user.isDisabled ? "warning" : "success"}>
-                      {user.isDisabled ? "無効" : "有効"}
-                    </Badge>
+                    {(() => {
+                      const status = getStatusLabel(user);
+                      return (
+                        <Badge variant={status.variant}>{status.label}</Badge>
+                      );
+                    })()}
                   </td>
                   <td className="py-3">
-                    <DeleteUserForm userId={user.id} email={user.email} />
+                    <div className="flex flex-col gap-2">
+                      <ToggleUserStatusForm
+                        userId={user.id}
+                        email={user.email}
+                        isDisabled={user.isDisabled}
+                      />
+                      <DeleteUserForm userId={user.id} email={user.email} />
+                    </div>
                   </td>
                 </tr>
               ))}

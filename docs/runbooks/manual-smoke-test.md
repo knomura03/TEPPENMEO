@@ -51,3 +51,6 @@ pnpm dev
 | `invalid_grant` | 期限切れ/再認可不足 | もう一度「接続開始」を実行 |
 | `state` 不一致 | 途中でタブを閉じた/再読み込み | もう一度「接続開始」を実行 |
 | 再認可が必要 | refreshが無い/失効 | もう一度「接続開始」を実行 |
+
+## 生成物の整理
+- Playwrightの生成物（`test-results/`、`playwright-report/`）は削除してOK
