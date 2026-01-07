@@ -4,6 +4,9 @@ import {
   MediaError,
   createSignedImageUrlForPath,
   getMediaConfig,
+  isLocationMediaPath,
+  isStorageConfigured,
+  normalizeMediaEntries,
   validateImageFile,
 } from "@/server/services/media";
 import { resetEnvForTests } from "@/server/utils/env";
@@ -50,5 +53,42 @@ describe("署名URLの設定", () => {
     await expect(createSignedImageUrlForPath("org/test.png")).rejects.toThrow(
       MediaError
     );
+  });
+
+  it("サービスキー未設定ならStorage利用不可", () => {
+    process.env.SUPABASE_STORAGE_BUCKET = "bucket";
+    resetEnvForTests();
+    expect(isStorageConfigured()).toBe(false);
+  });
+});
+
+describe("メディア正規化", () => {
+  it("URLとstorage参照を正規化する", () => {
+    const result = normalizeMediaEntries([
+      "https://example.com/test.png",
+      "storage://bucket/org/loc/file.png",
+    ]);
+    expect(result.length).toBe(2);
+    expect(result[0].source).toBe("url");
+    expect(result[1].source).toBe("storage");
+  });
+
+  it("不正な入力は除外する", () => {
+    const result = normalizeMediaEntries(["invalid://test", 123]);
+    expect(result.length).toBe(0);
+  });
+});
+
+describe("パス権限チェック", () => {
+  it("org/loc のパスなら許可される", () => {
+    expect(
+      isLocationMediaPath("org/org-1/loc/loc-1/file.png", "org-1", "loc-1")
+    ).toBe(true);
+  });
+
+  it("別のロケーションは拒否される", () => {
+    expect(
+      isLocationMediaPath("org/org-1/loc/loc-2/file.png", "org-1", "loc-1")
+    ).toBe(false);
   });
 });

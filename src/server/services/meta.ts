@@ -359,7 +359,7 @@ export async function publishMetaPost(params: {
           postId,
           provider: ProviderType.Meta,
           status: "published",
-          externalPostId: `mock-${target}-post`,
+          externalPostId: `${target}:mock`,
         });
       }
       await writeAuditLog({
@@ -403,6 +403,7 @@ export async function publishMetaPost(params: {
           postId,
           provider: ProviderType.Meta,
           status: "queued",
+          externalPostId: `${target}:pending`,
         })
       : null;
 
@@ -417,7 +418,7 @@ export async function publishMetaPost(params: {
         await updatePostTargetRecord({
           id: targetRecord?.id,
           status: "published",
-          externalPostId: response.id,
+          externalPostId: `${target}:${response.id}`,
         });
       } else {
         if (!publishImageUrl) {
@@ -447,7 +448,7 @@ export async function publishMetaPost(params: {
         await updatePostTargetRecord({
           id: targetRecord?.id,
           status: "published",
-          externalPostId: response.id,
+          externalPostId: `${target}:${response.id}`,
         });
       }
 
@@ -484,6 +485,7 @@ export async function publishMetaPost(params: {
         id: targetRecord?.id,
         status: "failed",
         error: providerError.message,
+        externalPostId: `${target}:failed`,
       });
 
       await writeAuditLog({

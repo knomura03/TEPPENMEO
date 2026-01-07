@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "@/server/db/supabase-admin";
 import { isSupabaseConfigured } from "@/server/utils/env";
 import { mockPosts } from "@/server/services/mock-data";
+import { normalizeMediaEntries } from "@/server/services/media";
 
 export type Post = {
   id: string;
@@ -41,7 +42,7 @@ export async function createPostRecord(input: {
   organizationId: string;
   locationId?: string | null;
   content: string;
-  media: string[];
+  media: unknown;
   status: string;
 }): Promise<{ id: string } | null> {
   if (!isSupabaseConfigured()) {
@@ -57,7 +58,7 @@ export async function createPostRecord(input: {
       organization_id: input.organizationId,
       location_id: input.locationId ?? null,
       content: input.content,
-      media: input.media,
+      media: normalizeMediaEntries(input.media),
       status: input.status,
     })
     .select("id")
@@ -119,12 +120,13 @@ export async function updatePostTargetRecord(input: {
   const admin = getSupabaseAdmin();
   if (!admin) return;
 
-  await admin
-    .from("post_targets")
-    .update({
-      status: input.status,
-      external_post_id: input.externalPostId ?? null,
-      error: input.error ?? null,
-    })
-    .eq("id", input.id);
+  const updates: Record<string, unknown> = { status: input.status };
+  if (input.externalPostId !== undefined) {
+    updates.external_post_id = input.externalPostId;
+  }
+  if (input.error !== undefined) {
+    updates.error = input.error;
+  }
+
+  await admin.from("post_targets").update(updates).eq("id", input.id);
 }

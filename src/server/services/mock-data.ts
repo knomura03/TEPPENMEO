@@ -126,6 +126,41 @@ export const mockPosts = [
   },
 ];
 
+export const mockPostHistory = [
+  {
+    id: "post-1",
+    locationId: "loc-1",
+    content: "今週限定で10%オフキャンペーンを実施中です。",
+    status: "published",
+    createdAt: new Date().toISOString(),
+    media: ["/fixtures/mock-upload.png"],
+    targets: [
+      {
+        provider: ProviderType.Meta,
+        status: "published",
+        error: null,
+        externalPostId: "facebook:mock",
+      },
+    ],
+  },
+  {
+    id: "post-2",
+    locationId: "loc-1",
+    content: "新メニューの写真を投稿しました。",
+    status: "failed",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+    media: ["storage://mock/org/mock/loc/loc-1/mock.png"],
+    targets: [
+      {
+        provider: ProviderType.Meta,
+        status: "failed",
+        error: "権限が不足しています。",
+        externalPostId: "instagram:failed",
+      },
+    ],
+  },
+];
+
 export const mockAuditLogs = [
   {
     id: "audit-1",
