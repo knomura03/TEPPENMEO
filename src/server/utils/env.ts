@@ -17,6 +17,9 @@ const envSchema = z.object({
   META_APP_ID: z.string().optional(),
   META_APP_SECRET: z.string().optional(),
   META_REDIRECT_URI: z.string().optional(),
+  SUPABASE_STORAGE_BUCKET: z.string().optional(),
+  MEDIA_SIGNED_URL_TTL_SECONDS: z.string().optional(),
+  MAX_UPLOAD_MB: z.string().optional(),
   BING_MAPS_KEY: z.string().optional(),
   YAHOO_YOLP_APP_ID: z.string().optional(),
 });

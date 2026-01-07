@@ -177,6 +177,18 @@ test("ロケーション詳細でMetaセクションが表示される", async (
       page.getByText("Facebookページ紐付け", { exact: true })
     ).toBeVisible();
     const postButton = page.getByRole("button", { name: "投稿を送信" });
+    const uploadRadio = page.getByRole("radio", { name: "ファイルアップロード" });
+    if (await uploadRadio.isVisible()) {
+      const uploadEnabled = await uploadRadio.isEnabled();
+      if (uploadEnabled) {
+        await uploadRadio.check();
+        const fileInput = page.locator("input[type='file']");
+        await fileInput.setInputFiles("e2e/fixtures/upload.png");
+        const uploadButton = page.getByRole("button", { name: "画像をアップロード" });
+        await uploadButton.click();
+        await expect(page.getByText("アップロード済み")).toBeVisible();
+      }
+    }
     if (await postButton.isEnabled()) {
       await postButton.click();
       await expect(

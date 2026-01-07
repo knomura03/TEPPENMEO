@@ -31,7 +31,14 @@
 ### 投稿
 - ロケーション詳細で投稿一覧を表示
 - 投稿作成はGoogle/Metaで最小実装（未承認時は案内表示）
-- Meta投稿: Facebookは本文必須、Instagramは画像URL必須
+- Meta投稿: Facebookは本文必須、Instagramは画像必須
+- 画像指定方法:
+  - URL入力
+  - ファイルアップロード（Supabase Storage、署名URLを利用）
+- 画像の制約:
+  - 形式: `image/png` / `image/jpeg` / `image/webp` / `image/gif`
+  - 最大サイズ: `MAX_UPLOAD_MB`（既定10MB）
+- 署名URLの期限: `MEDIA_SIGNED_URL_TTL_SECONDS`（既定3600秒）
 
 ### 監査と履歴
 - 操作は監査ログに記録される（トークンは記録しない）
@@ -44,3 +51,9 @@
 - 手動同期ボタン（次フェーズ）
 - 期限切れ/再認可はUIで明示
 - Metaは有効期限が近い場合に再認可を促す
+
+## 受け入れ条件（Acceptance Criteria）
+- ロケーション詳細のMeta投稿で「URL入力」「ファイルアップロード」を切り替えできる
+- ファイルアップロードは private bucket に保存され、署名URLでプレビューできる
+- Instagram投稿は画像必須のガードがあり、未入力時は日本語エラーが出る
+- PROVIDER_MOCK_MODE=true でもアップロードUIが壊れず、モックプレビューが表示される
