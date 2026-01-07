@@ -63,6 +63,22 @@ type GoogleReplyRequest = {
   comment: string;
 };
 
+type GoogleLocalPostMedia = {
+  mediaFormat: "PHOTO";
+  sourceUrl: string;
+};
+
+type GoogleLocalPostRequest = {
+  languageCode: string;
+  summary: string;
+  topicType?: "STANDARD";
+  media?: GoogleLocalPostMedia[];
+};
+
+type GoogleLocalPostResponse = {
+  name?: string;
+};
+
 const accountEndpoint =
   "https://mybusinessaccountmanagement.googleapis.com/v1/accounts";
 const businessInfoEndpoint =
@@ -145,6 +161,12 @@ function extractReviewId(review: GoogleReview): string {
     return segments[segments.length - 1] ?? review.name;
   }
   return "unknown";
+}
+
+function extractPostId(name?: string | null): string {
+  if (!name) return "unknown";
+  const segments = name.split("/");
+  return segments[segments.length - 1] ?? name;
 }
 
 async function listGoogleAccounts(accessToken: string): Promise<GoogleAccount[]> {
@@ -279,5 +301,36 @@ export async function replyGoogleReview(
     );
   } catch (error) {
     throw mapGoogleApiError(error, "GBPレビュー返信に失敗しました。");
+  }
+}
+
+export async function createGooglePost(params: {
+  accessToken: string;
+  locationName: string;
+  summary: string;
+  imageUrl?: string | null;
+}): Promise<{ id: string }> {
+  try {
+    const body: GoogleLocalPostRequest = {
+      languageCode: "ja",
+      summary: params.summary,
+      topicType: "STANDARD",
+      media: params.imageUrl
+        ? [{ mediaFormat: "PHOTO", sourceUrl: params.imageUrl }]
+        : undefined,
+    };
+
+    const response = await httpRequestJson<GoogleLocalPostResponse>(
+      `${reviewEndpoint}/${params.locationName}/localPosts`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${params.accessToken}` },
+        body: JSON.stringify(body),
+      }
+    );
+
+    return { id: extractPostId(response.name) };
+  } catch (error) {
+    throw mapGoogleApiError(error, "GBP投稿の作成に失敗しました。");
   }
 }

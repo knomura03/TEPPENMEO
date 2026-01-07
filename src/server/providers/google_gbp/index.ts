@@ -19,6 +19,7 @@ import {
   listGoogleLocations,
   listGoogleReviews,
   replyGoogleReview,
+  createGooglePost,
 } from "@/server/providers/google_gbp/api";
 
 const capabilities = {
@@ -177,7 +178,6 @@ async function createPost(
   _context: ProviderRequestContext,
   input: ProviderCreatePostInput
 ): Promise<ProviderPost> {
-  void _context;
   if (isMockMode()) {
     return {
       id: "post-1",
@@ -187,11 +187,36 @@ async function createPost(
     };
   }
 
-  throw new ProviderError(
-    ProviderType.GoogleBusinessProfile,
-    "not_supported",
-    "GBPの投稿作成は未実装です"
-  );
+  const accessToken = _context.account?.auth?.accessToken;
+  if (!accessToken) {
+    throw new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "auth_required",
+      "Google接続が必要です"
+    );
+  }
+  if (!_context.locationId) {
+    throw new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "validation_error",
+      "GBPロケーションが未紐付けです"
+    );
+  }
+
+  const imageUrl = input.mediaUrls?.[0] ?? null;
+  const response = await createGooglePost({
+    accessToken,
+    locationName: _context.locationId,
+    summary: input.content,
+    imageUrl,
+  });
+
+  return {
+    id: response.id,
+    content: input.content,
+    mediaUrls: input.mediaUrls,
+    status: "published",
+  };
 }
 
 export const googleBusinessProfileProvider: ProviderAdapter = {

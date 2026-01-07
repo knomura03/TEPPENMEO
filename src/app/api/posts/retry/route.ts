@@ -8,7 +8,7 @@ import { retryPostTarget } from "@/server/services/post-history";
 
 const bodySchema = z.object({
   postId: z.string().min(1),
-  target: z.enum(["facebook", "instagram"]),
+  target: z.enum(["facebook", "instagram", "google"]),
   locationId: z.string().min(1),
 });
 

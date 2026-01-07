@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from "@/server/db/supabase-admin";
 import { mockPostHistory } from "@/server/services/mock-data";
 import { isMockMode } from "@/server/utils/feature-flags";
 import { retryMetaPostTarget, type UiError } from "@/server/services/meta";
+import { retryGooglePostTarget } from "@/server/services/google-business-profile";
 
 export type PostTargetInfo = {
   provider: ProviderType;
@@ -241,7 +242,7 @@ export async function retryPostTarget(params: {
   organizationId: string;
   locationId: string;
   postId: string;
-  target: Exclude<PostHistoryTarget, "all" | "google">;
+  target: Exclude<PostHistoryTarget, "all">;
   actorUserId?: string | null;
 }): Promise<PostHistoryRetryResult> {
   if (isMockMode() || !isSupabaseConfigured()) {
@@ -293,6 +294,17 @@ export async function retryPostTarget(params: {
   }
 
   const media = normalizeMediaEntries(post.media);
+
+  if (params.target === "google") {
+    return retryGooglePostTarget({
+      organizationId: params.organizationId,
+      locationId: params.locationId,
+      postId: params.postId,
+      content: post.content as string,
+      media,
+      actorUserId: params.actorUserId ?? null,
+    });
+  }
 
   return retryMetaPostTarget({
     organizationId: params.organizationId,

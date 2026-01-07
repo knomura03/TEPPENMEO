@@ -1,12 +1,20 @@
 import { ProviderError } from "@/server/providers/errors";
 import { ProviderAccount, ProviderType } from "@/server/providers/types";
-import { listGoogleLocations, listGoogleReviews, replyGoogleReview } from "@/server/providers/google_gbp/api";
+import {
+  createGooglePost,
+  listGoogleLocations,
+  listGoogleReviews,
+  replyGoogleReview,
+} from "@/server/providers/google_gbp/api";
 import { refreshGoogleAccessToken } from "@/server/providers/google_gbp/oauth";
 import { writeAuditLog } from "@/server/services/audit-logs";
+import { getSupabaseAdmin } from "@/server/db/supabase-admin";
 import { getLocationProviderLink, updateLocationProviderLinkMetadata, upsertLocationProviderLink } from "@/server/services/location-provider-links";
 import { getProviderAccount, markProviderError, upsertProviderAccount } from "@/server/services/provider-accounts";
+import { createPostTargetRecord, updatePostStatus, updatePostTargetRecord } from "@/server/services/posts";
 import { getReviewById, upsertReviews } from "@/server/services/reviews";
 import { createReviewReply } from "@/server/services/review-replies";
+import { createSignedImageUrl, createSignedImageUrlForPath, getMediaConfig, isMediaError, type MediaItem } from "@/server/services/media";
 import { decryptSecret, encryptSecret } from "@/server/utils/crypto";
 import { isMockMode } from "@/server/utils/feature-flags";
 
@@ -374,4 +382,413 @@ export async function replyGoogleReviewForLocation(params: {
     targetId: params.reviewId,
     metadata: { provider: ProviderType.GoogleBusinessProfile },
   });
+}
+
+async function resolveGooglePublishImageUrl(params: {
+  imageUrl?: string | null;
+  imagePath?: string | null;
+}): Promise<string | null> {
+  if (params.imagePath) {
+    if (isMockMode()) {
+      return "/fixtures/mock-upload.png";
+    }
+    try {
+      const { signedUrl } = await createSignedImageUrlForPath(params.imagePath);
+      return signedUrl;
+    } catch (error) {
+      if (isMediaError(error)) {
+        throw new ProviderError(
+          ProviderType.GoogleBusinessProfile,
+          "validation_error",
+          error.cause
+        );
+      }
+      throw new ProviderError(
+        ProviderType.GoogleBusinessProfile,
+        "upstream_error",
+        "画像URLの準備に失敗しました。"
+      );
+    }
+  }
+
+  return params.imageUrl ?? null;
+}
+
+async function resolveGoogleRetryImageUrl(media: MediaItem[]): Promise<string | null> {
+  const image = media.find((item) => item.kind === "image") ?? null;
+  if (!image) return null;
+  if (image.source === "url") return image.url;
+
+  if (isMockMode()) {
+    return "/fixtures/mock-upload.png";
+  }
+
+  try {
+    const config = getMediaConfig();
+    return await createSignedImageUrl(
+      image.bucket,
+      image.path,
+      config.signedUrlTtlSeconds
+    );
+  } catch (error) {
+    if (isMediaError(error)) {
+      throw new ProviderError(
+        ProviderType.GoogleBusinessProfile,
+        "validation_error",
+        error.cause
+      );
+    }
+    throw new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "upstream_error",
+      "画像URLの準備に失敗しました。"
+    );
+  }
+}
+
+async function refreshPostStatus(postId: string) {
+  const admin = getSupabaseAdmin();
+  if (!admin) return;
+  const { data } = await admin
+    .from("post_targets")
+    .select("status")
+    .eq("post_id", postId);
+  if (!data || data.length === 0) return;
+
+  const statuses = data.map((row) => row.status as string);
+  const nextStatus = statuses.every((status) => status === "published")
+    ? "published"
+    : statuses.some((status) => status === "failed")
+    ? "failed"
+    : "queued";
+
+  await updatePostStatus(postId, nextStatus);
+}
+
+async function findGoogleTargetRecordId(postId: string) {
+  const admin = getSupabaseAdmin();
+  if (!admin) return null;
+  const { data } = await admin
+    .from("post_targets")
+    .select("id")
+    .eq("post_id", postId)
+    .eq("provider", ProviderType.GoogleBusinessProfile)
+    .order("created_at", { ascending: false });
+
+  return data?.[0]?.id ?? null;
+}
+
+export async function publishGooglePostTarget(params: {
+  organizationId: string;
+  locationId: string;
+  postId: string;
+  actorUserId?: string | null;
+  content: string;
+  imageUrl?: string | null;
+  imagePath?: string | null;
+}): Promise<{ status: "published" | "failed"; externalPostId?: string | null; error?: UiError | null }> {
+  const link = await getLocationProviderLink(
+    params.locationId,
+    ProviderType.GoogleBusinessProfile
+  );
+  if (!link) {
+    const providerError = new ProviderError(
+      ProviderType.GoogleBusinessProfile,
+      "validation_error",
+      "GBPロケーションが未紐付けです。"
+    );
+    const record = await createPostTargetRecord({
+      postId: params.postId,
+      provider: ProviderType.GoogleBusinessProfile,
+      status: "failed",
+      externalPostId: "google:failed",
+      error: providerError.message,
+    });
+    await updatePostTargetRecord({
+      id: record?.id,
+      status: "failed",
+      externalPostId: "google:failed",
+      error: providerError.message,
+    });
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.publish_failed",
+      targetType: "location",
+      targetId: params.locationId,
+      metadata: { provider: ProviderType.GoogleBusinessProfile, reason: providerError.message },
+    });
+    return { status: "failed", externalPostId: "google:failed", error: toUiError(providerError) };
+  }
+
+  let publishImageUrl: string | null = null;
+  try {
+    publishImageUrl = await resolveGooglePublishImageUrl({
+      imageUrl: params.imageUrl,
+      imagePath: params.imagePath,
+    });
+  } catch (error) {
+    const providerError =
+      error instanceof ProviderError
+        ? error
+        : new ProviderError(
+            ProviderType.GoogleBusinessProfile,
+            "unknown",
+            "画像URLの準備に失敗しました。"
+          );
+    const record = await createPostTargetRecord({
+      postId: params.postId,
+      provider: ProviderType.GoogleBusinessProfile,
+      status: "failed",
+      externalPostId: "google:failed",
+      error: providerError.message,
+    });
+    await updatePostTargetRecord({
+      id: record?.id,
+      status: "failed",
+      externalPostId: "google:failed",
+      error: providerError.message,
+    });
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.publish_failed",
+      targetType: "location",
+      targetId: params.locationId,
+      metadata: { provider: ProviderType.GoogleBusinessProfile, reason: providerError.message },
+    });
+    return { status: "failed", externalPostId: "google:failed", error: toUiError(providerError) };
+  }
+
+  const targetRecord = await createPostTargetRecord({
+    postId: params.postId,
+    provider: ProviderType.GoogleBusinessProfile,
+    status: "queued",
+    externalPostId: "google:pending",
+  });
+
+  if (isMockMode()) {
+    await updatePostTargetRecord({
+      id: targetRecord?.id,
+      status: "published",
+      externalPostId: "google:mock",
+      error: null,
+    });
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.publish",
+      targetType: "location",
+      targetId: params.locationId,
+      metadata: { provider: ProviderType.GoogleBusinessProfile, mocked: true },
+    });
+    return { status: "published", externalPostId: "google:mock", error: null };
+  }
+
+  try {
+    const { accessToken } = await ensureGoogleAccessToken({
+      organizationId: params.organizationId,
+      actorUserId: params.actorUserId ?? null,
+    });
+
+    const response = await createGooglePost({
+      accessToken,
+      locationName: link.externalLocationId,
+      summary: params.content,
+      imageUrl: publishImageUrl,
+    });
+
+    await updatePostTargetRecord({
+      id: targetRecord?.id,
+      status: "published",
+      externalPostId: response.id,
+      error: null,
+    });
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.publish",
+      targetType: "location",
+      targetId: params.locationId,
+      metadata: { provider: ProviderType.GoogleBusinessProfile },
+    });
+    return { status: "published", externalPostId: response.id, error: null };
+  } catch (error) {
+    const providerError =
+      error instanceof ProviderError
+        ? error
+        : new ProviderError(
+            ProviderType.GoogleBusinessProfile,
+            "unknown",
+            "投稿に失敗しました。"
+          );
+
+    if (providerError.code === "auth_required") {
+      await markProviderError(
+        params.organizationId,
+        ProviderType.GoogleBusinessProfile,
+        providerError.message,
+        providerError.status === 401
+      );
+    }
+
+    await updatePostTargetRecord({
+      id: targetRecord?.id,
+      status: "failed",
+      externalPostId: "google:failed",
+      error: providerError.message,
+    });
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.publish_failed",
+      targetType: "location",
+      targetId: params.locationId,
+      metadata: { provider: ProviderType.GoogleBusinessProfile, reason: providerError.message },
+    });
+    return { status: "failed", externalPostId: "google:failed", error: toUiError(providerError) };
+  }
+}
+
+export async function retryGooglePostTarget(params: {
+  organizationId: string;
+  locationId: string;
+  postId: string;
+  actorUserId?: string | null;
+  content: string;
+  media: MediaItem[];
+}): Promise<{ status: "published" | "failed"; externalPostId?: string | null; error?: UiError | null }> {
+  if (isMockMode()) {
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.retry",
+      targetType: "post",
+      targetId: params.postId,
+      metadata: { provider: ProviderType.GoogleBusinessProfile, mocked: true },
+    });
+    return { status: "published", externalPostId: "google:mock-retry", error: null };
+  }
+
+  const link = await getLocationProviderLink(
+    params.locationId,
+    ProviderType.GoogleBusinessProfile
+  );
+  if (!link) {
+    return {
+      status: "failed",
+      error: {
+        cause: "GBPロケーションが未紐付けです。",
+        nextAction: "GBPロケーションを紐付けてから再実行してください。",
+      },
+    };
+  }
+
+  let publishImageUrl: string | null = null;
+  try {
+    publishImageUrl = await resolveGoogleRetryImageUrl(params.media);
+  } catch (error) {
+    const providerError =
+      error instanceof ProviderError
+        ? error
+        : new ProviderError(
+            ProviderType.GoogleBusinessProfile,
+            "unknown",
+            "画像URLの準備に失敗しました。"
+          );
+    return { status: "failed", error: toUiError(providerError) };
+  }
+
+  let targetRecordId = await findGoogleTargetRecordId(params.postId);
+  if (targetRecordId) {
+    await updatePostTargetRecord({
+      id: targetRecordId,
+      status: "queued",
+      externalPostId: "google:retry",
+      error: null,
+    });
+  } else {
+    const created = await createPostTargetRecord({
+      postId: params.postId,
+      provider: ProviderType.GoogleBusinessProfile,
+      status: "queued",
+      externalPostId: "google:retry",
+    });
+    if (!created?.id) {
+      return {
+        status: "failed",
+        error: {
+          cause: "再実行の準備に失敗しました。",
+          nextAction: "時間をおいて再実行してください。",
+        },
+      };
+    }
+    targetRecordId = created.id;
+  }
+
+  try {
+    const { accessToken } = await ensureGoogleAccessToken({
+      organizationId: params.organizationId,
+      actorUserId: params.actorUserId ?? null,
+    });
+
+    const response = await createGooglePost({
+      accessToken,
+      locationName: link.externalLocationId,
+      summary: params.content,
+      imageUrl: publishImageUrl,
+    });
+
+    await updatePostTargetRecord({
+      id: targetRecordId,
+      status: "published",
+      externalPostId: response.id,
+      error: null,
+    });
+    await refreshPostStatus(params.postId);
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.retry",
+      targetType: "post",
+      targetId: params.postId,
+      metadata: { provider: ProviderType.GoogleBusinessProfile },
+    });
+    return { status: "published", externalPostId: response.id, error: null };
+  } catch (error) {
+    const providerError =
+      error instanceof ProviderError
+        ? error
+        : new ProviderError(
+            ProviderType.GoogleBusinessProfile,
+            "unknown",
+            "再実行に失敗しました。"
+          );
+
+    if (providerError.code === "auth_required") {
+      await markProviderError(
+        params.organizationId,
+        ProviderType.GoogleBusinessProfile,
+        providerError.message,
+        providerError.status === 401
+      );
+    }
+
+    await updatePostTargetRecord({
+      id: targetRecordId,
+      status: "failed",
+      externalPostId: "google:failed",
+      error: providerError.message,
+    });
+    await refreshPostStatus(params.postId);
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.retry_failed",
+      targetType: "post",
+      targetId: params.postId,
+      metadata: { provider: ProviderType.GoogleBusinessProfile, reason: providerError.message },
+    });
+    return { status: "failed", externalPostId: "google:failed", error: toUiError(providerError) };
+  }
 }
