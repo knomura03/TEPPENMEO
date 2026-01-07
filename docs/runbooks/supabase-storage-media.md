@@ -47,3 +47,6 @@
 ## 署名URLの方針
 - private bucket を前提に、投稿直前に署名URLを発行する
 - 署名URLは短命（既定3600秒）で運用する
+
+## 権限/監査のルール
+- 運用ルールは `docs/runbooks/supabase-storage-governance.md` を参照

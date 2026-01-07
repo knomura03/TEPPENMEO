@@ -195,6 +195,7 @@ test("ロケーション詳細でMetaセクションが表示される", async (
         page.getByRole("heading", { name: "Meta（Facebook/Instagram）", exact: true })
       ).toBeVisible();
     }
+    await expect(page.getByRole("heading", { name: "投稿履歴", exact: true })).toBeVisible();
   } else {
     expect(hasSignIn).toBeTruthy();
   }
