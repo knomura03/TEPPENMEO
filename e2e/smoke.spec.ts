@@ -31,6 +31,33 @@ test("管理診断はサインインまたは診断が表示される", async ({
   expect(hasDiagnostics || hasSignIn).toBeTruthy();
 });
 
+test("監査ログはサインインまたは監査ログが表示される", async ({ page }) => {
+  await page.goto("/admin/audit-logs", { waitUntil: "domcontentloaded" });
+  const hasAuditLogs = await page
+    .getByRole("heading", { name: "監査ログ", exact: true })
+    .isVisible();
+  const hasSignIn = await page
+    .getByRole("heading", { name: "サインイン", exact: true })
+    .isVisible();
+
+  if (hasAuditLogs) {
+    await expect(page.locator("input[name='from']")).toBeVisible();
+    await expect(page.locator("input[name='to']")).toBeVisible();
+    await expect(page.locator("select[name='action']")).toBeVisible();
+    await expect(page.locator("select[name='org']")).toBeVisible();
+    await expect(page.locator("input[name='actor']")).toBeVisible();
+    await expect(page.locator("select[name='provider']")).toBeVisible();
+    await expect(page.locator("input[name='text']")).toBeVisible();
+    const applyButton = page.getByRole("button", { name: "適用" });
+    await applyButton.click();
+    await expect(
+      page.getByRole("heading", { name: "監査ログ", exact: true })
+    ).toBeVisible();
+  } else {
+    expect(hasSignIn).toBeTruthy();
+  }
+});
+
 test("ユーザー管理はサインインまたはユーザー管理が表示される", async ({ page }) => {
   await page.goto("/admin/users", { waitUntil: "domcontentloaded" });
   const hasUsers = await page
