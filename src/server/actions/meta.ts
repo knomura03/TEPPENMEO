@@ -9,7 +9,7 @@ import { toProviderError } from "@/server/providers/errors";
 import { ProviderType } from "@/server/providers/types";
 import {
   linkMetaPage,
-  publishMetaPost,
+  publishMetaTargets,
   toUiError,
   unlinkMetaPage,
 } from "@/server/services/meta";
@@ -17,7 +17,15 @@ import { getLocationById } from "@/server/services/locations";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { markProviderError } from "@/server/services/provider-accounts";
 import { writeAuditLog } from "@/server/services/audit-logs";
-import { isLocationMediaPath, isStorageConfigured } from "@/server/services/media";
+import {
+  buildStorageReference,
+  getMediaConfig,
+  isLocationMediaPath,
+  isStorageConfigured,
+} from "@/server/services/media";
+import { createPostRecord, updatePostStatus } from "@/server/services/posts";
+import { publishGooglePostTarget } from "@/server/services/google-business-profile";
+import { getLocationProviderLink } from "@/server/services/location-provider-links";
 import { isMockMode } from "@/server/utils/feature-flags";
 
 export type ActionState = {
@@ -44,6 +52,7 @@ const postSchema = z.object({
   imagePath: z.string().trim().optional(),
   publishFacebook: z.boolean(),
   publishInstagram: z.boolean(),
+  publishGoogle: z.boolean(),
 });
 
 type SessionUser = NonNullable<
@@ -226,6 +235,7 @@ export async function publishMetaPostAction(
     imagePath: formData.get("imagePath") ?? "",
     publishFacebook: formData.get("publishFacebook") === "on",
     publishInstagram: formData.get("publishInstagram") === "on",
+    publishGoogle: formData.get("publishGoogle") === "on",
   });
 
   if (!parsed.success) {
@@ -282,11 +292,15 @@ export async function publishMetaPostAction(
     }
   }
 
-  if (!parsed.data.publishFacebook && !parsed.data.publishInstagram) {
+  if (
+    !parsed.data.publishFacebook &&
+    !parsed.data.publishInstagram &&
+    !parsed.data.publishGoogle
+  ) {
     return {
       error: {
         cause: "投稿先が未選択です。",
-        nextAction: "FacebookまたはInstagramを選択してください。",
+        nextAction: "Facebook/Instagram/Googleのいずれかを選択してください。",
       },
       success: null,
     };
@@ -312,49 +326,132 @@ export async function publishMetaPostAction(
     };
   }
 
+  if (parsed.data.publishGoogle && content.length === 0) {
+    return {
+      error: {
+        cause: "Google投稿本文が未入力です。",
+        nextAction: "投稿本文を入力してください。",
+      },
+      success: null,
+    };
+  }
+
+  if (parsed.data.publishGoogle) {
+    const link = await getLocationProviderLink(
+      parsed.data.locationId,
+      ProviderType.GoogleBusinessProfile
+    );
+    if (!link) {
+      return {
+        error: {
+          cause: "GBPロケーションが未紐付けです。",
+          nextAction: "GBPロケーションを紐付けてから再投稿してください。",
+        },
+        success: null,
+      };
+    }
+  }
+
+  const mediaRefs: string[] = [];
+  if (imagePath) {
+    const config = getMediaConfig();
+    const bucket = isMockMode() ? "mock" : config.bucket;
+    if (bucket) {
+      mediaRefs.push(buildStorageReference(bucket, imagePath));
+    }
+  } else if (imageUrl) {
+    mediaRefs.push(imageUrl);
+  }
+
+  const postRecord = await createPostRecord({
+    organizationId: access.org.id,
+    locationId: parsed.data.locationId,
+    content,
+    media: mediaRefs,
+    status: "queued",
+  });
+
+  if (!postRecord?.id) {
+    return {
+      error: {
+        cause: "投稿の作成に失敗しました。",
+        nextAction: "時間をおいて再実行してください。",
+      },
+      success: null,
+    };
+  }
+
+  const postId = postRecord.id;
+
   try {
-    const result = await publishMetaPost({
-      organizationId: access.org.id,
-      locationId: parsed.data.locationId,
-      actorUserId: access.user.id,
-      content,
-      imageUrl,
-      imagePath,
-      publishFacebook: parsed.data.publishFacebook,
-      publishInstagram: parsed.data.publishInstagram,
-    });
+    const successLabels: string[] = [];
+    const failedLabels: string[] = [];
+
+    const metaTargets: Array<"facebook" | "instagram"> = [];
+    if (parsed.data.publishFacebook) metaTargets.push("facebook");
+    if (parsed.data.publishInstagram) metaTargets.push("instagram");
+
+    if (metaTargets.length > 0) {
+      const metaResult = await publishMetaTargets({
+        organizationId: access.org.id,
+        locationId: parsed.data.locationId,
+        postId,
+        actorUserId: access.user.id,
+        content,
+        imageUrl,
+        imagePath,
+        targets: metaTargets,
+      });
+      metaResult.successTargets.forEach((target) => {
+        successLabels.push(target === "facebook" ? "Facebook" : "Instagram");
+      });
+      metaResult.failedTargets.forEach((target) => {
+        failedLabels.push(target.target === "facebook" ? "Facebook" : "Instagram");
+      });
+    }
+
+    if (parsed.data.publishGoogle) {
+      const googleResult = await publishGooglePostTarget({
+        organizationId: access.org.id,
+        locationId: parsed.data.locationId,
+        postId,
+        actorUserId: access.user.id,
+        content,
+        imageUrl,
+        imagePath,
+      });
+      if (googleResult.status === "published") {
+        successLabels.push("Google");
+      } else {
+        failedLabels.push("Google");
+      }
+    }
+
+    const finalStatus = successLabels.length > 0 ? "published" : "failed";
+    await updatePostStatus(postId, finalStatus);
 
     revalidatePath(`/app/locations/${parsed.data.locationId}`);
 
-    if (result.failedTargets.length === 0) {
-      const targets = result.successTargets
-        .map((target) => (target === "facebook" ? "Facebook" : "Instagram"))
-        .join(" / ");
+    if (failedLabels.length === 0) {
       return {
         error: null,
-        success: `投稿が完了しました（${targets}）。`,
+        success: `投稿が完了しました（${successLabels.join(" / ")}）。`,
       };
     }
 
-    const failedLabels = result.failedTargets
-      .map((item) => (item.target === "facebook" ? "Facebook" : "Instagram"))
-      .join(" / ");
-    const hasSuccess = result.successTargets.length > 0;
-    const successLabel = hasSuccess
-      ? `（成功: ${result.successTargets
-          .map((target) => (target === "facebook" ? "Facebook" : "Instagram"))
-          .join(" / ")}）`
-      : "";
+    const successLabel =
+      successLabels.length > 0 ? `（成功: ${successLabels.join(" / ")}）` : "";
 
     return {
       error: {
-        cause: `${failedLabels}の投稿に失敗しました${successLabel}。`,
+        cause: `${failedLabels.join(" / ")}の投稿に失敗しました${successLabel}。`,
         nextAction:
           "権限と連携状態を確認し、必要なら再認可後に再投稿してください。",
       },
       success: null,
     };
   } catch (error) {
+    await updatePostStatus(postId, "failed");
     const providerError = toProviderError(ProviderType.Meta, error);
     await writeAuditLog({
       actorUserId: access.user.id,
@@ -374,4 +471,5 @@ export async function publishMetaPostAction(
     }
     return { error: toUiError(providerError), success: null };
   }
+
 }

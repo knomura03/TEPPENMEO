@@ -151,7 +151,7 @@ async function fetchPostHistory(params: {
 
 async function retryPostTarget(params: {
   postId: string;
-  target: "facebook" | "instagram";
+  target: "facebook" | "instagram" | "google";
   locationId: string;
 }) {
   const response = await fetch("/api/posts/retry", {
@@ -180,6 +180,8 @@ export function PostHistoryPanel(props: {
   canEdit: boolean;
   isMockMode: boolean;
   metaConnectionStatus: "connected" | "not_connected" | "reauth_required";
+  googleConnectionStatus: "connected" | "not_connected" | "reauth_required";
+  googleLinked: boolean;
 }) {
   const [posts, setPosts] = useState<PostHistoryItem[]>(props.initialPage.items);
   const [total, setTotal] = useState(props.initialPage.total);
@@ -274,7 +276,10 @@ export function PostHistoryPanel(props: {
     }
   };
 
-  const handleRetry = async (postId: string, target: "facebook" | "instagram") => {
+  const handleRetry = async (
+    postId: string,
+    target: "facebook" | "instagram" | "google"
+  ) => {
     const key = `${postId}:${target}`;
     setRetryState((prev) => ({ ...prev, [key]: { status: "loading" } }));
 
@@ -569,19 +574,34 @@ export function PostHistoryPanel(props: {
                             const retryStatus = retryKey
                               ? retryState[retryKey] ?? idleRetryState
                               : idleRetryState;
+                            const isMetaTarget =
+                              targetKey === "facebook" || targetKey === "instagram";
+                            const isGoogleTarget = targetKey === "google";
                             const canRetryTarget =
                               props.canEdit &&
+                              target.status === "failed" &&
                               (props.isMockMode ||
-                                props.metaConnectionStatus === "connected") &&
-                              (targetKey === "facebook" ||
-                                targetKey === "instagram") &&
-                              target.status === "failed";
+                                (isMetaTarget &&
+                                  props.metaConnectionStatus === "connected") ||
+                                (isGoogleTarget &&
+                                  props.googleConnectionStatus === "connected" &&
+                                  props.googleLinked));
                             const retryBlockedReason = props.isMockMode
                               ? null
-                              : props.metaConnectionStatus === "reauth_required"
-                              ? "再認可が必要です"
-                              : props.metaConnectionStatus !== "connected"
-                              ? "未接続のため再実行できません"
+                              : isMetaTarget
+                              ? props.metaConnectionStatus === "reauth_required"
+                                ? "再認可が必要です"
+                                : props.metaConnectionStatus !== "connected"
+                                ? "未接続のため再実行できません"
+                                : null
+                              : isGoogleTarget
+                              ? !props.googleLinked
+                                ? "GBPロケーションが未紐付けです"
+                                : props.googleConnectionStatus === "reauth_required"
+                                ? "再認可が必要です"
+                                : props.googleConnectionStatus !== "connected"
+                                ? "未接続のため再実行できません"
+                                : null
                               : null;
 
                             return (
@@ -619,7 +639,7 @@ export function PostHistoryPanel(props: {
                                       onClick={() =>
                                         handleRetry(
                                           post.id,
-                                          targetKey as "facebook" | "instagram"
+                                          targetKey as "facebook" | "instagram" | "google"
                                         )
                                       }
                                     >

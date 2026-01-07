@@ -339,6 +339,15 @@ export default async function LocationDetailPage({
             connectionStatus={metaConnection?.status ?? "not_connected"}
             connectionLabel={metaStatusLabel}
             connectionMessage={metaConnection?.message ?? null}
+            googleConnectionStatus={googleConnection?.status ?? "not_connected"}
+            googleLink={
+              googleLink
+                ? {
+                    externalLocationId: googleLink.externalLocationId,
+                    metadata: googleLink.metadata,
+                  }
+                : null
+            }
             link={
               metaLink
                 ? {
@@ -360,6 +369,8 @@ export default async function LocationDetailPage({
         canEdit={canEdit}
         isMockMode={isMockMode()}
         metaConnectionStatus={metaConnection?.status ?? "not_connected"}
+        googleConnectionStatus={googleConnection?.status ?? "not_connected"}
+        googleLinked={Boolean(googleLink)}
       />
 
       <Card>

@@ -72,6 +72,8 @@ export function MetaPanel(props: {
   connectionLabel: string;
   connectionMessage?: string | null;
   link: MetaLinkInfo | null;
+  googleConnectionStatus: "connected" | "not_connected" | "reauth_required";
+  googleLink: { externalLocationId: string; metadata: Record<string, unknown> } | null;
   candidates: MetaPageOption[];
   candidatesError: UiError | null;
 }) {
@@ -119,7 +121,30 @@ export function MetaPanel(props: {
     ? "ページ候補がありません。"
     : null;
 
-  const canPost = props.canEdit && isConnected && Boolean(props.link);
+  const canPostMeta = props.canEdit && isConnected && Boolean(props.link);
+  const canPostGoogle =
+    props.canEdit &&
+    props.googleConnectionStatus === "connected" &&
+    Boolean(props.googleLink);
+  const canPostAny = canPostMeta || canPostGoogle;
+
+  const metaDisabledReason = !props.canEdit
+    ? "権限がありません。"
+    : !isConnected
+    ? "Metaが未接続です。"
+    : !props.link
+    ? "Facebookページが未紐付けです。"
+    : null;
+
+  const googleDisabledReason = !props.canEdit
+    ? "権限がありません。"
+    : props.googleConnectionStatus === "reauth_required"
+    ? "再認可が必要です。"
+    : props.googleConnectionStatus !== "connected"
+    ? "Googleが未接続です。"
+    : !props.googleLink
+    ? "GBPロケーションが未紐付けです。"
+    : null;
 
   const uploadImage = async () => {
     if (!selectedFile) {
@@ -292,7 +317,7 @@ export function MetaPanel(props: {
       <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
         <p className="text-xs font-semibold text-slate-700">投稿作成</p>
         <p className="text-xs text-slate-500">
-          Facebookは本文必須。Instagramは画像が必須です。
+          Facebook/Googleは本文必須。Instagramは画像が必須です。
         </p>
         {!props.link && (
           <p className="mt-2 text-xs text-slate-500">
@@ -315,7 +340,7 @@ export function MetaPanel(props: {
             rows={4}
             placeholder="投稿本文を入力"
             className="w-full rounded-md border border-slate-200 bg-white p-2 text-xs text-slate-700 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-            disabled={!canPost}
+            disabled={!canPostAny}
           />
           <div className="rounded-md border border-slate-200 bg-white p-3">
             <p className="text-xs font-semibold text-slate-700">画像の指定方法</p>
@@ -327,7 +352,7 @@ export function MetaPanel(props: {
                   value="url"
                   checked={imageMode === "url"}
                   onChange={() => setImageMode("url")}
-                  disabled={!canPost}
+                  disabled={!canPostAny}
                 />
                 URL入力
               </label>
@@ -338,7 +363,7 @@ export function MetaPanel(props: {
                   value="upload"
                   checked={imageMode === "upload"}
                   onChange={() => setImageMode("upload")}
-                  disabled={!canPost}
+                  disabled={!canPostAny}
                 />
                 ファイルアップロード
               </label>
@@ -350,7 +375,7 @@ export function MetaPanel(props: {
                 onChange={(event) => setImageUrl(event.target.value)}
                 placeholder="画像URL（任意・Instagram投稿時は必須）"
                 className="mt-3 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-                disabled={!canPost}
+                disabled={!canPostAny}
               />
             )}
             {imageMode === "upload" && (
@@ -365,7 +390,7 @@ export function MetaPanel(props: {
                       setUploadState({ status: "idle" });
                     }
                   }}
-                  disabled={!canPost}
+                  disabled={!canPostAny}
                   className="block w-full text-xs text-slate-700"
                 />
                 <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
@@ -377,7 +402,7 @@ export function MetaPanel(props: {
                   variant="secondary"
                   className="w-full"
                   onClick={uploadImage}
-                  disabled={!canPost || uploadState.status === "uploading"}
+                  disabled={!canPostAny || uploadState.status === "uploading"}
                 >
                   {uploadState.status === "uploading"
                     ? "アップロード中..."
@@ -411,7 +436,7 @@ export function MetaPanel(props: {
                 type="checkbox"
                 name="publishFacebook"
                 defaultChecked
-                disabled={!canPost}
+                disabled={!canPostMeta}
               />
               Facebookに投稿
             </label>
@@ -419,19 +444,37 @@ export function MetaPanel(props: {
               <input
                 type="checkbox"
                 name="publishInstagram"
-                disabled={!canPost || !instagramId}
+                disabled={!canPostMeta || !instagramId}
               />
               Instagramに投稿
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="publishGoogle"
+                disabled={!canPostGoogle}
+              />
+              Googleに投稿
             </label>
             {!instagramId && (
               <span className="text-[11px] text-slate-500">
                 Instagram連携が未検出です
               </span>
             )}
+            {metaDisabledReason && (
+              <span className="text-[11px] text-slate-500">
+                {metaDisabledReason}
+              </span>
+            )}
+            {googleDisabledReason && (
+              <span className="text-[11px] text-slate-500">
+                {googleDisabledReason}
+              </span>
+            )}
           </div>
           {postState.error && <ErrorBox error={postState.error} />}
           {postState.success && <SuccessBox message={postState.success} />}
-          <Button type="submit" className="w-full" disabled={!canPost}>
+          <Button type="submit" className="w-full" disabled={!canPostAny}>
             投稿を送信
           </Button>
         </form>

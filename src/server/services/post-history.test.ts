@@ -73,4 +73,15 @@ describe("投稿履歴の再実行", () => {
     expect(result.status).toBe("published");
     expect(result.externalPostId).toContain("facebook");
   });
+
+  it("Google再実行もモックで成功する", async () => {
+    const result = await retryPostTarget({
+      organizationId: "org-1",
+      locationId: "loc-1",
+      postId: "post-4",
+      target: "google",
+      actorUserId: "user-1",
+    });
+    expect(result.status).toBe("published");
+  });
 });

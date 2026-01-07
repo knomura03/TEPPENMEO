@@ -213,6 +213,7 @@ test(
     await expect(
       page.getByText("Facebookページ紐付け", { exact: true })
     ).toBeVisible();
+    await expect(page.getByText("Googleに投稿", { exact: true })).toBeVisible();
     const postButton = page.getByRole("button", { name: "投稿を送信" });
     const uploadRadio = page.getByRole("radio", { name: "ファイルアップロード" });
     if (await uploadRadio.isVisible()) {
@@ -236,6 +237,12 @@ test(
   } else {
     expect(hasSignIn).toBeTruthy();
   }
+
+  const composerShot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("app-location-post-composer", {
+    body: composerShot,
+    contentType: "image/png",
+  });
 
   const screenshot = await page.screenshot({ fullPage: true });
   await testInfo.attach("app-location-post-history", {
