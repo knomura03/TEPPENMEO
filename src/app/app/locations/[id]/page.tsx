@@ -18,6 +18,7 @@ import {
   listMetaPageCandidates,
   toUiError as toMetaUiError,
 } from "@/server/services/meta";
+import { getMediaConfig } from "@/server/services/media";
 import { listPostsForOrganization } from "@/server/services/posts";
 import { listProviderConnections } from "@/server/services/provider-connections";
 import { listProviderStatus } from "@/server/services/providers";
@@ -59,6 +60,7 @@ export default async function LocationDetailPage({
   const connections = org ? await listProviderConnections(org.id, user?.id) : [];
   const reviews = await listReviewsForLocation(location.id);
   const posts = org ? await listPostsForOrganization(org.id) : [];
+  const mediaConfig = getMediaConfig();
 
   const googleAccount = org
     ? await getProviderAccount(org.id, ProviderType.GoogleBusinessProfile)
@@ -333,6 +335,7 @@ export default async function LocationDetailPage({
             }
             candidates={metaCandidates}
             candidatesError={metaCandidatesError}
+            maxUploadMb={mediaConfig.maxUploadMb}
           />
         </CardContent>
       </Card>

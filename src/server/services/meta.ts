@@ -9,6 +9,11 @@ import {
 import { exchangeForLongLivedToken } from "@/server/providers/meta/oauth";
 import { writeAuditLog } from "@/server/services/audit-logs";
 import {
+  buildStorageReference,
+  createSignedImageUrlForPath,
+  isMediaError,
+} from "@/server/services/media";
+import {
   deleteLocationProviderLink,
   getLocationProviderLink,
   upsertLocationProviderLink,
@@ -283,9 +288,39 @@ export async function publishMetaPost(params: {
   actorUserId?: string | null;
   content: string;
   imageUrl?: string | null;
+  imagePath?: string | null;
   publishFacebook: boolean;
   publishInstagram: boolean;
 }): Promise<MetaPublishResult> {
+  const mediaRefs: string[] = [];
+  let publishImageUrl = params.imageUrl ?? null;
+
+  if (params.imagePath) {
+    if (isMockMode()) {
+      mediaRefs.push(buildStorageReference("mock", params.imagePath));
+      publishImageUrl = params.imageUrl ?? "/fixtures/mock-upload.png";
+    } else {
+      try {
+        const { bucket, signedUrl } = await createSignedImageUrlForPath(
+          params.imagePath
+        );
+        mediaRefs.push(buildStorageReference(bucket, params.imagePath));
+        publishImageUrl = signedUrl;
+      } catch (error) {
+        if (isMediaError(error)) {
+          throw new ProviderError(ProviderType.Meta, "validation_error", error.cause);
+        }
+        throw new ProviderError(
+          ProviderType.Meta,
+          "upstream_error",
+          "画像URLの準備に失敗しました。"
+        );
+      }
+    }
+  } else if (params.imageUrl) {
+    mediaRefs.push(params.imageUrl);
+  }
+
   const targets: PublishTarget[] = [];
   if (params.publishFacebook) targets.push("facebook");
   if (params.publishInstagram) targets.push("instagram");
@@ -311,7 +346,7 @@ export async function publishMetaPost(params: {
     organizationId: params.organizationId,
     locationId: params.locationId,
     content: params.content,
-    media: params.imageUrl ? [params.imageUrl] : [],
+    media: mediaRefs,
     status: "queued",
   });
 
@@ -377,7 +412,7 @@ export async function publishMetaPost(params: {
           pageId: link.externalLocationId,
           pageAccessToken: pageDetails.accessToken,
           content: params.content,
-          imageUrl: params.imageUrl,
+          imageUrl: publishImageUrl,
         });
         await updatePostTargetRecord({
           id: targetRecord?.id,
@@ -385,11 +420,11 @@ export async function publishMetaPost(params: {
           externalPostId: response.id,
         });
       } else {
-        if (!params.imageUrl) {
+        if (!publishImageUrl) {
           throw new ProviderError(
             ProviderType.Meta,
             "validation_error",
-            "Instagram投稿は画像URLが必須です。"
+            "Instagram投稿は画像が必須です。"
           );
         }
         const instagramId = resolveInstagramAccountId(
@@ -407,7 +442,7 @@ export async function publishMetaPost(params: {
           instagramAccountId: instagramId,
           pageAccessToken: pageDetails.accessToken,
           caption: params.content,
-          imageUrl: params.imageUrl,
+          imageUrl: publishImageUrl,
         });
         await updatePostTargetRecord({
           id: targetRecord?.id,

@@ -17,6 +17,7 @@ import { getLocationById } from "@/server/services/locations";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { markProviderError } from "@/server/services/provider-accounts";
 import { writeAuditLog } from "@/server/services/audit-logs";
+import { isLocationMediaPath, isStorageConfigured } from "@/server/services/media";
 import { isMockMode } from "@/server/utils/feature-flags";
 
 export type ActionState = {
@@ -40,6 +41,7 @@ const postSchema = z.object({
   locationId: z.string().min(1),
   content: z.string().trim().optional(),
   imageUrl: z.string().trim().optional(),
+  imagePath: z.string().trim().optional(),
   publishFacebook: z.boolean(),
   publishInstagram: z.boolean(),
 });
@@ -221,6 +223,7 @@ export async function publishMetaPostAction(
     locationId: formData.get("locationId"),
     content: formData.get("content") ?? "",
     imageUrl: formData.get("imageUrl") ?? "",
+    imagePath: formData.get("imagePath") ?? "",
     publishFacebook: formData.get("publishFacebook") === "on",
     publishInstagram: formData.get("publishInstagram") === "on",
   });
@@ -241,7 +244,9 @@ export async function publishMetaPostAction(
   }
 
   const content = parsed.data.content?.trim() ?? "";
-  const imageUrl = parsed.data.imageUrl?.trim() || null;
+  const rawImageUrl = parsed.data.imageUrl?.trim() || null;
+  const imagePath = parsed.data.imagePath?.trim() || null;
+  const imageUrl = imagePath ? null : rawImageUrl;
 
   if (imageUrl) {
     const urlCheck = z.string().url().safeParse(imageUrl);
@@ -250,6 +255,27 @@ export async function publishMetaPostAction(
         error: {
           cause: "画像URLの形式が不正です。",
           nextAction: "http/httpsのURLを入力してください。",
+        },
+        success: null,
+      };
+    }
+  }
+
+  if (imagePath) {
+    if (!isStorageConfigured() && !isMockMode()) {
+      return {
+        error: {
+          cause: "画像アップロードの設定が未完了です。",
+          nextAction: "Supabase Storageのバケット設定を確認してください。",
+        },
+        success: null,
+      };
+    }
+    if (!isLocationMediaPath(imagePath, access.org.id, parsed.data.locationId)) {
+      return {
+        error: {
+          cause: "画像パスが不正です。",
+          nextAction: "画像を再アップロードしてください。",
         },
         success: null,
       };
@@ -276,11 +302,11 @@ export async function publishMetaPostAction(
     };
   }
 
-  if (parsed.data.publishInstagram && !imageUrl) {
+  if (parsed.data.publishInstagram && !imageUrl && !imagePath) {
     return {
       error: {
-        cause: "Instagram投稿は画像URLが必須です。",
-        nextAction: "画像URLを入力してください。",
+        cause: "Instagram投稿は画像が必須です。",
+        nextAction: "画像URLまたは画像アップロードを指定してください。",
       },
       success: null,
     };
@@ -293,6 +319,7 @@ export async function publishMetaPostAction(
       actorUserId: access.user.id,
       content,
       imageUrl,
+      imagePath,
       publishFacebook: parsed.data.publishFacebook,
       publishInstagram: parsed.data.publishInstagram,
     });

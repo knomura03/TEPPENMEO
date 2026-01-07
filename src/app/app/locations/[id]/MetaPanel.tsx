@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useFormState } from "react-dom";
 
@@ -28,6 +29,18 @@ type MetaLinkInfo = {
   metadata: Record<string, unknown>;
 };
 
+type UploadResult = {
+  bucket: string;
+  path: string;
+  previewUrl: string;
+};
+
+type UploadState =
+  | { status: "idle" }
+  | { status: "uploading" }
+  | { status: "success"; result: UploadResult }
+  | { status: "error"; error: UiError };
+
 const initialState: ActionState = { error: null, success: null };
 
 function ErrorBox({ error }: { error: UiError }) {
@@ -52,6 +65,7 @@ function SuccessBox({ message }: { message: string }) {
 export function MetaPanel(props: {
   locationId: string;
   canEdit: boolean;
+  maxUploadMb: number;
   connectionStatus: "connected" | "not_connected" | "reauth_required";
   connectionLabel: string;
   connectionMessage?: string | null;
@@ -59,6 +73,10 @@ export function MetaPanel(props: {
   candidates: MetaPageOption[];
   candidatesError: UiError | null;
 }) {
+  const [imageMode, setImageMode] = useState<"url" | "upload">("url");
+  const [imageUrl, setImageUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadState, setUploadState] = useState<UploadState>({ status: "idle" });
   const [selectedId, setSelectedId] = useState(
     props.link?.externalLocationId ?? props.candidates[0]?.id ?? ""
   );
@@ -100,6 +118,53 @@ export function MetaPanel(props: {
     : null;
 
   const canPost = props.canEdit && isConnected && Boolean(props.link);
+
+  const uploadImage = async () => {
+    if (!selectedFile) {
+      setUploadState({
+        status: "error",
+        error: {
+          cause: "画像ファイルが選択されていません。",
+          nextAction: "画像ファイルを選択してください。",
+        },
+      });
+      return;
+    }
+
+    setUploadState({ status: "uploading" });
+
+    try {
+      const formData = new FormData();
+      formData.append("locationId", props.locationId);
+      formData.append("file", selectedFile);
+      const response = await fetch("/api/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = (await response.json()) as
+        | UploadResult
+        | { error?: UiError };
+
+      if (!response.ok) {
+        const error = (payload as { error?: UiError }).error ?? {
+          cause: "アップロードに失敗しました。",
+          nextAction: "時間をおいて再実行してください。",
+        };
+        setUploadState({ status: "error", error });
+        return;
+      }
+
+      setUploadState({ status: "success", result: payload as UploadResult });
+    } catch {
+      setUploadState({
+        status: "error",
+        error: {
+          cause: "アップロードに失敗しました。",
+          nextAction: "時間をおいて再実行してください。",
+        },
+      });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -225,7 +290,7 @@ export function MetaPanel(props: {
       <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
         <p className="text-xs font-semibold text-slate-700">投稿作成</p>
         <p className="text-xs text-slate-500">
-          Facebookは本文必須。Instagramは画像URL必須です。
+          Facebookは本文必須。Instagramは画像が必須です。
         </p>
         {!props.link && (
           <p className="mt-2 text-xs text-slate-500">
@@ -234,6 +299,15 @@ export function MetaPanel(props: {
         )}
         <form action={postAction} className="mt-3 space-y-3">
           <input type="hidden" name="locationId" value={props.locationId} />
+          <input
+            type="hidden"
+            name="imagePath"
+            value={
+              imageMode === "upload" && uploadState.status === "success"
+                ? uploadState.result.path
+                : ""
+            }
+          />
           <textarea
             name="content"
             rows={4}
@@ -241,12 +315,94 @@ export function MetaPanel(props: {
             className="w-full rounded-md border border-slate-200 bg-white p-2 text-xs text-slate-700 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
             disabled={!canPost}
           />
-          <input
-            name="imageUrl"
-            placeholder="画像URL（任意・Instagram投稿時は必須）"
-            className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-            disabled={!canPost}
-          />
+          <div className="rounded-md border border-slate-200 bg-white p-3">
+            <p className="text-xs font-semibold text-slate-700">画像の指定方法</p>
+            <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-600">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="imageMode"
+                  value="url"
+                  checked={imageMode === "url"}
+                  onChange={() => setImageMode("url")}
+                  disabled={!canPost}
+                />
+                URL入力
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="imageMode"
+                  value="upload"
+                  checked={imageMode === "upload"}
+                  onChange={() => setImageMode("upload")}
+                  disabled={!canPost}
+                />
+                ファイルアップロード
+              </label>
+            </div>
+            {imageMode === "url" && (
+              <input
+                name="imageUrl"
+                value={imageUrl}
+                onChange={(event) => setImageUrl(event.target.value)}
+                placeholder="画像URL（任意・Instagram投稿時は必須）"
+                className="mt-3 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+                disabled={!canPost}
+              />
+            )}
+            {imageMode === "upload" && (
+              <div className="mt-3 space-y-2">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] ?? null;
+                    setSelectedFile(file);
+                    if (file) {
+                      setUploadState({ status: "idle" });
+                    }
+                  }}
+                  disabled={!canPost}
+                  className="block w-full text-xs text-slate-700"
+                />
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                  <span>PNG/JPEG/WebP/GIF</span>
+                  <span>最大{props.maxUploadMb}MB</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full"
+                  onClick={uploadImage}
+                  disabled={!canPost || uploadState.status === "uploading"}
+                >
+                  {uploadState.status === "uploading"
+                    ? "アップロード中..."
+                    : "画像をアップロード"}
+                </Button>
+                {uploadState.status === "error" && (
+                  <ErrorBox error={uploadState.error} />
+                )}
+                {uploadState.status === "success" && (
+                  <div className="rounded-md border border-slate-200 bg-slate-50 p-2 text-xs text-slate-600">
+                    <p className="font-semibold text-slate-800">
+                      アップロード済み
+                    </p>
+                    <Image
+                      src={uploadState.result.previewUrl}
+                      alt="アップロード画像"
+                      width={320}
+                      height={180}
+                      loader={({ src }) => src}
+                      unoptimized
+                      className="mt-2 h-32 w-auto rounded-md border border-slate-200 bg-white object-contain"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           <div className="flex flex-wrap gap-4 text-xs text-slate-600">
             <label className="flex items-center gap-2">
               <input

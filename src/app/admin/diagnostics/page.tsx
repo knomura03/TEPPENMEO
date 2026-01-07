@@ -8,6 +8,7 @@ import {
   checkUserBlocksSchema,
   getEnvChecks,
 } from "@/server/services/diagnostics";
+import { getMediaConfig, isStorageConfigured } from "@/server/services/media";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { listProviderConnections } from "@/server/services/provider-connections";
 
@@ -22,6 +23,8 @@ export default async function AdminDiagnosticsPage() {
   const supabase = await checkSupabaseConnection();
   const userBlocksSchema = await checkUserBlocksSchema();
   const auditLogsIndexes = await checkAuditLogsIndexes();
+  const mediaConfig = getMediaConfig();
+  const storageReady = isStorageConfigured();
 
   const user = await getSessionUser();
   const org = user ? await getPrimaryOrganization(user.id) : null;
@@ -81,6 +84,12 @@ export default async function AdminDiagnosticsPage() {
   }
   if (!metaEnvOk) {
     nextSteps.push("Metaの環境変数を設定してください。");
+  }
+  if (!mediaConfig.bucket) {
+    nextSteps.push("Supabase Storageのバケットを作成してください。");
+  }
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    nextSteps.push("SUPABASE_SERVICE_ROLE_KEY を設定してください。");
   }
   if (userBlocksSchema.status === "missing") {
     nextSteps.push(
@@ -271,6 +280,54 @@ export default async function AdminDiagnosticsPage() {
             <p className="text-[11px] text-slate-400">
               対象組織: {org?.name ?? "未設定"}
             </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+          <CardHeader>
+            <p className="text-sm font-semibold">画像アップロード</p>
+            <p className="text-xs text-slate-400">
+              Supabase Storageの設定状況を確認します。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">バケット</span>
+              <Badge variant={mediaConfig.bucket ? "success" : "warning"}>
+                {mediaConfig.bucket ? "設定済み" : "未設定"}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">サービスキー</span>
+              <Badge
+                variant={
+                  process.env.SUPABASE_SERVICE_ROLE_KEY ? "success" : "warning"
+                }
+              >
+                {process.env.SUPABASE_SERVICE_ROLE_KEY ? "設定済み" : "未設定"}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">署名URL期限</span>
+              <Badge variant="muted">
+                {mediaConfig.signedUrlTtlSeconds}秒
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">最大アップロード</span>
+              <Badge variant="muted">{mediaConfig.maxUploadMb}MB</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">利用可否</span>
+              <Badge variant={storageReady ? "success" : "warning"}>
+                {storageReady ? "利用可能" : "未準備"}
+              </Badge>
+            </div>
+            {providerMockMode && (
+              <p className="text-xs text-amber-300">
+                モックモードではStorage未設定でもアップロードできます。
+              </p>
+            )}
           </CardContent>
         </Card>
 
