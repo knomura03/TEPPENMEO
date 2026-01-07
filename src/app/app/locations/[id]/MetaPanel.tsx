@@ -33,6 +33,8 @@ type UploadResult = {
   bucket: string;
   path: string;
   previewUrl: string;
+  mime?: string | null;
+  size?: number | null;
 };
 
 type UploadState =

@@ -19,7 +19,7 @@ import {
   toUiError as toMetaUiError,
 } from "@/server/services/meta";
 import { getMediaConfig } from "@/server/services/media";
-import { listPostsForOrganization } from "@/server/services/posts";
+import { listPostsForLocation } from "@/server/services/post-history";
 import { listProviderConnections } from "@/server/services/provider-connections";
 import { listProviderStatus } from "@/server/services/providers";
 import { getProviderAccount } from "@/server/services/provider-accounts";
@@ -28,6 +28,7 @@ import { listReviewsForLocation } from "@/server/services/reviews";
 
 import { GoogleGbpPanel } from "./GoogleGbpPanel";
 import { MetaPanel } from "./MetaPanel";
+import { PostHistoryPanel } from "./PostHistoryPanel";
 import { ReviewReplyForm } from "./ReviewReplyForm";
 
 const statusLabels = {
@@ -37,12 +38,6 @@ const statusLabels = {
   enabled: "準備完了",
 };
 
-const postStatusLabels: Record<string, string> = {
-  draft: "下書き",
-  queued: "送信待ち",
-  published: "公開済み",
-  failed: "失敗",
-};
 export default async function LocationDetailPage({
   params,
 }: {
@@ -59,7 +54,9 @@ export default async function LocationDetailPage({
   const providerStatus = listProviderStatus();
   const connections = org ? await listProviderConnections(org.id, user?.id) : [];
   const reviews = await listReviewsForLocation(location.id);
-  const posts = org ? await listPostsForOrganization(org.id) : [];
+  const posts = org
+    ? await listPostsForLocation({ organizationId: org.id, locationId: location.id })
+    : [];
   const mediaConfig = getMediaConfig();
 
   const googleAccount = org
@@ -340,80 +337,54 @@ export default async function LocationDetailPage({
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <h2 className="text-lg font-semibold text-slate-900">レビュー</h2>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {reviews.map((review) => (
-              <div
-                key={review.id}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-3"
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-slate-900">
-                    {review.author ?? "匿名"}
-                  </p>
-                  <Badge variant="success">{review.rating}</Badge>
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  投稿日時: {review.createdAt}
-                </p>
-                <p className="text-xs text-slate-500">{review.comment}</p>
-                {review.provider === ProviderType.GoogleBusinessProfile && (
-                  <div className="mt-3">
-                    <ReviewReplyForm
-                      locationId={location.id}
-                      reviewId={review.id}
-                      canEdit={canEdit}
-                      existingReply={
-                        replyMap[review.id]
-                          ? {
-                              replyText: replyMap[review.id].replyText,
-                              createdAt: replyMap[review.id].createdAt,
-                            }
-                          : null
-                      }
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
-            {reviews.length === 0 && (
-              <p className="text-sm text-slate-500">
-                まだレビューがありません。
-              </p>
-            )}
-          </CardContent>
-        </Card>
+      <PostHistoryPanel posts={posts} locationId={location.id} />
 
-        <Card>
-          <CardHeader>
-            <h2 className="text-lg font-semibold text-slate-900">投稿</h2>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {posts.map((post) => (
-              <div
-                key={post.id}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-3"
-              >
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold text-slate-900">レビュー</h2>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {reviews.map((review) => (
+            <div
+              key={review.id}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-3"
+            >
+              <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-slate-900">
-                  {post.content}
+                  {review.author ?? "匿名"}
                 </p>
-                <p className="text-xs text-slate-500">
-                  状態: {postStatusLabels[post.status] ?? post.status}
-                </p>
+                <Badge variant="success">{review.rating}</Badge>
               </div>
-            ))}
-            {posts.length === 0 && (
-              <p className="text-sm text-slate-500">
-                まだ投稿がありません。
+              <p className="text-[11px] text-slate-400">
+                投稿日時: {review.createdAt}
               </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              <p className="text-xs text-slate-500">{review.comment}</p>
+              {review.provider === ProviderType.GoogleBusinessProfile && (
+                <div className="mt-3">
+                  <ReviewReplyForm
+                    locationId={location.id}
+                    reviewId={review.id}
+                    canEdit={canEdit}
+                    existingReply={
+                      replyMap[review.id]
+                        ? {
+                            replyText: replyMap[review.id].replyText,
+                            createdAt: replyMap[review.id].createdAt,
+                          }
+                        : null
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+          {reviews.length === 0 && (
+            <p className="text-sm text-slate-500">
+              まだレビューがありません。
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
