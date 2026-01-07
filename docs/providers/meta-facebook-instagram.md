@@ -63,6 +63,27 @@
 - `META_APP_ID` : アプリID（Meta Developers → アプリ設定）
 - `META_APP_SECRET` : アプリシークレット（同上）
 - `META_REDIRECT_URI` : リダイレクトURI（本番運用時は必須）
+- `SUPABASE_STORAGE_BUCKET` : 画像アップロード用バケット名（Supabase Storage）
+- `MEDIA_SIGNED_URL_TTL_SECONDS` : 署名URLの有効期限（秒）
+- `MAX_UPLOAD_MB` : 画像アップロードの最大サイズ（MB）
+
+## 画像アップロード（Supabase Storage）
+### 前提
+- [ ] Supabase Storage のバケットを作成済み（private）
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` が `.env.local` に設定済み
+- [ ] `/admin/diagnostics` で **画像アップロード: 利用可能** を確認
+
+### 画像アップロードの手順
+- [ ] `/app/locations/{id}` を開く
+- [ ] **Meta（Facebook/Instagram）** の投稿作成セクションへ移動
+- [ ] **ファイルアップロード** を選択
+- [ ] 画像ファイルを選択
+- [ ] **画像をアップロード** をクリック
+- [ ] プレビュー表示を確認
+
+### 注意点
+- 形式は PNG/JPEG/WebP/GIF のみ
+- Instagram投稿は画像が必須（URL入力でもアップロードでも可）
 
 ## TEPPEN MEOでの接続/投稿手順
 
@@ -81,13 +102,13 @@
 
 ### 投稿（Facebook）
 - [ ] 投稿本文を入力
-- [ ] （任意）画像URLを入力
+- [ ] （任意）画像URL入力またはファイルアップロード
 - [ ] **Facebookに投稿** をオン
 - [ ] **投稿を送信**
 
 ### 投稿（Instagram）
 - [ ] FacebookページとInstagramが連携済みであることを確認
-- [ ] 画像URLを入力（必須）
+- [ ] 画像URL入力またはファイルアップロード（必須）
 - [ ] **Instagramに投稿** をオン
 - [ ] **投稿を送信**
 
@@ -113,7 +134,12 @@
 - Instagramに投稿できない
   - IGがプロアカウントか確認
   - FacebookページとIGが連携済みか確認
-  - 画像URLが入力されているか確認
+  - 画像が指定されているか確認
+
+- 画像アップロードが失敗する
+  - `SUPABASE_STORAGE_BUCKET` の設定を確認
+  - `SUPABASE_SERVICE_ROLE_KEY` の設定を確認
+  - 画像サイズ/形式（PNG/JPEG/WebP/GIF）を確認
 
 ## 承認が必要で今日できない場合の代替手順
 
@@ -127,8 +153,8 @@
 ## 実装状況（現時点）
 - OAuthフロー: 実装済み（state検証/トークン暗号化保存/期限管理）
 - Facebookページ紐付け: 実装済み
-- Facebook投稿: 実装済み（本文+画像URL）
-- Instagram投稿: 画像URL必須/ページ連携必須（最小実装）
+- Facebook投稿: 実装済み（本文+画像）
+- Instagram投稿: 画像必須/ページ連携必須（最小実装）
 
 ## トークンの扱い（補足）
 - OAuth直後に長期トークンへ交換を試みる

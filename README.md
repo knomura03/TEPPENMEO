@@ -94,6 +94,9 @@ pnpm dev
 | `META_APP_ID` | 任意 | Meta App ID | Meta Developers |
 | `META_APP_SECRET` | 任意 | Meta App Secret | Meta Developers |
 | `META_REDIRECT_URI` | 任意 | Meta OAuthリダイレクトURI | Meta Developers |
+| `SUPABASE_STORAGE_BUCKET` | 任意 | 画像アップロード用バケット名 | Supabase Storage |
+| `MEDIA_SIGNED_URL_TTL_SECONDS` | 任意 | 署名URLの有効期限（秒） | 例: 3600 |
+| `MAX_UPLOAD_MB` | 任意 | 最大アップロードサイズ（MB） | 例: 10 |
 | `BING_MAPS_KEY` | 任意 | Bing Maps APIキー | Azure Portal |
 | `YAHOO_YOLP_APP_ID` | 任意 | YOLP App ID | Yahoo! Developer |
 
@@ -158,6 +161,7 @@ pnpm dev
 - Supabaseマイグレーション: `docs/runbooks/supabase-migrations.md`
 - 監査ログ調査: `docs/runbooks/audit-log-debugging.md`
 - 監査ログ保存方針: `docs/runbooks/audit-log-retention.md`
+- Supabase Storage（画像アップロード）: `docs/runbooks/supabase-storage-media.md`
 - 仕様（ユーザー）: `docs/spec/user-app.md`
 - 仕様（管理）: `docs/spec/admin.md`
 - 仕様（画面一覧）: `docs/spec/screens.md`
