@@ -10,7 +10,7 @@
 | ロケーション詳細 | `/app/locations/[id]` | テナント | 連携/レビュー/投稿 | 接続/切断/紐付け/投稿 |
 | 管理概要 | `/admin` | システム管理 | 全体状況 | 概要表示 |
 | 管理プロバイダ | `/admin/providers` | システム管理 | 連携状態 | フラグ確認 |
-| 監査ログ | `/admin/audit-logs` | システム管理 | 操作履歴 | 期間/actor/action/組織/provider_type/自由検索で絞り込み |
+| 監査ログ | `/admin/audit-logs` | システム管理 | 操作履歴 | 期間/actor/action/組織/provider_type/自由検索/CSV出力 |
 | 診断 | `/admin/diagnostics` | システム管理 | 環境/接続確認 | 設定チェック |
 | ユーザー管理 | `/admin/users` | システム管理 | ユーザー管理 | 招待/テンプレ/無効化理由/削除/検索/フィルタ |
 | 組織一覧 | `/admin/organizations` | システム管理 | 組織管理 | 一覧/遷移 |

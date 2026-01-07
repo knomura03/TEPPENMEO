@@ -98,6 +98,19 @@ export type UserBlocksSchemaCheck = {
   message: string | null;
 };
 
+export type AuditLogsIndexCheck = {
+  status: "ok" | "missing" | "unknown";
+  message: string | null;
+  missingIndexes: string[];
+};
+
+const auditLogsIndexLabels: Record<string, string> = {
+  audit_logs_created_at_idx: "created_at",
+  audit_logs_action_created_at_idx: "action + created_at",
+  audit_logs_org_created_at_idx: "organization_id + created_at",
+  audit_logs_actor_created_at_idx: "actor_user_id + created_at",
+};
+
 export function resolveUserBlocksSchemaStatus(
   error: { code?: string; message?: string } | null
 ): UserBlocksSchemaCheck {
@@ -129,6 +142,60 @@ export function resolveUserBlocksSchemaStatus(
   };
 }
 
+function isMissingAuditLogsIndexFunction(error: {
+  code?: string;
+  message?: string;
+}) {
+  if (!error) return false;
+  if (error.code === "42883" || error.code === "PGRST202") return true;
+  return Boolean(error.message?.includes("audit_logs_indexes_status"));
+}
+
+export function resolveAuditLogsIndexStatus(
+  data: Record<string, boolean> | null,
+  error: { code?: string; message?: string } | null
+): AuditLogsIndexCheck {
+  if (error) {
+    if (isMissingAuditLogsIndexFunction(error)) {
+      return {
+        status: "missing",
+        message:
+          "監査ログのインデックス判定関数が見つかりません。マイグレーションを適用してください。",
+        missingIndexes: Object.values(auditLogsIndexLabels),
+      };
+    }
+    return {
+      status: "unknown",
+      message:
+        error.message ??
+        "監査ログインデックスの確認に失敗しました。設定を確認してください。",
+      missingIndexes: [],
+    };
+  }
+
+  if (!data) {
+    return {
+      status: "unknown",
+      message: "監査ログインデックスの確認結果が取得できませんでした。",
+      missingIndexes: [],
+    };
+  }
+
+  const missingIndexes = Object.entries(auditLogsIndexLabels)
+    .filter(([key]) => !data[key])
+    .map(([, label]) => label);
+
+  if (missingIndexes.length === 0) {
+    return { status: "ok", message: null, missingIndexes };
+  }
+
+  return {
+    status: "missing",
+    message: `監査ログのインデックスが未適用です（${missingIndexes.join(", ")}）。`,
+    missingIndexes,
+  };
+}
+
 export async function checkUserBlocksSchema(): Promise<UserBlocksSchemaCheck> {
   if (!isSupabaseAdminConfigured()) {
     return {
@@ -153,4 +220,29 @@ export async function checkUserBlocksSchema(): Promise<UserBlocksSchemaCheck> {
     .limit(1);
 
   return resolveUserBlocksSchemaStatus(error);
+}
+
+export async function checkAuditLogsIndexes(): Promise<AuditLogsIndexCheck> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      status: "unknown",
+      message: "Supabaseのサービスキーが未設定のため判定できません。",
+      missingIndexes: [],
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return {
+      status: "unknown",
+      message: "Supabaseの設定を確認してください。",
+      missingIndexes: [],
+    };
+  }
+
+  const { data, error } = await admin.rpc("audit_logs_indexes_status");
+  const payload =
+    data && typeof data === "object" ? (data as Record<string, boolean>) : null;
+
+  return resolveAuditLogsIndexStatus(payload, error);
 }

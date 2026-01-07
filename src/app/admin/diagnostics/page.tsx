@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getSessionUser } from "@/server/auth/session";
 import { ProviderType } from "@/server/providers/types";
 import {
+  checkAuditLogsIndexes,
   checkSupabaseConnection,
   checkUserBlocksSchema,
   getEnvChecks,
@@ -20,6 +21,7 @@ export default async function AdminDiagnosticsPage() {
   const { checks, envError, providerMockMode } = getEnvChecks();
   const supabase = await checkSupabaseConnection();
   const userBlocksSchema = await checkUserBlocksSchema();
+  const auditLogsIndexes = await checkAuditLogsIndexes();
 
   const user = await getSessionUser();
   const org = user ? await getPrimaryOrganization(user.id) : null;
@@ -88,6 +90,16 @@ export default async function AdminDiagnosticsPage() {
   if (userBlocksSchema.status === "unknown") {
     nextSteps.push("user_blocks の確認に失敗しました。設定を確認してください。");
   }
+  if (auditLogsIndexes.status === "missing") {
+    nextSteps.push(
+      "監査ログのインデックスマイグレーションを適用してください（検索性能に影響します）。"
+    );
+  }
+  if (auditLogsIndexes.status === "unknown") {
+    nextSteps.push(
+      "監査ログインデックスの確認に失敗しました。設定を確認してください。"
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -146,7 +158,7 @@ export default async function AdminDiagnosticsPage() {
           <CardHeader>
             <p className="text-sm font-semibold">マイグレーション</p>
             <p className="text-xs text-slate-400">
-              user_blocks の適用状況を確認します。
+              user_blocks と監査ログインデックスの適用状況を確認します。
             </p>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -167,6 +179,27 @@ export default async function AdminDiagnosticsPage() {
                 {userBlocksSchema.message}
               </p>
             )}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">
+                audit_logs インデックス
+              </span>
+              <Badge
+                variant={
+                  auditLogsIndexes.status === "ok" ? "success" : "warning"
+                }
+              >
+                {auditLogsIndexes.status === "ok"
+                  ? "適用済み"
+                  : auditLogsIndexes.status === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            {auditLogsIndexes.message && (
+              <p className="text-xs text-amber-300">
+                {auditLogsIndexes.message}
+              </p>
+            )}
             {userBlocksSchema.status !== "ok" && (
               <a
                 href="/docs/runbooks/supabase-migrations"
@@ -175,6 +208,15 @@ export default async function AdminDiagnosticsPage() {
                 適用手順を確認する
               </a>
             )}
+            {userBlocksSchema.status === "ok" &&
+              auditLogsIndexes.status !== "ok" && (
+                <a
+                  href="/docs/runbooks/supabase-migrations"
+                  className="inline-flex text-xs text-amber-200 underline"
+                >
+                  適用手順を確認する
+                </a>
+              )}
           </CardContent>
         </Card>
 

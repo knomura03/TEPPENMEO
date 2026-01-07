@@ -154,6 +154,21 @@ export default async function AdminAuditLogsPage({
     return `/admin/audit-logs?${params.toString()}`;
   };
 
+  const buildExportLink = () => {
+    const params = new URLSearchParams();
+    if (filters.from) params.set("from", filters.from);
+    if (filters.to) params.set("to", filters.to);
+    if (filters.action) params.set("action", filters.action);
+    if (filters.organizationId) params.set("org", filters.organizationId);
+    if (filters.actor) params.set("actor", filters.actor);
+    if (filters.providerType && filters.providerType !== "all") {
+      params.set("provider", filters.providerType);
+    }
+    if (filters.text) params.set("text", filters.text);
+    const query = params.toString();
+    return query ? `/admin/audit-logs/export?${query}` : "/admin/audit-logs/export";
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -165,7 +180,25 @@ export default async function AdminAuditLogsPage({
 
       <Card className="border-slate-700 bg-slate-900 text-slate-100">
         <CardHeader>
-          <h2 className="text-lg font-semibold">フィルタ</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">フィルタ</h2>
+              <p className="text-xs text-slate-400">
+                現在の条件でCSVエクスポートができます。
+              </p>
+            </div>
+            <div className="flex flex-col gap-1 text-left sm:items-end">
+              <a
+                href={buildExportLink()}
+                className="inline-flex h-9 items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-3 text-xs font-semibold text-slate-100 hover:bg-slate-800"
+              >
+                CSVエクスポート
+              </a>
+              <span className="text-[11px] text-slate-400">
+                最大5000件まで出力できます
+              </span>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <form className="grid gap-3 md:grid-cols-6" action="/admin/audit-logs">
