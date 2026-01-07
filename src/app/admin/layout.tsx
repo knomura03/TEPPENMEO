@@ -16,7 +16,7 @@ export default async function AdminLayout({
     redirect("/auth/sign-in");
   }
   if (user?.isBlocked) {
-    return <BlockedNotice />;
+    return <BlockedNotice reason={user.blockReason} />;
   }
 
   const isAdmin = user ? await isSystemAdmin(user.id) : false;

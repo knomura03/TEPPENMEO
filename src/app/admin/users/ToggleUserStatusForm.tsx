@@ -19,16 +19,28 @@ export function ToggleUserStatusForm({
   userId,
   email,
   isDisabled,
+  userBlocksReady,
+  userBlocksMessage,
 }: {
   userId: string;
   email: string | null;
   isDisabled: boolean;
+  userBlocksReady: boolean;
+  userBlocksMessage: string | null;
 }) {
   const [state, action] = useFormState(
     toggleAdminUserDisabledAction,
     initialState
   );
-  const disabled = !email;
+  const disabled = !email || !userBlocksReady;
+
+  if (!userBlocksReady) {
+    return (
+      <p className="text-[11px] text-amber-300">
+        {userBlocksMessage ?? "無効化/有効化は利用できません。"}
+      </p>
+    );
+  }
 
   if (isDisabled) {
     return (
@@ -65,6 +77,15 @@ export function ToggleUserStatusForm({
           placeholder="確認用メールを入力"
           className="h-9 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
           required
+          disabled={disabled}
+        />
+        <input
+          name="reason"
+          type="text"
+          placeholder="無効化理由（必須、200文字以内）"
+          className="h-9 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+          required
+          maxLength={200}
           disabled={disabled}
         />
         {state.error && <p className="text-[11px] text-rose-300">{state.error}</p>}

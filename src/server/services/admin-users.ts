@@ -5,6 +5,8 @@ import { listBlockedUserIds } from "@/server/services/user-blocks";
 import { getEnv, isSupabaseConfigured } from "@/server/utils/env";
 import { mockAdminUsers, mockMemberships } from "@/server/services/mock-data";
 
+export type AdminUserStatus = "active" | "invited" | "disabled";
+
 export type AdminUser = {
   id: string;
   email: string | null;
@@ -14,6 +16,7 @@ export type AdminUser = {
   membershipCount: number;
   isSystemAdmin: boolean;
   isDisabled: boolean;
+  status: AdminUserStatus;
 };
 
 export type CreateUserResult = {
@@ -29,6 +32,12 @@ export type InviteLinkResult = {
   inviteLink: string;
 };
 
+export type AdminUserFilters = {
+  query?: string | null;
+  status?: AdminUserStatus | "all" | null;
+  organizationId?: string | null;
+};
+
 const DEFAULT_BAN_DURATION = "87600h";
 
 function normalizeEmail(value: string) {
@@ -39,22 +48,66 @@ function generateTempPassword() {
   return `Temp-${crypto.randomBytes(12).toString("base64url")}`;
 }
 
+export function deriveAdminUserStatus(input: {
+  isDisabled: boolean;
+  invitedAt: string | null;
+  lastSignInAt: string | null;
+}): AdminUserStatus {
+  if (input.isDisabled) return "disabled";
+  if (input.invitedAt && !input.lastSignInAt) return "invited";
+  return "active";
+}
+
 export async function listAdminUsers(
-  query?: string | null
+  filters?: AdminUserFilters
 ): Promise<AdminUser[]> {
+  const query = filters?.query ?? null;
+  const statusFilter = filters?.status ?? "all";
+  const orgFilter =
+    filters?.organizationId && filters.organizationId !== "all"
+      ? filters.organizationId
+      : null;
+
   if (!isSupabaseConfigured()) {
     const filtered = query
       ? mockAdminUsers.filter((user) =>
           user.email?.toLowerCase().includes(normalizeEmail(query))
         )
       : mockAdminUsers;
-    return filtered.map((user) => ({
-      ...user,
-      membershipCount: mockMemberships.filter(
-        (member) => member.userId === user.id
-      ).length,
-      invitedAt: user.invitedAt ?? null,
-    }));
+    const membershipByUser = new Map<string, Set<string>>();
+    mockMemberships.forEach((member) => {
+      if (!membershipByUser.has(member.userId)) {
+        membershipByUser.set(member.userId, new Set());
+      }
+      membershipByUser.get(member.userId)?.add(member.organizationId);
+    });
+
+    const users = filtered.map((user) => {
+      const status = deriveAdminUserStatus({
+        isDisabled: user.isDisabled,
+        invitedAt: user.invitedAt ?? null,
+        lastSignInAt: user.lastSignInAt ?? null,
+      });
+      return {
+        ...user,
+        membershipCount: mockMemberships.filter(
+          (member) => member.userId === user.id
+        ).length,
+        invitedAt: user.invitedAt ?? null,
+        status,
+      } as AdminUser;
+    });
+
+    return users.filter((user) => {
+      if (statusFilter !== "all" && user.status !== statusFilter) {
+        return false;
+      }
+      if (orgFilter) {
+        const memberships = membershipByUser.get(user.id) ?? new Set();
+        return memberships.has(orgFilter);
+      }
+      return true;
+    });
   }
 
   const admin = getSupabaseAdmin();
@@ -66,11 +119,19 @@ export async function listAdminUsers(
   });
   if (error || !data) return [];
 
-  const memberships = await admin.from("memberships").select("user_id");
+  const memberships = await admin
+    .from("memberships")
+    .select("user_id, organization_id");
   const membershipCount = new Map<string, number>();
+  const membershipOrgs = new Map<string, Set<string>>();
   (memberships.data ?? []).forEach((row) => {
     const userId = row.user_id as string;
     membershipCount.set(userId, (membershipCount.get(userId) ?? 0) + 1);
+    const orgId = row.organization_id as string;
+    if (!membershipOrgs.has(userId)) {
+      membershipOrgs.set(userId, new Set());
+    }
+    membershipOrgs.get(userId)?.add(orgId);
   });
 
   const admins = await admin.from("system_admins").select("user_id");
@@ -82,7 +143,7 @@ export async function listAdminUsers(
 
   const normalizedQuery = query ? normalizeEmail(query) : null;
 
-  return (data.users ?? [])
+  const users = (data.users ?? [])
     .filter((user) => {
       if (!normalizedQuery) return true;
       return user.email?.toLowerCase().includes(normalizedQuery) ?? false;
@@ -93,6 +154,11 @@ export async function listAdminUsers(
       const banActive = bannedUntil
         ? new Date(bannedUntil).getTime() > Date.now()
         : false;
+      const status = deriveAdminUserStatus({
+        isDisabled: banActive || blockedSet.has(user.id),
+        invitedAt,
+        lastSignInAt: user.last_sign_in_at ?? null,
+      });
       return {
         id: user.id,
         email: user.email ?? null,
@@ -102,8 +168,20 @@ export async function listAdminUsers(
         membershipCount: membershipCount.get(user.id) ?? 0,
         isSystemAdmin: adminSet.has(user.id),
         isDisabled: banActive || blockedSet.has(user.id),
-      };
+        status,
+      } as AdminUser;
     });
+
+  return users.filter((user) => {
+    if (statusFilter !== "all" && user.status !== statusFilter) {
+      return false;
+    }
+    if (orgFilter) {
+      const memberships = membershipOrgs.get(user.id) ?? new Set();
+      return memberships.has(orgFilter);
+    }
+    return true;
+  });
 }
 
 export async function findUserIdByEmail(

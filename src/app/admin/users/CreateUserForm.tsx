@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { INVITE_LINK_STORAGE_KEY } from "@/lib/invite-template";
 import {
   createAdminUserAction,
   type AdminUserActionState,
@@ -40,6 +41,15 @@ function MessageBox({
 export function CreateUserForm() {
   const [state, action] = useFormState(createAdminUserAction, initialState);
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!state.inviteLink) return;
+    try {
+      localStorage.setItem(INVITE_LINK_STORAGE_KEY, state.inviteLink);
+    } catch {
+      // ストレージ不可でも致命的ではないため無視する
+    }
+  }, [state.inviteLink]);
 
   const handleCopy = async () => {
     if (!state.inviteLink) return;
@@ -98,6 +108,9 @@ export function CreateUserForm() {
           {copyStatus && <p className="text-[11px]">{copyStatus}</p>}
           <p className="text-[11px] text-emerald-700">
             リンクは共有範囲を限定し、漏洩しないよう注意してください。
+          </p>
+          <p className="text-[11px] text-emerald-700">
+            招待テンプレで「直近の招待リンクを反映」できます。
           </p>
         </div>
       )}

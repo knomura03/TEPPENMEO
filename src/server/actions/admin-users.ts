@@ -15,6 +15,7 @@ import {
   getUserEmailById,
 } from "@/server/services/admin-users";
 import { writeAuditLog } from "@/server/services/audit-logs";
+import { checkUserBlocksSchema } from "@/server/services/diagnostics";
 import { blockUser, unblockUser } from "@/server/services/user-blocks";
 import { isSupabaseAdminConfigured } from "@/server/utils/env";
 
@@ -39,6 +40,10 @@ const toggleSchema = z.object({
   userId: z.string().min(1),
   mode: z.enum(["disable", "enable"]),
   confirmEmail: z.string().email().optional(),
+  reason: z
+    .string()
+    .max(200, "理由は200文字以内で入力してください。")
+    .optional(),
 });
 
 async function requireSystemAdmin() {
@@ -281,6 +286,10 @@ export async function toggleAdminUserDisabledAction(
       typeof formData.get("confirmEmail") === "string"
         ? formData.get("confirmEmail")
         : undefined,
+    reason:
+      typeof formData.get("reason") === "string"
+        ? formData.get("reason")
+        : undefined,
   });
 
   if (!parsed.success) {
@@ -307,18 +316,31 @@ export async function toggleAdminUserDisabledAction(
 
   if (parsed.data.mode === "disable") {
     const confirmEmail = parsed.data.confirmEmail;
+    const reason = parsed.data.reason?.trim() ?? "";
     if (!confirmEmail) {
       return { error: "確認メールアドレスを入力してください。", success: null };
     }
     if (actualEmail.toLowerCase() !== confirmEmail.toLowerCase()) {
       return { error: "確認メールアドレスが一致しません。", success: null };
     }
+    if (!reason) {
+      return { error: "無効化理由を入力してください。", success: null };
+    }
+
+    const schema = await checkUserBlocksSchema();
+    if (schema.status !== "ok") {
+      return {
+        error:
+          "ユーザー無効化に必要なマイグレーションが未適用です。適用手順を確認してください。",
+        success: null,
+      };
+    }
 
     const banApplied = await disableAdminUser(parsed.data.userId);
     const blocked = await blockUser(
       parsed.data.userId,
       access.userId,
-      "管理画面から無効化"
+      reason
     );
 
     if (!blocked.ok) {
@@ -331,6 +353,7 @@ export async function toggleAdminUserDisabledAction(
         metadata: {
           email: actualEmail,
           banApplied,
+          reason,
           blockError: blocked.error ?? "block_failed",
         },
       });
@@ -347,7 +370,7 @@ export async function toggleAdminUserDisabledAction(
       action: "admin.user.disable",
       targetType: "user",
       targetId: parsed.data.userId,
-      metadata: { email: actualEmail, banApplied },
+      metadata: { email: actualEmail, banApplied, reason },
     });
 
     revalidatePath("/admin/users");
@@ -358,6 +381,15 @@ export async function toggleAdminUserDisabledAction(
         : "ユーザーを無効化しました。Supabase側の停止に失敗しているため、設定を確認してください。",
       tempPassword: null,
       inviteLink: null,
+    };
+  }
+
+  const schema = await checkUserBlocksSchema();
+  if (schema.status !== "ok") {
+    return {
+      error:
+        "ユーザー有効化に必要なマイグレーションが未適用です。適用手順を確認してください。",
+      success: null,
     };
   }
 

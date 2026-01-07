@@ -19,7 +19,18 @@ describe("管理ユーザー一覧（モック）", () => {
   });
 
   it("検索でフィルタできる", async () => {
-    const users = await listAdminUsers("member");
+    const users = await listAdminUsers({ query: "member" });
     expect(users.every((user) => user.email?.includes("member"))).toBe(true);
+  });
+
+  it("状態フィルタで絞り込める", async () => {
+    const invited = await listAdminUsers({ status: "invited" });
+    expect(invited.length).toBeGreaterThan(0);
+    expect(invited.every((user) => user.status === "invited")).toBe(true);
+  });
+
+  it("組織フィルタで絞り込める", async () => {
+    const users = await listAdminUsers({ organizationId: "org-1" });
+    expect(users.length).toBeGreaterThan(0);
   });
 });

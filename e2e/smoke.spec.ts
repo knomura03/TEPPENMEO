@@ -47,12 +47,21 @@ test("ユーザー管理はサインインまたはユーザー管理が表示�
     await expect(
       page.getByRole("button", { name: "ユーザーを作成" })
     ).toBeVisible();
+    await expect(page.getByText("招待テンプレ", { exact: true })).toBeVisible();
     await expect(
       page.locator("select[name='mode'] option[value='invite_link']")
     ).toHaveCount(1);
-    await expect(
-      page.locator("summary", { hasText: "無効化" }).first()
-    ).toBeVisible();
+    await expect(page.locator("select[name='status']")).toBeVisible();
+    await expect(page.locator("select[name='org']")).toBeVisible();
+    const hasDisableControl = await page
+      .locator("summary", { hasText: "無効化" })
+      .first()
+      .isVisible();
+    const hasMigrationWarning = await page
+      .getByText("マイグレーション未適用", { exact: false })
+      .isVisible();
+
+    expect(hasDisableControl || hasMigrationWarning).toBeTruthy();
   } else {
     expect(hasSignIn).toBeTruthy();
   }
