@@ -155,6 +155,7 @@ pnpm dev
 - 手動スモークテスト: `docs/runbooks/manual-smoke-test.md`
 - main保護設定: `docs/runbooks/github-branch-protection.md`
 - MCP（Playwright連携）: `docs/runbooks/mcp-playwright.md`
+- Supabaseマイグレーション: `docs/runbooks/supabase-migrations.md`
 - 仕様（ユーザー）: `docs/spec/user-app.md`
 - 仕様（管理）: `docs/spec/admin.md`
 - 仕様（画面一覧）: `docs/spec/screens.md`

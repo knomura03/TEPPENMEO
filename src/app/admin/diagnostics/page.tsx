@@ -2,7 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getSessionUser } from "@/server/auth/session";
 import { ProviderType } from "@/server/providers/types";
-import { getEnvChecks, checkSupabaseConnection } from "@/server/services/diagnostics";
+import {
+  checkSupabaseConnection,
+  checkUserBlocksSchema,
+  getEnvChecks,
+} from "@/server/services/diagnostics";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { listProviderConnections } from "@/server/services/provider-connections";
 
@@ -15,6 +19,7 @@ const connectionLabels = {
 export default async function AdminDiagnosticsPage() {
   const { checks, envError, providerMockMode } = getEnvChecks();
   const supabase = await checkSupabaseConnection();
+  const userBlocksSchema = await checkUserBlocksSchema();
 
   const user = await getSessionUser();
   const org = user ? await getPrimaryOrganization(user.id) : null;
@@ -75,6 +80,14 @@ export default async function AdminDiagnosticsPage() {
   if (!metaEnvOk) {
     nextSteps.push("Metaの環境変数を設定してください。");
   }
+  if (userBlocksSchema.status === "missing") {
+    nextSteps.push(
+      "user_blocks マイグレーションを適用してください（無効化機能に必要）。"
+    );
+  }
+  if (userBlocksSchema.status === "unknown") {
+    nextSteps.push("user_blocks の確認に失敗しました。設定を確認してください。");
+  }
 
   return (
     <div className="space-y-8">
@@ -125,6 +138,42 @@ export default async function AdminDiagnosticsPage() {
             </div>
             {supabase.message && (
               <p className="text-xs text-amber-300">{supabase.message}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-700 bg-slate-900 text-slate-100">
+          <CardHeader>
+            <p className="text-sm font-semibold">マイグレーション</p>
+            <p className="text-xs text-slate-400">
+              user_blocks の適用状況を確認します。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">user_blocks</span>
+              <Badge
+                variant={userBlocksSchema.status === "ok" ? "success" : "warning"}
+              >
+                {userBlocksSchema.status === "ok"
+                  ? "適用済み"
+                  : userBlocksSchema.status === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            {userBlocksSchema.message && (
+              <p className="text-xs text-amber-300">
+                {userBlocksSchema.message}
+              </p>
+            )}
+            {userBlocksSchema.status !== "ok" && (
+              <a
+                href="/docs/runbooks/supabase-migrations"
+                className="inline-flex text-xs text-amber-200 underline"
+              >
+                適用手順を確認する
+              </a>
             )}
           </CardContent>
         </Card>
