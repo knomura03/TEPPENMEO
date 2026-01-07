@@ -198,7 +198,9 @@ test("ロケーション詳細でGoogleセクションが表示される", async
   }
 });
 
-test("ロケーション詳細でMetaセクションが表示される", async ({ page }) => {
+test(
+  "ロケーション詳細でMetaセクションが表示される",
+  async ({ page }, testInfo) => {
   await page.goto("/app/locations/loc-1", { waitUntil: "domcontentloaded" });
   const hasMetaSection = await page
     .getByRole("heading", { name: "Meta（Facebook/Instagram）", exact: true })
@@ -234,4 +236,10 @@ test("ロケーション詳細でMetaセクションが表示される", async (
   } else {
     expect(hasSignIn).toBeTruthy();
   }
+
+  const screenshot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("app-location-post-history", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 });

@@ -159,6 +159,124 @@ export const mockPostHistory = [
       },
     ],
   },
+  {
+    id: "post-3",
+    locationId: "loc-1",
+    content: "期間限定メニューの予約が始まりました。",
+    status: "queued",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    media: [],
+    targets: [
+      {
+        provider: ProviderType.Meta,
+        status: "queued",
+        error: null,
+        externalPostId: "facebook:pending",
+      },
+      {
+        provider: ProviderType.Meta,
+        status: "queued",
+        error: null,
+        externalPostId: "instagram:pending",
+      },
+    ],
+  },
+  {
+    id: "post-4",
+    locationId: "loc-1",
+    content: "Google投稿のテスト更新です。",
+    status: "published",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+    media: [],
+    targets: [
+      {
+        provider: ProviderType.GoogleBusinessProfile,
+        status: "published",
+        error: null,
+        externalPostId: "google:mock",
+      },
+    ],
+  },
+  {
+    id: "post-5",
+    locationId: "loc-1",
+    content: "スタッフ紹介の投稿が失敗しました。",
+    status: "failed",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+    media: ["/fixtures/mock-upload.png"],
+    targets: [
+      {
+        provider: ProviderType.Meta,
+        status: "failed",
+        error: "再認可が必要です。",
+        externalPostId: "facebook:failed",
+      },
+    ],
+  },
+  {
+    id: "post-6",
+    locationId: "loc-1",
+    content: "週末イベントの告知を投稿しました。",
+    status: "published",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    media: ["/fixtures/mock-upload.png"],
+    targets: [
+      {
+        provider: ProviderType.Meta,
+        status: "published",
+        error: null,
+        externalPostId: "instagram:mock",
+      },
+    ],
+  },
+  {
+    id: "post-7",
+    locationId: "loc-1",
+    content: "営業時間変更のお知らせ（送信中）。",
+    status: "queued",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+    media: [],
+    targets: [
+      {
+        provider: ProviderType.Meta,
+        status: "queued",
+        error: null,
+        externalPostId: "facebook:pending",
+      },
+    ],
+  },
+  {
+    id: "post-8",
+    locationId: "loc-2",
+    content: "大阪店の新メニューを紹介しました。",
+    status: "published",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
+    media: ["/fixtures/mock-upload.png"],
+    targets: [
+      {
+        provider: ProviderType.Meta,
+        status: "published",
+        error: null,
+        externalPostId: "facebook:mock",
+      },
+    ],
+  },
+  {
+    id: "post-9",
+    locationId: "loc-2",
+    content: "大阪店の投稿が権限不足で失敗しました。",
+    status: "failed",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
+    media: ["storage://mock/org/mock/loc/loc-2/mock.png"],
+    targets: [
+      {
+        provider: ProviderType.Meta,
+        status: "failed",
+        error: "権限が不足しています。",
+        externalPostId: "instagram:failed",
+      },
+    ],
+  },
 ];
 
 export const mockAuditLogs = [

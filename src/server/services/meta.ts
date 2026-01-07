@@ -8,10 +8,14 @@ import {
 } from "@/server/providers/meta/api";
 import { exchangeForLongLivedToken } from "@/server/providers/meta/oauth";
 import { writeAuditLog } from "@/server/services/audit-logs";
+import { getSupabaseAdmin } from "@/server/db/supabase-admin";
 import {
   buildStorageReference,
+  createSignedImageUrl,
   createSignedImageUrlForPath,
+  getMediaConfig,
   isMediaError,
+  type MediaItem,
 } from "@/server/services/media";
 import {
   deleteLocationProviderLink,
@@ -505,4 +509,306 @@ export async function publishMetaPost(params: {
   }
 
   return { postId: postId ?? undefined, successTargets, failedTargets };
+}
+
+async function resolveRetryImageUrl(media: MediaItem[]): Promise<string | null> {
+  const image = media.find((item) => item.kind === "image") ?? null;
+  if (!image) return null;
+  if (image.source === "url") return image.url;
+
+  if (isMockMode()) {
+    return "/fixtures/mock-upload.png";
+  }
+
+  try {
+    const config = getMediaConfig();
+    return await createSignedImageUrl(
+      image.bucket,
+      image.path,
+      config.signedUrlTtlSeconds
+    );
+  } catch (error) {
+    if (isMediaError(error)) {
+      throw new ProviderError(
+        ProviderType.Meta,
+        "validation_error",
+        error.cause
+      );
+    }
+    throw new ProviderError(
+      ProviderType.Meta,
+      "upstream_error",
+      "画像URLの準備に失敗しました。"
+    );
+  }
+}
+
+async function refreshPostStatus(postId: string) {
+  const admin = getSupabaseAdmin();
+  if (!admin) return;
+  const { data } = await admin
+    .from("post_targets")
+    .select("status")
+    .eq("post_id", postId);
+  if (!data || data.length === 0) return;
+
+  const statuses = data.map((row) => row.status as string);
+  const nextStatus = statuses.every((status) => status === "published")
+    ? "published"
+    : statuses.some((status) => status === "failed")
+    ? "failed"
+    : "queued";
+
+  await updatePostStatus(postId, nextStatus);
+}
+
+async function findMetaTargetRecordId(params: {
+  postId: string;
+  target: PublishTarget;
+}) {
+  const admin = getSupabaseAdmin();
+  if (!admin) return null;
+  const { data } = await admin
+    .from("post_targets")
+    .select("id, external_post_id")
+    .eq("post_id", params.postId)
+    .eq("provider", ProviderType.Meta)
+    .order("created_at", { ascending: false });
+
+  if (!data || data.length === 0) return null;
+
+  const matched = data.find((row) =>
+    typeof row.external_post_id === "string"
+      ? row.external_post_id.startsWith(`${params.target}:`)
+      : false
+  );
+
+  return (matched ?? data[0])?.id ?? null;
+}
+
+export async function retryMetaPostTarget(params: {
+  organizationId: string;
+  locationId: string;
+  postId: string;
+  target: PublishTarget;
+  content: string;
+  media: MediaItem[];
+  actorUserId?: string | null;
+}): Promise<{ status: "published" | "failed"; externalPostId?: string | null; error?: UiError | null }> {
+  if (isMockMode()) {
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.retry",
+      targetType: "post",
+      targetId: params.postId,
+      metadata: { provider: ProviderType.Meta, target: params.target, mocked: true },
+    });
+    return {
+      status: "published",
+      externalPostId: `${params.target}:mock-retry`,
+      error: null,
+    };
+  }
+
+  const link = await getLocationProviderLink(params.locationId, ProviderType.Meta);
+  if (!link) {
+    return {
+      status: "failed",
+      error: {
+        cause: "Facebookページが未紐付けです。",
+        nextAction: "Facebookページを紐付けてから再実行してください。",
+      },
+    };
+  }
+
+  let publishImageUrl: string | null = null;
+  try {
+    publishImageUrl = await resolveRetryImageUrl(params.media);
+  } catch (error) {
+    const providerError =
+      error instanceof ProviderError
+        ? error
+        : new ProviderError(
+            ProviderType.Meta,
+            "unknown",
+            "画像URLの準備に失敗しました。"
+          );
+    return { status: "failed", error: toUiError(providerError) };
+  }
+
+  if (params.target === "instagram" && !publishImageUrl) {
+    return {
+      status: "failed",
+      error: {
+        cause: "Instagram投稿は画像が必須です。",
+        nextAction: "画像を指定してから再実行してください。",
+      },
+    };
+  }
+
+  let targetRecordId =
+    (await findMetaTargetRecordId({
+      postId: params.postId,
+      target: params.target,
+    })) ?? null;
+
+  if (targetRecordId) {
+    await updatePostTargetRecord({
+      id: targetRecordId,
+      status: "queued",
+      externalPostId: `${params.target}:retry`,
+      error: null,
+    });
+  } else {
+    const created = await createPostTargetRecord({
+      postId: params.postId,
+      provider: ProviderType.Meta,
+      status: "queued",
+      externalPostId: `${params.target}:retry`,
+    });
+    if (!created?.id) {
+      return {
+        status: "failed",
+        error: {
+          cause: "再実行の準備に失敗しました。",
+          nextAction: "時間をおいて再実行してください。",
+        },
+      };
+    }
+    targetRecordId = created.id;
+  }
+
+  try {
+    const { accessToken } = await ensureMetaAccessToken({
+      organizationId: params.organizationId,
+      actorUserId: params.actorUserId ?? null,
+    });
+
+    const pageDetails = await fetchMetaPageDetails({
+      accessToken,
+      pageId: link.externalLocationId,
+    });
+    if (!pageDetails.accessToken) {
+      throw new ProviderError(
+        ProviderType.Meta,
+        "auth_required",
+        "Facebookページのトークン取得に失敗しました。再接続してください。"
+      );
+    }
+
+    if (params.target === "facebook") {
+      const response = await publishFacebookPost({
+        pageId: link.externalLocationId,
+        pageAccessToken: pageDetails.accessToken,
+        content: params.content,
+        imageUrl: publishImageUrl,
+      });
+      await updatePostTargetRecord({
+        id: targetRecordId ?? undefined,
+        status: "published",
+        externalPostId: `${params.target}:${response.id}`,
+        error: null,
+      });
+      await refreshPostStatus(params.postId);
+      await writeAuditLog({
+        actorUserId: params.actorUserId ?? null,
+        organizationId: params.organizationId,
+        action: "posts.retry",
+        targetType: "post",
+        targetId: params.postId,
+        metadata: { provider: ProviderType.Meta, target: params.target },
+      });
+      return {
+        status: "published",
+        externalPostId: `${params.target}:${response.id}`,
+        error: null,
+      };
+    }
+
+    const instagramId = resolveInstagramAccountId(
+      link.metadata,
+      pageDetails.instagram
+    );
+    if (!instagramId) {
+      throw new ProviderError(
+        ProviderType.Meta,
+        "validation_error",
+        "Instagram連携が見つかりません。ページとInstagramを連携してください。"
+      );
+    }
+    if (!publishImageUrl) {
+      throw new ProviderError(
+        ProviderType.Meta,
+        "validation_error",
+        "Instagram投稿は画像が必須です。"
+      );
+    }
+
+    const response = await publishInstagramPost({
+      instagramAccountId: instagramId,
+      pageAccessToken: pageDetails.accessToken,
+      caption: params.content,
+      imageUrl: publishImageUrl,
+    });
+    await updatePostTargetRecord({
+      id: targetRecordId ?? undefined,
+      status: "published",
+      externalPostId: `${params.target}:${response.id}`,
+      error: null,
+    });
+    await refreshPostStatus(params.postId);
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.retry",
+      targetType: "post",
+      targetId: params.postId,
+      metadata: { provider: ProviderType.Meta, target: params.target },
+    });
+    return {
+      status: "published",
+      externalPostId: `${params.target}:${response.id}`,
+      error: null,
+    };
+  } catch (error) {
+    const providerError =
+      error instanceof ProviderError
+        ? error
+        : new ProviderError(
+            ProviderType.Meta,
+            "unknown",
+            "再実行に失敗しました。"
+          );
+
+    if (providerError.code === "auth_required") {
+      await markProviderError(
+        params.organizationId,
+        ProviderType.Meta,
+        providerError.message,
+        providerError.status === 401
+      );
+    }
+
+    await updatePostTargetRecord({
+      id: targetRecordId ?? undefined,
+      status: "failed",
+      error: providerError.message,
+      externalPostId: `${params.target}:failed`,
+    });
+    await refreshPostStatus(params.postId);
+    await writeAuditLog({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      action: "posts.retry_failed",
+      targetType: "post",
+      targetId: params.postId,
+      metadata: { provider: ProviderType.Meta, target: params.target, reason: providerError.message },
+    });
+    return {
+      status: "failed",
+      externalPostId: `${params.target}:failed`,
+      error: toUiError(providerError),
+    };
+  }
 }

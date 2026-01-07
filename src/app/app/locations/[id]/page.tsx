@@ -19,12 +19,16 @@ import {
   toUiError as toMetaUiError,
 } from "@/server/services/meta";
 import { getMediaConfig } from "@/server/services/media";
-import { listPostsForLocation } from "@/server/services/post-history";
+import {
+  listPostHistoryPage,
+  type PostHistoryPage,
+} from "@/server/services/post-history";
 import { listProviderConnections } from "@/server/services/provider-connections";
 import { listProviderStatus } from "@/server/services/providers";
 import { getProviderAccount } from "@/server/services/provider-accounts";
 import { listLatestReviewReplies } from "@/server/services/review-replies";
 import { listReviewsForLocation } from "@/server/services/reviews";
+import { isMockMode } from "@/server/utils/feature-flags";
 
 import { GoogleGbpPanel } from "./GoogleGbpPanel";
 import { MetaPanel } from "./MetaPanel";
@@ -54,9 +58,22 @@ export default async function LocationDetailPage({
   const providerStatus = listProviderStatus();
   const connections = org ? await listProviderConnections(org.id, user?.id) : [];
   const reviews = await listReviewsForLocation(location.id);
-  const posts = org
-    ? await listPostsForLocation({ organizationId: org.id, locationId: location.id })
-    : [];
+  const emptyPostHistoryPage: PostHistoryPage = {
+    items: [],
+    page: 1,
+    pageSize: 10,
+    total: 0,
+    filters: { status: "all", target: "all", search: "" },
+  };
+  const postHistoryPage = org
+    ? await listPostHistoryPage({
+        organizationId: org.id,
+        locationId: location.id,
+        page: 1,
+        pageSize: 10,
+        filters: { status: "all", target: "all", search: "" },
+      })
+    : emptyPostHistoryPage;
   const mediaConfig = getMediaConfig();
 
   const googleAccount = org
@@ -337,7 +354,13 @@ export default async function LocationDetailPage({
         </CardContent>
       </Card>
 
-      <PostHistoryPanel posts={posts} locationId={location.id} />
+      <PostHistoryPanel
+        initialPage={postHistoryPage}
+        locationId={location.id}
+        canEdit={canEdit}
+        isMockMode={isMockMode()}
+        metaConnectionStatus={metaConnection?.status ?? "not_connected"}
+      />
 
       <Card>
         <CardHeader>
