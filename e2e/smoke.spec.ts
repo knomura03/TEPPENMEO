@@ -19,7 +19,9 @@ test("ロケーション画面はサインインまたはロケーションが�
   expect(hasLocations || hasSignIn).toBeTruthy();
 });
 
-test("管理診断はサインインまたは診断が表示される", async ({ page }) => {
+test(
+  "管理診断はサインインまたは診断が表示される",
+  async ({ page }, testInfo) => {
   await page.goto("/admin/diagnostics", { waitUntil: "domcontentloaded" });
   const hasDiagnostics = await page
     .getByRole("heading", { name: "診断" })
@@ -27,6 +29,12 @@ test("管理診断はサインインまたは診断が表示される", async ({
   const hasSignIn = await page
     .getByRole("heading", { name: "サインイン" })
     .isVisible();
+
+  const screenshot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("admin-diagnostics-providers", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   expect(hasDiagnostics || hasSignIn).toBeTruthy();
 });

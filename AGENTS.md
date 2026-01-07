@@ -16,6 +16,7 @@
 - ダウンロード/エクスポート機能を追加したPRはE2Eで導線確認を必須（最低限: ボタン表示とダウンロード開始）
 - push/PRに失敗した場合の手順（SSH/gh auth）は runbook に記録し、変更があれば更新する
 - 外部API実装のPRは `docs/providers` と `docs/spec` の更新が必須（更新なしは禁止）
+- 外部APIを触るPRは `docs/providers/api-contracts.md` と contract test と `/admin/diagnostics` の次アクション更新を必須（更新なしは禁止）
 - 外部に影響する運用機能（ユーザー/権限/監査）のPRは `docs/spec` と `docs/runbooks` の更新が必須（更新なしは禁止）
 - Playwrightの生成物（`test-results/` など）は `.gitignore` で管理し、作業ツリーを汚さない
 - DBマイグレーションを追加したPRは `/admin/diagnostics` で未適用検知を必ず追加し、runbookに適用手順を追記する

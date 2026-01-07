@@ -1,5 +1,8 @@
 # Google Business Profile（GBP）
 
+## API契約書
+- `docs/providers/api-contracts.md` を参照
+
 ## 前提（必要アカウント/権限/審査）
 - [ ] Googleアカウント（ビジネス用途推奨）
 - [ ] GBPでロケーションを管理できる権限（オーナー/管理者）
