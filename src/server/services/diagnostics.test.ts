@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveUserBlocksSchemaStatus } from "@/server/services/diagnostics";
+import {
+  resolveAuditLogsIndexStatus,
+  resolveUserBlocksSchemaStatus,
+} from "@/server/services/diagnostics";
 
 describe("user_blocks マイグレーション判定", () => {
   it("エラーなしなら適用済み", () => {
@@ -34,5 +37,51 @@ describe("user_blocks マイグレーション判定", () => {
     });
     expect(result.status).toBe("unknown");
     expect(result.issue).toBe("unknown");
+  });
+});
+
+describe("監査ログインデックス判定", () => {
+  it("全てtrueなら適用済み", () => {
+    const result = resolveAuditLogsIndexStatus(
+      {
+        audit_logs_created_at_idx: true,
+        audit_logs_action_created_at_idx: true,
+        audit_logs_org_created_at_idx: true,
+        audit_logs_actor_created_at_idx: true,
+      },
+      null
+    );
+    expect(result.status).toBe("ok");
+    expect(result.missingIndexes.length).toBe(0);
+  });
+
+  it("関数未作成は未適用として扱う", () => {
+    const result = resolveAuditLogsIndexStatus(null, {
+      code: "PGRST202",
+      message: "Could not find the function audit_logs_indexes_status",
+    });
+    expect(result.status).toBe("missing");
+  });
+
+  it("一部不足は未適用として扱う", () => {
+    const result = resolveAuditLogsIndexStatus(
+      {
+        audit_logs_created_at_idx: true,
+        audit_logs_action_created_at_idx: false,
+        audit_logs_org_created_at_idx: true,
+        audit_logs_actor_created_at_idx: false,
+      },
+      null
+    );
+    expect(result.status).toBe("missing");
+    expect(result.missingIndexes.length).toBeGreaterThan(0);
+  });
+
+  it("未知のエラーは未判定として扱う", () => {
+    const result = resolveAuditLogsIndexStatus(null, {
+      code: "XX000",
+      message: "unexpected",
+    });
+    expect(result.status).toBe("unknown");
   });
 });
