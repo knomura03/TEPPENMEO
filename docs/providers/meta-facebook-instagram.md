@@ -1,5 +1,8 @@
 # Meta（Facebook Pages / Instagram）
 
+## API契約書
+- `docs/providers/api-contracts.md` を参照
+
 ## 前提（必要アカウント/権限/審査）
 - [ ] Meta開発者アカウント
 - [ ] Facebookページの管理者権限
