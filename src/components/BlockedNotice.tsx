@@ -4,9 +4,11 @@ import { signOutAction } from "@/server/auth/actions";
 export function BlockedNotice({
   title = "利用停止中",
   message = "このアカウントは管理者により無効化されています。管理者に連絡してください。",
+  reason,
 }: {
   title?: string;
   message?: string;
+  reason?: string | null;
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-slate-100">
@@ -14,6 +16,11 @@ export function BlockedNotice({
         <div className="rounded-xl border border-amber-400/40 bg-amber-900/20 p-6 text-amber-100 shadow-sm">
           <h1 className="text-xl font-semibold">{title}</h1>
           <p className="mt-3 text-sm text-amber-100/80">{message}</p>
+          {reason && (
+            <p className="mt-2 text-xs text-amber-100/70">
+              利用停止理由: {reason}
+            </p>
+          )}
           <form action={signOutAction} className="mt-6">
             <Button
               type="submit"

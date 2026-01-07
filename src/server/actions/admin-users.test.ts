@@ -15,6 +15,7 @@ import {
   getUserEmailById,
 } from "@/server/services/admin-users";
 import { writeAuditLog } from "@/server/services/audit-logs";
+import { checkUserBlocksSchema } from "@/server/services/diagnostics";
 import { blockUser, unblockUser } from "@/server/services/user-blocks";
 import { isSupabaseAdminConfigured } from "@/server/utils/env";
 
@@ -34,6 +35,9 @@ vi.mock("@/server/services/user-blocks", () => ({
   blockUser: vi.fn(),
   unblockUser: vi.fn(),
 }));
+vi.mock("@/server/services/diagnostics", () => ({
+  checkUserBlocksSchema: vi.fn(),
+}));
 vi.mock("@/server/services/audit-logs", () => ({ writeAuditLog: vi.fn() }));
 vi.mock("@/server/utils/env", () => ({ isSupabaseAdminConfigured: vi.fn() }));
 
@@ -50,6 +54,7 @@ beforeEach(() => {
     id: "admin-1",
     email: "admin@example.com",
     isBlocked: false,
+    blockReason: null,
   });
   vi.mocked(isSystemAdmin).mockResolvedValue(true);
   vi.mocked(isSupabaseAdminConfigured).mockReturnValue(true);
@@ -61,6 +66,11 @@ beforeEach(() => {
   vi.mocked(blockUser).mockResolvedValue({ ok: false });
   vi.mocked(unblockUser).mockResolvedValue({ ok: false });
   vi.mocked(getUserEmailById).mockResolvedValue(null);
+  vi.mocked(checkUserBlocksSchema).mockResolvedValue({
+    status: "ok",
+    issue: null,
+    message: null,
+  });
 });
 
 describe("管理ユーザー招待", () => {
@@ -116,12 +126,17 @@ describe("ユーザー無効化/有効化", () => {
     formData.set("userId", "user-9");
     formData.set("mode", "disable");
     formData.set("confirmEmail", "target@example.com");
+    formData.set("reason", "利用規約違反のため停止");
 
     const result = await toggleAdminUserDisabledAction(baseState, formData);
 
     expect(result.error).toBeNull();
     expect(result.success).toContain("無効化");
-    expect(vi.mocked(blockUser)).toHaveBeenCalled();
+    expect(vi.mocked(blockUser)).toHaveBeenCalledWith(
+      "user-9",
+      "admin-1",
+      "利用規約違反のため停止"
+    );
     const auditCall = vi.mocked(writeAuditLog).mock.calls[0]?.[0];
     expect(auditCall?.action).toBe("admin.user.disable");
   });
@@ -138,6 +153,7 @@ describe("ユーザー無効化/有効化", () => {
     formData.set("userId", "user-9");
     formData.set("mode", "disable");
     formData.set("confirmEmail", "target@example.com");
+    formData.set("reason", "運用上の都合");
 
     const result = await toggleAdminUserDisabledAction(baseState, formData);
 
@@ -162,5 +178,18 @@ describe("ユーザー無効化/有効化", () => {
     expect(vi.mocked(unblockUser)).toHaveBeenCalled();
     const auditCall = vi.mocked(writeAuditLog).mock.calls[0]?.[0];
     expect(auditCall?.action).toBe("admin.user.enable");
+  });
+
+  it("無効化理由が未入力だと失敗する", async () => {
+    vi.mocked(getUserEmailById).mockResolvedValue("target@example.com");
+
+    const formData = new FormData();
+    formData.set("userId", "user-9");
+    formData.set("mode", "disable");
+    formData.set("confirmEmail", "target@example.com");
+
+    const result = await toggleAdminUserDisabledAction(baseState, formData);
+
+    expect(result.error).toContain("無効化理由");
   });
 });

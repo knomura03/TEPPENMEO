@@ -15,7 +15,7 @@ export default async function AppLayout({
     redirect("/auth/sign-in");
   }
   if (user?.isBlocked) {
-    return <BlockedNotice />;
+    return <BlockedNotice reason={user.blockReason} />;
   }
 
   return <AppShell userEmail={user?.email}>{children}</AppShell>;

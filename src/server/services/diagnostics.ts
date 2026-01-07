@@ -1,5 +1,5 @@
 import { getSupabaseAdmin } from "@/server/db/supabase-admin";
-import { envBool, getEnv } from "@/server/utils/env";
+import { envBool, getEnv, isSupabaseAdminConfigured } from "@/server/utils/env";
 
 export type EnvCheck = {
   key: string;
@@ -90,4 +90,67 @@ export async function checkSupabaseConnection(): Promise<{
           : "Supabaseに接続できません。URLとキーを再確認してください。",
     };
   }
+}
+
+export type UserBlocksSchemaCheck = {
+  status: "ok" | "missing" | "unknown";
+  issue: "table_missing" | "reason_missing" | "unknown" | null;
+  message: string | null;
+};
+
+export function resolveUserBlocksSchemaStatus(
+  error: { code?: string; message?: string } | null
+): UserBlocksSchemaCheck {
+  if (!error) {
+    return { status: "ok", issue: null, message: null };
+  }
+
+  if (error.code === "42P01") {
+    return {
+      status: "missing",
+      issue: "table_missing",
+      message: "user_blocks テーブルが見つかりません。",
+    };
+  }
+
+  if (error.code === "42703") {
+    return {
+      status: "missing",
+      issue: "reason_missing",
+      message: "user_blocks の reason カラムが見つかりません。",
+    };
+  }
+
+  return {
+    status: "unknown",
+    issue: "unknown",
+    message:
+      error.message ?? "user_blocks の確認に失敗しました。設定を確認してください。",
+  };
+}
+
+export async function checkUserBlocksSchema(): Promise<UserBlocksSchemaCheck> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseのサービスキーが未設定のため判定できません。",
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseの設定を確認してください。",
+    };
+  }
+
+  const { error } = await admin
+    .from("user_blocks")
+    .select("user_id, reason")
+    .limit(1);
+
+  return resolveUserBlocksSchemaStatus(error);
 }

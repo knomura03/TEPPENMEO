@@ -6,6 +6,12 @@ export type UserBlockResult = {
   error?: string;
 };
 
+export type UserBlockInfo = {
+  blocked: boolean;
+  reason: string | null;
+  error?: string;
+};
+
 export async function listBlockedUserIds(): Promise<{
   ids: Set<string>;
   error?: string;
@@ -79,17 +85,28 @@ export async function unblockUser(userId: string): Promise<UserBlockResult> {
   return { ok: true };
 }
 
-export async function isUserBlocked(userId: string): Promise<boolean> {
-  if (!isSupabaseAdminConfigured()) return false;
+export async function getUserBlock(userId: string): Promise<UserBlockInfo> {
+  if (!isSupabaseAdminConfigured()) {
+    return { blocked: false, reason: null };
+  }
   const admin = getSupabaseAdmin();
-  if (!admin) return false;
+  if (!admin) {
+    return { blocked: false, reason: null, error: "Supabaseが未設定です。" };
+  }
 
   const { data, error } = await admin
     .from("user_blocks")
-    .select("user_id")
+    .select("user_id, reason")
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (error) return false;
-  return Boolean(data?.user_id);
+  if (error) {
+    return { blocked: false, reason: null, error: error.message };
+  }
+  return { blocked: Boolean(data?.user_id), reason: data?.reason ?? null };
+}
+
+export async function isUserBlocked(userId: string): Promise<boolean> {
+  const block = await getUserBlock(userId);
+  return block.blocked;
 }
