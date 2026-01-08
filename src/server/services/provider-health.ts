@@ -20,6 +20,11 @@ export type ProviderHealthCheck = {
   summary: string;
 };
 
+export type ProviderHealthBlockedReason = {
+  cause: string;
+  nextActions: string[];
+};
+
 export type ProviderHealthResult = {
   status: ProviderHealthStatus;
   checks: ProviderHealthCheck[];
@@ -27,6 +32,8 @@ export type ProviderHealthResult = {
   debug: {
     httpStatus?: number;
   };
+  apiCallEnabled: boolean;
+  blockedReason?: ProviderHealthBlockedReason | null;
 };
 
 type EnvCheck = {
@@ -128,6 +135,12 @@ function buildApiCheck(ok: boolean, summary: string): ProviderHealthCheck {
 
 function buildMockResult(provider: ProviderType): ProviderHealthResult {
   const label = providerLabels[provider];
+  const blockedReason = {
+    cause: "モック運用のため外部APIは実行しません。",
+    nextActions: [
+      "実APIの確認にはPROVIDER_MOCK_MODEをfalseにしてください。",
+    ],
+  };
   return {
     status: "warning",
     checks: [
@@ -147,10 +160,43 @@ function buildMockResult(provider: ProviderType): ProviderHealthResult {
         summary: "モック応答",
       },
     ],
-    nextActions: [
-      "実APIの確認にはPROVIDER_MOCK_MODEをfalseにしてください。",
-    ],
+    nextActions: blockedReason.nextActions,
     debug: {},
+    apiCallEnabled: false,
+    blockedReason,
+  };
+}
+
+function buildBlockedResult(params: {
+  provider: ProviderType;
+  envCheck: EnvCheck;
+  hasToken: boolean;
+  blockedReason: ProviderHealthBlockedReason;
+  status: ProviderHealthStatus;
+  apiSummary: string;
+  reason: string;
+}): { result: ProviderHealthResult; reason: string } {
+  const checks = [
+    buildEnvCheckResult(params.envCheck),
+    buildConnectionCheck(params.hasToken),
+    buildApiCheck(false, params.apiSummary),
+  ];
+  const nextActions = mergeNextActions(
+    params.blockedReason.nextActions,
+    params.envCheck.ok
+      ? []
+      : [`${providerLabels[params.provider]}の環境変数を設定してください。`]
+  );
+  return {
+    result: {
+      status: params.status,
+      checks,
+      nextActions,
+      debug: {},
+      apiCallEnabled: false,
+      blockedReason: params.blockedReason,
+    },
+    reason: params.reason,
   };
 }
 
@@ -162,19 +208,18 @@ function buildNotConnectedResult(
   const status: ProviderHealthStatus = envCheck.ok
     ? "not_connected"
     : "not_configured";
-  const checks = [
-    buildEnvCheckResult(envCheck),
-    buildConnectionCheck(false),
-    buildApiCheck(false, "未実行（未接続）"),
-  ];
-  const nextActions = mergeNextActions(
-    envCheck.ok ? [] : [`${label}の環境変数を設定してください。`],
-    [`${label}の接続を開始してください。`]
-  );
-  return {
-    result: { status, checks, nextActions, debug: {} },
+  return buildBlockedResult({
+    provider,
+    envCheck,
+    hasToken: false,
+    blockedReason: {
+      cause: `${label}の接続が未完了です。`,
+      nextActions: [`${label}の接続を開始してください。`],
+    },
+    status,
+    apiSummary: "未実行（未接続）",
     reason: status,
-  };
+  });
 }
 
 function buildSuccessResult(params: {
@@ -198,6 +243,8 @@ function buildSuccessResult(params: {
       checks,
       nextActions,
       debug: {},
+      apiCallEnabled: true,
+      blockedReason: null,
     },
     reason: status === "ok" ? "ok" : "env_missing",
   };
@@ -223,6 +270,8 @@ function buildErrorResult(params: {
       checks,
       nextActions,
       debug: { httpStatus: params.error.status },
+      apiCallEnabled: true,
+      blockedReason: null,
     },
     reason: hint.reason,
     httpStatus: params.error.status,
@@ -364,8 +413,32 @@ async function runProviderHealth(params: {
   }
 
   const envCheck = resolveEnvCheck(params.envKeys);
-  const baseChecks: ProviderHealthCheck[] = [buildEnvCheckResult(envCheck)];
   const account = await getProviderAccount(params.organizationId, params.provider);
+  const hasToken = Boolean(account?.tokenEncrypted);
+
+  if (!envCheck.ok) {
+    const outcome = buildBlockedResult({
+      provider: params.provider,
+      envCheck,
+      hasToken,
+      blockedReason: {
+        cause: "必須環境変数が未設定です。",
+        nextActions: ["環境変数を設定して再実行してください。"],
+      },
+      status: "not_configured",
+      apiSummary: "未実行（環境変数が未設定）",
+      reason: "not_configured",
+    });
+    return finalizeHealthResult({
+      actorUserId: params.actorUserId ?? null,
+      organizationId: params.organizationId,
+      provider: params.provider,
+      result: outcome.result,
+      reason: outcome.reason,
+    });
+  }
+
+  const baseChecks: ProviderHealthCheck[] = [buildEnvCheckResult(envCheck)];
 
   if (!account?.tokenEncrypted) {
     const outcome = buildNotConnectedResult(params.provider, envCheck);

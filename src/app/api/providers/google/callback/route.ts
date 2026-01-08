@@ -19,7 +19,13 @@ import {
   markProviderError,
   upsertProviderAccount,
 } from "@/server/services/provider-accounts";
+import { buildGoogleScopeMetadata } from "@/server/services/provider-permissions";
 import { writeAuditLog } from "@/server/services/audit-logs";
+
+const requestedGoogleScopes = [
+  "https://www.googleapis.com/auth/business.manage",
+  "https://www.googleapis.com/auth/userinfo.profile",
+];
 
 function buildRedirectUri(requestUrl: string) {
   const url = new URL(requestUrl);
@@ -166,6 +172,7 @@ export async function GET(request: Request) {
         reauth_required: false,
         last_error: apiAccess.ok ? null : apiAccess.message,
         connected_at: new Date().toISOString(),
+        ...buildGoogleScopeMetadata(requestedGoogleScopes),
       },
     });
 

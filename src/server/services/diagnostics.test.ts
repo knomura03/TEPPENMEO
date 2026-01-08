@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getEnvCheckGroups,
   resolveAuditLogsIndexStatus,
   resolveUserBlocksSchemaStatus,
 } from "@/server/services/diagnostics";
+import { resetEnvForTests } from "@/server/utils/env";
 
 describe("user_blocks マイグレーション判定", () => {
   it("エラーなしなら適用済み", () => {
@@ -83,5 +85,21 @@ describe("監査ログインデックス判定", () => {
       message: "unexpected",
     });
     expect(result.status).toBe("unknown");
+  });
+});
+
+describe("環境変数の分類", () => {
+  it("モック必須と実機必須を分けて判定できる", () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    process.env.TOKEN_ENCRYPTION_KEY = "key";
+    process.env.APP_BASE_URL = "http://localhost:3000";
+    delete process.env.GOOGLE_CLIENT_ID;
+    delete process.env.META_APP_ID;
+    resetEnvForTests();
+
+    const result = getEnvCheckGroups();
+    expect(result.mockRequired.every((check) => check.present)).toBe(true);
+    expect(result.realRequired.some((check) => !check.present)).toBe(true);
   });
 });

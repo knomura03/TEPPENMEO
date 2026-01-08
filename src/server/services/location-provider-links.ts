@@ -128,3 +128,30 @@ export async function deleteLocationProviderLink(input: {
     .eq("location_id", input.locationId)
     .eq("provider", input.provider);
 }
+
+export async function countLocationProviderLinks(params: {
+  locationIds: string[];
+  provider: ProviderType;
+}): Promise<number> {
+  if (params.locationIds.length === 0) return 0;
+
+  if (!isSupabaseConfigured()) {
+    return mockLocationProviderLinks.filter(
+      (link) =>
+        params.locationIds.includes(link.locationId) &&
+        link.provider === params.provider
+    ).length;
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) return 0;
+
+  const { count, error } = await admin
+    .from("location_provider_links")
+    .select("id", { count: "exact", head: true })
+    .in("location_id", params.locationIds)
+    .eq("provider", params.provider);
+
+  if (error) return 0;
+  return count ?? 0;
+}

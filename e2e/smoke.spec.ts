@@ -35,6 +35,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-diagnostics-mock-mode", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   expect(hasDiagnostics || hasSignIn).toBeTruthy();
 });
@@ -90,6 +94,27 @@ test(
     } else {
       expect(hasSignIn).toBeTruthy();
     }
+  }
+);
+
+test(
+  "セットアップはサインインまたはセットアップが表示される",
+  async ({ page }, testInfo) => {
+    await page.goto("/app/setup", { waitUntil: "domcontentloaded" });
+    const hasSetup = await page
+      .getByRole("heading", { name: "セットアップチェック" })
+      .isVisible();
+    const hasSignIn = await page
+      .getByRole("heading", { name: "サインイン", exact: true })
+      .isVisible();
+
+    const screenshot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("app-setup-checklist", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+
+    expect(hasSetup || hasSignIn).toBeTruthy();
   }
 );
 

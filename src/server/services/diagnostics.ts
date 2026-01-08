@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/server/db/supabase-admin";
-import { envBool, getEnv, isSupabaseAdminConfigured } from "@/server/utils/env";
+import { getEnv, isSupabaseAdminConfigured, type Env } from "@/server/utils/env";
+import { isProviderMockMode } from "@/server/utils/feature-flags";
 
 export type EnvCheck = {
   key: string;
@@ -7,26 +8,43 @@ export type EnvCheck = {
   present: boolean;
 };
 
-const requiredEnvKeys = [
+export const mockRequiredEnvKeys: readonly (keyof Env)[] = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-  "SUPABASE_SERVICE_ROLE_KEY",
   "TOKEN_ENCRYPTION_KEY",
   "APP_BASE_URL",
+] as const;
+
+export const realRequiredEnvKeys: readonly (keyof Env)[] = [
+  "SUPABASE_SERVICE_ROLE_KEY",
   "GOOGLE_CLIENT_ID",
   "GOOGLE_CLIENT_SECRET",
   "GOOGLE_REDIRECT_URI",
+  "META_APP_ID",
+  "META_APP_SECRET",
+  "META_REDIRECT_URI",
 ] as const;
 
-type RequiredEnvKey = (typeof requiredEnvKeys)[number];
+function buildEnvChecks(
+  keys: readonly (keyof Env)[],
+  env: Env | null
+): EnvCheck[] {
+  const readValue = (key: keyof Env) => env?.[key] ?? process.env[key];
+  return keys.map((key) => ({
+    key,
+    required: true,
+    present: Boolean(readValue(key)),
+  }));
+}
 
-export function getEnvChecks(): {
-  checks: EnvCheck[];
+export function getEnvCheckGroups(): {
+  mockRequired: EnvCheck[];
+  realRequired: EnvCheck[];
   envError: string | null;
   providerMockMode: boolean;
 } {
   let envError: string | null = null;
-  let env: ReturnType<typeof getEnv> | null = null;
+  let env: Env | null = null;
 
   try {
     env = getEnv();
@@ -35,19 +53,13 @@ export function getEnvChecks(): {
       error instanceof Error ? error.message : "環境変数の検証に失敗しました。";
   }
 
-  const readValue = (key: RequiredEnvKey) =>
-    env?.[key] ?? process.env[key];
-
-  const checks = requiredEnvKeys.map((key) => ({
-    key,
-    required: true,
-    present: Boolean(readValue(key)),
-  }));
-
-  const mockValue = env?.PROVIDER_MOCK_MODE ?? process.env.PROVIDER_MOCK_MODE;
-  const providerMockMode = envBool(mockValue, false);
-
-  return { checks, envError, providerMockMode };
+  const providerMockMode = isProviderMockMode();
+  return {
+    mockRequired: buildEnvChecks(mockRequiredEnvKeys, env),
+    realRequired: buildEnvChecks(realRequiredEnvKeys, env),
+    envError,
+    providerMockMode,
+  };
 }
 
 export async function checkSupabaseConnection(): Promise<{

@@ -6,12 +6,13 @@ import {
   checkAuditLogsIndexes,
   checkSupabaseConnection,
   checkUserBlocksSchema,
-  getEnvChecks,
+  getEnvCheckGroups,
 } from "@/server/services/diagnostics";
 import { getMediaConfig, isStorageConfigured } from "@/server/services/media";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { getProviderAccount } from "@/server/services/provider-accounts";
 import { listProviderConnections } from "@/server/services/provider-connections";
+import { EnvSnippet } from "./EnvSnippet";
 
 const connectionLabels = {
   connected: "接続済み",
@@ -32,12 +33,25 @@ function normalizeGoogleScope(scope: string) {
   return scope.replace("https://www.googleapis.com/auth/", "");
 }
 
+function normalizeStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string");
+  }
+  if (typeof value === "string") {
+    return value.split(/[\s,]+/).filter(Boolean);
+  }
+  return [];
+}
+
 function resolveScopeStatus(params: {
   storedScopes: string[];
+  requestedScopes: string[];
   requiredScopes: string[];
   normalize?: (scope: string) => string;
-}): "ok" | "missing" | "unknown" {
-  if (!params.storedScopes.length) return "unknown";
+}): "ok" | "missing" | "unknown" | "requested" {
+  if (!params.storedScopes.length) {
+    return params.requestedScopes.length ? "requested" : "unknown";
+  }
   const normalize = params.normalize ?? ((value: string) => value);
   const hasAll = params.requiredScopes.every((required) =>
     params.storedScopes.some(
@@ -48,7 +62,8 @@ function resolveScopeStatus(params: {
 }
 
 export default async function AdminDiagnosticsPage() {
-  const { checks, envError, providerMockMode } = getEnvChecks();
+  const { mockRequired, realRequired, envError, providerMockMode } =
+    getEnvCheckGroups();
   const supabase = await checkSupabaseConnection();
   const userBlocksSchema = await checkUserBlocksSchema();
   const auditLogsIndexes = await checkAuditLogsIndexes();
@@ -82,14 +97,29 @@ export default async function AdminDiagnosticsPage() {
     metaStatus === "unknown" ? "未判定" : connectionLabels[metaStatus];
 
   const googleStoredScopes = googleAccount?.scopes ?? [];
-  const metaStoredScopes = metaAccount?.scopes ?? [];
+  const googleRequestedScopes = normalizeStringArray(
+    googleAccount?.metadata?.requested_scopes
+  );
+  const metaGrantedScopes = normalizeStringArray(
+    metaAccount?.metadata?.permissions_granted
+  );
+  const metaStoredScopes =
+    metaGrantedScopes.length > 0 ? metaGrantedScopes : metaAccount?.scopes ?? [];
+  const metaRequestedScopes = normalizeStringArray(
+    metaAccount?.metadata?.requested_permissions
+  );
+  const metaDeclinedScopes = normalizeStringArray(
+    metaAccount?.metadata?.permissions_declined
+  );
   const googleScopeStatus = resolveScopeStatus({
     storedScopes: googleStoredScopes,
+    requestedScopes: googleRequestedScopes,
     requiredScopes: googleRequiredScopes,
     normalize: normalizeGoogleScope,
   });
   const metaScopeStatus = resolveScopeStatus({
     storedScopes: metaStoredScopes,
+    requestedScopes: metaRequestedScopes,
     requiredScopes: metaRequiredPermissions,
   });
 
@@ -97,10 +127,22 @@ export default async function AdminDiagnosticsPage() {
     googleStoredScopes.length > 0
       ? googleStoredScopes.join(", ")
       : "保存していないため不明";
+  const googleRequestedLabel =
+    googleRequestedScopes.length > 0
+      ? googleRequestedScopes.join(", ")
+      : "保存していないため不明";
   const metaScopeLabel =
     metaStoredScopes.length > 0
       ? metaStoredScopes.join(", ")
       : "保存していないため不明";
+  const metaRequestedLabel =
+    metaRequestedScopes.length > 0
+      ? metaRequestedScopes.join(", ")
+      : "保存していないため不明";
+  const metaDeclinedLabel =
+    metaDeclinedScopes.length > 0
+      ? metaDeclinedScopes.join(", ")
+      : null;
 
   const googleApiAccessFlag = googleAccount?.metadata?.api_access;
   const googleApiAccessStatus =
@@ -110,24 +152,40 @@ export default async function AdminDiagnosticsPage() {
         ? "承認済み（推定）"
         : "不明";
 
-  const metaEnvOk = Boolean(
-    process.env.META_APP_ID &&
-      process.env.META_APP_SECRET &&
-      process.env.META_REDIRECT_URI
-  );
+  const missingMockEnv = mockRequired.filter((check) => !check.present);
+  const missingRealEnv = realRequired.filter((check) => !check.present);
+  const externalApiEnabled = !providerMockMode;
 
   const nextSteps: string[] = [];
   if (envError) {
     nextSteps.push("環境変数の形式エラーを修正してください。");
   }
-  if (checks.some((check) => !check.present)) {
-    nextSteps.push("未設定の必須環境変数を設定してください。");
+  if (missingMockEnv.length > 0) {
+    nextSteps.push(
+      `モック運用でも必須の環境変数が未設定です: ${missingMockEnv
+        .map((check) => check.key)
+        .join(", ")}`
+    );
+  }
+  if (missingRealEnv.length > 0) {
+    nextSteps.push(
+      providerMockMode
+        ? `実機運用に切り替える場合は次の環境変数を設定してください: ${missingRealEnv
+            .map((check) => check.key)
+            .join(", ")}`
+        : `実機運用に必要な環境変数が未設定です: ${missingRealEnv
+            .map((check) => check.key)
+            .join(", ")}`
+    );
   }
   if (!supabase.ok) {
     nextSteps.push("SupabaseのURLとキーを再確認してください。");
   }
   if (providerMockMode) {
-    nextSteps.push("実接続する場合はPROVIDER_MOCK_MODEをfalseにしてください。");
+    nextSteps.push(
+      "実接続する場合はPROVIDER_MOCK_MODEをfalseにしてください。"
+    );
+    nextSteps.push("実機運用への切り替え手順書を確認してください。");
   }
   if (!org) {
     nextSteps.push("所属組織が未設定です。シードまたはメンバー追加を確認してください。");
@@ -141,6 +199,11 @@ export default async function AdminDiagnosticsPage() {
   if (org && googleScopeStatus === "missing") {
     nextSteps.push(
       "Googleのbusiness.manageスコープが不足している可能性が高いです。スコープ設定を確認して再接続してください。"
+    );
+  }
+  if (org && googleScopeStatus === "requested") {
+    nextSteps.push(
+      "Googleのスコープ取得は要求済みです。取得結果は保存していないため、接続時のスコープ設定を確認してください。"
     );
   }
   if (org && googleScopeStatus === "unknown") {
@@ -164,13 +227,15 @@ export default async function AdminDiagnosticsPage() {
       "Metaの権限が不足している可能性が高いです。App Reviewと権限を確認して再接続してください。"
     );
   }
+  if (org && metaScopeStatus === "requested") {
+    nextSteps.push(
+      "Meta権限の要求は記録済みです。App Reviewと権限承認の状況を確認してください（推定）。"
+    );
+  }
   if (org && metaScopeStatus === "unknown") {
     nextSteps.push(
       "Metaの権限取得状況が不明です。取得状況は保存していないため、App Reviewや権限設定を確認してください。"
     );
-  }
-  if (!metaEnvOk) {
-    nextSteps.push("Metaの環境変数を設定してください。");
   }
   if (!mediaConfig.bucket) {
     nextSteps.push("Supabase Storageのバケットを作成してください。");
@@ -209,26 +274,95 @@ export default async function AdminDiagnosticsPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card tone="dark">
           <CardHeader>
-            <p className="text-sm font-semibold">必須環境変数</p>
+            <p className="text-sm font-semibold">環境変数</p>
             <p className="text-xs text-slate-400">
-              値は表示しません（設定済み/未設定のみ）。
+              モード別に必須項目を整理します。値は表示しません。
             </p>
           </CardHeader>
-          <CardContent className="space-y-2">
-            {checks.map((check) => (
-              <div
-                key={check.key}
-                className="flex items-center justify-between"
-              >
-                <span className="text-xs text-slate-300">{check.key}</span>
-                <Badge variant={check.present ? "success" : "warning"}>
-                  {check.present ? "設定済み" : "未設定"}
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-300">
+                <span className="font-semibold">モック運用でも必須</span>
+                <Badge
+                  variant={
+                    missingMockEnv.length === 0 ? "success" : "warning"
+                  }
+                >
+                  {missingMockEnv.length === 0 ? "設定済み" : "未設定あり"}
                 </Badge>
               </div>
-            ))}
+              {mockRequired.map((check) => (
+                <div
+                  key={check.key}
+                  className="flex items-center justify-between"
+                >
+                  <span className="text-xs text-slate-300">{check.key}</span>
+                  <Badge variant={check.present ? "success" : "warning"}>
+                    {check.present ? "設定済み" : "未設定"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-300">
+                <span className="font-semibold">実機運用で必須</span>
+                <Badge
+                  variant={
+                    missingRealEnv.length === 0
+                      ? "success"
+                      : providerMockMode
+                        ? "muted"
+                        : "warning"
+                  }
+                >
+                  {missingRealEnv.length === 0
+                    ? "設定済み"
+                    : providerMockMode
+                      ? "未設定（モック中は不要）"
+                      : "未設定"}
+                </Badge>
+              </div>
+              {realRequired.map((check) => (
+                <div
+                  key={check.key}
+                  className="flex items-center justify-between"
+                >
+                  <span className="text-xs text-slate-300">{check.key}</span>
+                  <Badge
+                    variant={
+                      check.present
+                        ? "success"
+                        : providerMockMode
+                          ? "muted"
+                          : "warning"
+                    }
+                  >
+                    {check.present
+                      ? "設定済み"
+                      : providerMockMode
+                        ? "未設定（モック中は不要）"
+                        : "未設定"}
+                  </Badge>
+                </div>
+              ))}
+            </div>
             {envError && (
               <p className="pt-2 text-xs text-amber-300">{envError}</p>
             )}
+            <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+              <p className="text-[11px] text-slate-400">
+                空の .env.local スニペット
+              </p>
+              <EnvSnippet
+                value={[
+                  "# モック運用でも必須",
+                  ...mockRequired.map((check) => `${check.key}=`),
+                  "",
+                  "# 実機運用で必須",
+                  ...realRequired.map((check) => `${check.key}=`),
+                ].join("\n")}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -327,7 +461,15 @@ export default async function AdminDiagnosticsPage() {
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-300">モックモード</span>
               <Badge variant={providerMockMode ? "warning" : "success"}>
-                {providerMockMode ? "有効" : "無効"}
+                {providerMockMode ? "ON" : "OFF"}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">
+                外部API呼び出し
+              </span>
+              <Badge variant={externalApiEnabled ? "success" : "warning"}>
+                {externalApiEnabled ? "有効" : "無効"}
               </Badge>
             </div>
             <div className="flex items-center justify-between">
@@ -346,12 +488,6 @@ export default async function AdminDiagnosticsPage() {
                 variant={metaStatus === "connected" ? "success" : "warning"}
               >
                 {metaStatusLabel}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-300">Meta環境変数</span>
-              <Badge variant={metaEnvOk ? "success" : "warning"}>
-                {metaEnvOk ? "設定済み" : "未設定"}
               </Badge>
             </div>
             <div className="rounded-md border border-slate-700 bg-slate-900/40 p-3 text-[11px] text-slate-300">
@@ -374,10 +510,15 @@ export default async function AdminDiagnosticsPage() {
                     ? "取得済み"
                     : googleScopeStatus === "missing"
                       ? "不足の可能性"
-                      : "不明"}
+                      : googleScopeStatus === "requested"
+                        ? "要求済み"
+                        : "不明"}
                 </Badge>
               </div>
               <p className="mt-1 text-slate-400">取得済み: {googleScopeLabel}</p>
+              <p className="mt-1 text-slate-400">
+                要求済み: {googleRequestedLabel}
+              </p>
               <p className="mt-1 text-slate-400">
                 API承認: {googleApiAccessStatus}
               </p>
@@ -402,10 +543,20 @@ export default async function AdminDiagnosticsPage() {
                     ? "取得済み"
                     : metaScopeStatus === "missing"
                       ? "不足の可能性"
-                      : "不明"}
+                      : metaScopeStatus === "requested"
+                        ? "要求済み"
+                        : "不明"}
                 </Badge>
               </div>
               <p className="mt-1 text-slate-400">取得済み: {metaScopeLabel}</p>
+              <p className="mt-1 text-slate-400">
+                要求済み: {metaRequestedLabel}
+              </p>
+              {metaDeclinedLabel && (
+                <p className="mt-1 text-slate-400">
+                  拒否: {metaDeclinedLabel}
+                </p>
+              )}
               <p className="mt-1 text-slate-400">
                 取得状況が不明な場合はApp Reviewと権限設定を確認してください（推定）。
               </p>
@@ -425,6 +576,12 @@ export default async function AdminDiagnosticsPage() {
               className="text-[11px] text-amber-200 underline"
             >
               実機ヘルスチェックを開く
+            </a>
+            <a
+              href="/docs/runbooks/switch-mock-to-real"
+              className="text-[11px] text-amber-200 underline"
+            >
+              モック→実機の切り替え手順
             </a>
             <p className="text-[11px] text-slate-400">
               対象組織: {org?.name ?? "未設定"}

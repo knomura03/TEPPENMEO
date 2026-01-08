@@ -9,6 +9,7 @@ import { verifyOAuthState } from "@/server/utils/oauth-state";
 import {
   exchangeCodeForToken,
   exchangeForLongLivedToken,
+  fetchMetaPermissions,
   fetchMetaTokenInfo,
   fetchMetaUserInfo,
   getMetaEnv,
@@ -20,7 +21,16 @@ import {
   markProviderError,
   upsertProviderAccount,
 } from "@/server/services/provider-accounts";
+import { buildMetaPermissionMetadata } from "@/server/services/provider-permissions";
 import { writeAuditLog } from "@/server/services/audit-logs";
+
+const requestedMetaPermissions = [
+  "pages_show_list",
+  "pages_manage_posts",
+  "pages_read_engagement",
+  "instagram_basic",
+  "instagram_content_publish",
+];
 
 function buildRedirectUri(requestUrl: string) {
   const url = new URL(requestUrl);
@@ -148,6 +158,7 @@ export async function GET(request: Request) {
 
     const userInfo = await fetchMetaUserInfo(accessToken);
     const tokenInfo = await fetchMetaTokenInfo(accessToken);
+    const permissionStatus = await fetchMetaPermissions(accessToken);
 
     const expiresAt = expiresIn
       ? new Date(Date.now() + expiresIn * 1000).toISOString()
@@ -168,6 +179,10 @@ export async function GET(request: Request) {
         last_error: null,
         connected_at: new Date().toISOString(),
         long_lived: longLived,
+        ...buildMetaPermissionMetadata({
+          requestedPermissions: requestedMetaPermissions,
+          status: permissionStatus,
+        }),
       },
     });
 
