@@ -50,6 +50,9 @@ function HealthCard({
   action: (formData: FormData) => void;
 }) {
   const status = state.result?.status ?? "idle";
+  const apiCallEnabled = state.result?.apiCallEnabled;
+  const blockedReason = state.result?.blockedReason ?? null;
+  const nextActions = blockedReason?.nextActions ?? state.result?.nextActions ?? [];
 
   return (
     <Card tone="dark">
@@ -67,6 +70,14 @@ function HealthCard({
           <span>最終実行</span>
           <span>{formatUpdatedAt(state.updatedAt)}</span>
         </div>
+        {typeof apiCallEnabled === "boolean" && (
+          <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <span>外部API呼び出し</span>
+            <Badge variant={apiCallEnabled ? "success" : "warning"}>
+              {apiCallEnabled ? "有効" : "無効"}
+            </Badge>
+          </div>
+        )}
 
         {state.error && (
           <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
@@ -99,11 +110,18 @@ function HealthCard({
           </p>
         )}
 
-        {state.result?.nextActions?.length ? (
+        {blockedReason && (
+          <div className="rounded-md border border-slate-800 bg-slate-950/60 p-3">
+            <p className="text-[11px] text-slate-400">原因</p>
+            <p className="text-xs text-slate-200">{blockedReason.cause}</p>
+          </div>
+        )}
+
+        {nextActions.length ? (
           <div>
             <p className="text-[11px] text-slate-400">次にやること</p>
             <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-slate-200">
-              {state.result.nextActions.map((actionItem) => (
+              {nextActions.map((actionItem) => (
                 <li key={actionItem}>{actionItem}</li>
               ))}
             </ul>
