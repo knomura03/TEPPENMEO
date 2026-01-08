@@ -116,6 +116,12 @@ export type SetupProgressSchemaCheck = {
   message: string | null;
 };
 
+export type MediaAssetsSchemaCheck = {
+  status: "ok" | "missing" | "unknown";
+  issue: "table_missing" | "unknown" | null;
+  message: string | null;
+};
+
 export type AuditLogsIndexCheck = {
   status: "ok" | "missing" | "unknown";
   message: string | null;
@@ -180,6 +186,29 @@ export function resolveSetupProgressSchemaStatus(
     issue: "unknown",
     message:
       error.message ?? "setup_progress の確認に失敗しました。設定を確認してください。",
+  };
+}
+
+export function resolveMediaAssetsSchemaStatus(
+  error: { code?: string; message?: string } | null
+): MediaAssetsSchemaCheck {
+  if (!error) {
+    return { status: "ok", issue: null, message: null };
+  }
+
+  if (error.code === "42P01") {
+    return {
+      status: "missing",
+      issue: "table_missing",
+      message: "media_assets テーブルが見つかりません。",
+    };
+  }
+
+  return {
+    status: "unknown",
+    issue: "unknown",
+    message:
+      error.message ?? "media_assets の確認に失敗しました。設定を確認してください。",
   };
 }
 
@@ -284,6 +313,29 @@ export async function checkSetupProgressSchema(): Promise<SetupProgressSchemaChe
   const { error } = await admin.from("setup_progress").select("id").limit(1);
 
   return resolveSetupProgressSchemaStatus(error);
+}
+
+export async function checkMediaAssetsSchema(): Promise<MediaAssetsSchemaCheck> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseのサービスキーが未設定のため判定できません。",
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseの設定を確認してください。",
+    };
+  }
+
+  const { error } = await admin.from("media_assets").select("id").limit(1);
+
+  return resolveMediaAssetsSchemaStatus(error);
 }
 
 export async function checkAuditLogsIndexes(): Promise<AuditLogsIndexCheck> {

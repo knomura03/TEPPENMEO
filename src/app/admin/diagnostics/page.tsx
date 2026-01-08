@@ -4,6 +4,7 @@ import { getSessionUser } from "@/server/auth/session";
 import { ProviderType } from "@/server/providers/types";
 import {
   checkAuditLogsIndexes,
+  checkMediaAssetsSchema,
   checkSupabaseConnection,
   checkSetupProgressSchema,
   checkUserBlocksSchema,
@@ -51,6 +52,7 @@ export default async function AdminDiagnosticsPage() {
   const supabase = await checkSupabaseConnection();
   const userBlocksSchema = await checkUserBlocksSchema();
   const setupProgressSchema = await checkSetupProgressSchema();
+  const mediaAssetsSchema = await checkMediaAssetsSchema();
   const auditLogsIndexes = await checkAuditLogsIndexes();
   const mediaConfig = getMediaConfig();
   const storageReady = isStorageConfigured();
@@ -246,6 +248,16 @@ export default async function AdminDiagnosticsPage() {
       "setup_progress の確認に失敗しました。設定を確認してください。"
     );
   }
+  if (mediaAssetsSchema.status === "missing") {
+    nextSteps.push(
+      "media_assets マイグレーションを適用してください（アップロード集計に必要）。"
+    );
+  }
+  if (mediaAssetsSchema.status === "unknown") {
+    nextSteps.push(
+      "media_assets の確認に失敗しました。設定を確認してください。"
+    );
+  }
   if (auditLogsIndexes.status === "missing") {
     nextSteps.push(
       "監査ログのインデックスマイグレーションを適用してください（検索性能に影響します）。"
@@ -424,6 +436,25 @@ export default async function AdminDiagnosticsPage() {
               </p>
             )}
             <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">media_assets</span>
+              <Badge
+                variant={
+                  mediaAssetsSchema.status === "ok" ? "success" : "warning"
+                }
+              >
+                {mediaAssetsSchema.status === "ok"
+                  ? "適用済み"
+                  : mediaAssetsSchema.status === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            {mediaAssetsSchema.message && (
+              <p className="text-xs text-amber-300">
+                {mediaAssetsSchema.message}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
               <span className="text-xs text-slate-300">
                 audit_logs インデックス
               </span>
@@ -445,7 +476,8 @@ export default async function AdminDiagnosticsPage() {
               </p>
             )}
             {(userBlocksSchema.status !== "ok" ||
-              setupProgressSchema.status !== "ok") && (
+              setupProgressSchema.status !== "ok" ||
+              mediaAssetsSchema.status !== "ok") && (
               <a
                 href="/docs/runbooks/supabase-migrations"
                 className="inline-flex text-xs text-amber-200 underline"
@@ -455,6 +487,7 @@ export default async function AdminDiagnosticsPage() {
             )}
             {userBlocksSchema.status === "ok" &&
               setupProgressSchema.status === "ok" &&
+              mediaAssetsSchema.status === "ok" &&
               auditLogsIndexes.status !== "ok" && (
                 <a
                   href="/docs/runbooks/supabase-migrations"
