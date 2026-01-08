@@ -40,6 +40,33 @@ test(
 });
 
 test(
+  "実機ヘルスチェックはサインインまたはヘルスチェックが表示される",
+  async ({ page }, testInfo) => {
+  await page.goto("/admin/provider-health", { waitUntil: "domcontentloaded" });
+  const hasHealth = await page
+    .getByRole("heading", { name: "プロバイダ実機ヘルスチェック" })
+    .isVisible();
+  const hasSignIn = await page
+    .getByRole("heading", { name: "サインイン", exact: true })
+    .isVisible();
+
+  const screenshot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("admin-provider-health", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+
+  if (hasHealth) {
+    await expect(
+      page.getByText("Google Business Profile", { exact: true })
+    ).toBeVisible();
+    await expect(page.getByText("Meta（Facebook/Instagram）")).toBeVisible();
+  } else {
+    expect(hasSignIn).toBeTruthy();
+  }
+});
+
+test(
   "管理概要はサインインまたは管理概要が表示される",
   async ({ page }, testInfo) => {
     await page.goto("/admin", { waitUntil: "domcontentloaded" });
