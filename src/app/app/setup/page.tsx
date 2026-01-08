@@ -2,11 +2,16 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getMembershipRole, isSystemAdmin } from "@/server/auth/rbac";
+import { getMembershipRole, hasRequiredRole, isSystemAdmin } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
+import { checkJobRunsSchema } from "@/server/services/diagnostics";
+import { getLatestJobRun } from "@/server/services/jobs/job-runs";
+import { GBP_BULK_REVIEW_SYNC_JOB_KEY } from "@/server/services/jobs/gbp-bulk-review-sync";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { getSetupStatus } from "@/server/services/setup-status";
+import { isSupabaseAdminConfigured, isSupabaseConfigured } from "@/server/utils/env";
 
+import { BulkReviewSyncCard, type BulkReviewSyncView } from "./BulkReviewSyncCard";
 import { SetupProgressToggle } from "./SetupProgressToggle";
 
 function formatDate(value: string | null) {
@@ -39,6 +44,14 @@ function resolveAutoBadge(status: "done" | "not_done" | "unknown") {
   if (status === "done") return { label: "自動判定: 済", variant: "success" as const };
   if (status === "unknown") return { label: "自動判定: 不明", variant: "muted" as const };
   return { label: "自動判定: 未", variant: "warning" as const };
+}
+
+function mapJobStatus(value: string | null): BulkReviewSyncView["status"] {
+  if (value === "succeeded") return "succeeded";
+  if (value === "failed") return "failed";
+  if (value === "partial") return "partial";
+  if (value === "running") return "running";
+  return "unknown";
 }
 
 export default async function SetupChecklistPage() {
@@ -80,6 +93,27 @@ export default async function SetupChecklistPage() {
     actorUserId: user.id,
     role,
   });
+  const latestJob = await getLatestJobRun({
+    organizationId: org.id,
+    jobKey: GBP_BULK_REVIEW_SYNC_JOB_KEY,
+  });
+  const jobRunsSchema = await checkJobRunsSchema();
+
+  const canManageOrg = hasRequiredRole(role, "admin");
+  const canRunBulk =
+    canManageOrg &&
+    isSupabaseConfigured() &&
+    isSupabaseAdminConfigured() &&
+    jobRunsSchema.status === "ok";
+  const bulkDisabledReason = !canManageOrg
+    ? "管理者のみ実行できます。"
+    : !isSupabaseConfigured()
+      ? "Supabaseが未設定のため実行できません。"
+      : !isSupabaseAdminConfigured()
+        ? "SUPABASE_SERVICE_ROLE_KEY が未設定のため実行できません。"
+        : jobRunsSchema.status !== "ok"
+          ? "job_runs マイグレーションが未適用のため実行できません。"
+          : null;
   const stepMap = new Map(status.steps.map((step) => [step.key, step]));
 
   const googleSteps = [
@@ -89,6 +123,21 @@ export default async function SetupChecklistPage() {
   ];
   const metaSteps = ["connect_meta", "link_fb_page", "post_test_meta"];
   const storageSteps = ["enable_storage"];
+
+  const bulkSyncView = latestJob
+    ? {
+        status: mapJobStatus(latestJob.status),
+        startedAt: latestJob.startedAt,
+        finishedAt: latestJob.finishedAt,
+        summary: {
+          totalLocations: latestJob.summary.totalLocations ?? null,
+          successCount: latestJob.summary.successCount ?? null,
+          failedCount: latestJob.summary.failedCount ?? null,
+          reviewCount: latestJob.summary.reviewCount ?? null,
+          mockMode: latestJob.summary.mockMode ?? null,
+        },
+      }
+    : null;
 
   return (
     <div className="space-y-8">
@@ -242,6 +291,12 @@ export default async function SetupChecklistPage() {
             </div>
           </CardContent>
         </Card>
+
+        <BulkReviewSyncCard
+          canRun={canRunBulk}
+          disabledReason={bulkDisabledReason}
+          latest={bulkSyncView}
+        />
 
         <Card>
           <CardHeader>

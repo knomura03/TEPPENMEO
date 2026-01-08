@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin", label: "概要" },
   { href: "/admin/providers", label: "プロバイダ" },
   { href: "/admin/audit-logs", label: "監査ログ" },
+  { href: "/admin/jobs", label: "ジョブ" },
   { href: "/admin/diagnostics", label: "診断" },
   { href: "/admin/provider-health", label: "実機ヘルス" },
   { href: "/admin/users", label: "ユーザー" },

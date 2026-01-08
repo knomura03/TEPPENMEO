@@ -129,10 +129,15 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-setup-bulk-sync", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
     if (hasSetup) {
       await expect(page.getByText("進捗", { exact: true })).toBeVisible();
       await expect(page.getByText("最終アップロード")).toBeVisible();
+      await expect(page.getByText("Googleレビューを一括同期")).toBeVisible();
     }
     expect(hasSetup || hasSignIn).toBeTruthy();
   }
@@ -215,6 +220,33 @@ test(
     expect(hasSignIn).toBeTruthy();
   }
 });
+
+test(
+  "ジョブ履歴はサインインまたはジョブ履歴が表示される",
+  async ({ page }, testInfo) => {
+    await page.goto("/admin/jobs", { waitUntil: "domcontentloaded" });
+    const hasJobs = await page
+      .getByRole("heading", { name: "ジョブ履歴" })
+      .isVisible();
+    const hasSignIn = await page
+      .getByRole("heading", { name: "サインイン", exact: true })
+      .isVisible();
+
+    const screenshot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("admin-jobs", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+
+    if (hasJobs) {
+      await expect(
+        page.getByRole("heading", { name: "ジョブ履歴", exact: true })
+      ).toBeVisible();
+    } else {
+      expect(hasSignIn).toBeTruthy();
+    }
+  }
+);
 
 test("組織一覧はサインインまたは組織管理が表示される", async ({ page }) => {
   await page.goto("/admin/organizations", { waitUntil: "domcontentloaded" });
