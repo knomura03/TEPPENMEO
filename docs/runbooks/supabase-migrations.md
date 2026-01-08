@@ -8,6 +8,7 @@
 - `supabase/migrations/0001_init.sql`
 - `supabase/migrations/0002_user_blocks.sql`
 - `supabase/migrations/0003_audit_logs_indexes.sql`
+- `supabase/migrations/0004_setup_progress.sql`
 
 ## 適用方法A: SQL Editor（推奨）
 1) Supabaseダッシュボードを開く  
@@ -18,6 +19,8 @@
 6) **Run** を実行  
 7) 続けて `supabase/migrations/0003_audit_logs_indexes.sql` を貼り付け  
 8) **Run** を実行  
+9) 続けて `supabase/migrations/0004_setup_progress.sql` を貼り付け  
+10) **Run** を実行  
 
 ## 適用方法B: Supabase CLI（任意）
 1) CLIをインストール  
@@ -39,6 +42,7 @@ supabase db push
 - `/admin/diagnostics` で **マイグレーション: 適用済み** を確認  
 - `/admin/users` の警告カードが消えることを確認  
 - `/admin/diagnostics` で **audit_logs インデックス: 適用済み** を確認  
+- `/admin/diagnostics` で **setup_progress: 適用済み** を確認  
 
 ## よくある失敗
 ### `relation "user_blocks" does not exist`
@@ -52,6 +56,10 @@ supabase db push
 ### `監査ログのインデックス判定関数が見つかりません`
 - `0003_audit_logs_indexes.sql` が未適用  
 - SQL Editorで `0003_audit_logs_indexes.sql` を実行する  
+
+### `setup_progress テーブルが見つかりません`
+- `0004_setup_progress.sql` が未適用  
+- SQL Editorで `0004_setup_progress.sql` を実行する  
 
 ### Supabaseキー未設定
 - `.env.local` の `SUPABASE_SERVICE_ROLE_KEY` を確認する  
