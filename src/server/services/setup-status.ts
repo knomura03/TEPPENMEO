@@ -10,13 +10,18 @@ import {
   isSupabaseAdminConfigured,
   isSupabaseConfigured,
 } from "@/server/utils/env";
-import { mockPostHistory, mockReviews } from "@/server/services/mock-data";
+import {
+  mockAuditLogs,
+  mockPostHistory,
+  mockReviews,
+} from "@/server/services/mock-data";
 import {
   listSetupProgress,
   setupStepKeys,
   type SetupProgressRecord,
 } from "@/server/services/setup-progress";
 import { getMediaConfig, isStorageConfigured } from "@/server/services/media";
+import { getMediaAssetSummary } from "@/server/services/media-assets";
 import { type MembershipRole, hasRequiredRole } from "@/server/auth/rbac";
 
 type ProviderPostSummary = {
@@ -30,6 +35,7 @@ type ProviderPostSummary = {
 type ProviderReviewSummary = {
   total: number | null;
   lastSyncAt: string | null;
+  lastSyncStatus: "success" | "failed" | "unknown" | null;
   lastReplyAt: string | null;
   reason: string | null;
 };
@@ -69,6 +75,7 @@ export type SetupStatus = {
     signedUrlTtlSeconds: number;
     maxUploadMb: number;
     uploadedCount: number | null;
+    lastUploadedAt: string | null;
     reason: string | null;
   };
   progress: {
@@ -241,6 +248,7 @@ async function getReviewSummary(params: {
     return {
       total: 0,
       lastSyncAt: null,
+      lastSyncStatus: null,
       lastReplyAt: null,
       reason: null,
     };
@@ -253,11 +261,30 @@ async function getReviewSummary(params: {
         (review) => review.provider === ProviderType.GoogleBusinessProfile
       );
     });
+
+    const mockSyncLog = [...mockAuditLogs]
+      .filter(
+        (log) =>
+          log.action === "reviews.sync" ||
+          log.action === "reviews.sync_failed"
+      )
+      .sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1))[0];
+    const lastSyncStatus = mockSyncLog
+      ? mockSyncLog.action === "reviews.sync"
+        ? "success"
+        : "failed"
+      : null;
+    const lastSyncAt = mockSyncLog?.createdAt ?? null;
+
     return {
       total: reviews.length,
-      lastSyncAt: null,
+      lastSyncAt,
+      lastSyncStatus,
       lastReplyAt: null,
-      reason: "モック運用のため同期履歴は未集計です。",
+      reason:
+        lastSyncAt === null
+          ? "モック運用のため同期履歴は未集計です。"
+          : null,
     };
   }
 
@@ -265,6 +292,7 @@ async function getReviewSummary(params: {
     return {
       total: null,
       lastSyncAt: null,
+      lastSyncStatus: null,
       lastReplyAt: null,
       reason: "SUPABASE_SERVICE_ROLE_KEY が未設定のため集計できません。",
     };
@@ -275,6 +303,7 @@ async function getReviewSummary(params: {
     return {
       total: null,
       lastSyncAt: null,
+      lastSyncStatus: null,
       lastReplyAt: null,
       reason: "Supabaseの設定を確認してください。",
     };
@@ -290,6 +319,7 @@ async function getReviewSummary(params: {
     return {
       total: null,
       lastSyncAt: null,
+      lastSyncStatus: null,
       lastReplyAt: null,
       reason: "レビュー集計に失敗しました。",
     };
@@ -305,6 +335,40 @@ async function getReviewSummary(params: {
     .sort()
     .reverse()[0] ?? null;
 
+  const { data: syncData, error: syncError } = await admin
+    .from("audit_logs")
+    .select("action, created_at, metadata_json")
+    .eq("organization_id", params.organizationId)
+    .in("action", ["reviews.sync", "reviews.sync_failed"])
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  let lastSyncStatus: ProviderReviewSummary["lastSyncStatus"] = null;
+  let lastSyncLoggedAt: string | null = null;
+  let syncReason: string | null = null;
+
+  if (syncError) {
+    syncReason = "同期履歴の取得に失敗しました。";
+  } else {
+    const candidate = (syncData ?? []).find((row) => {
+      const metadata = (row as { metadata_json?: Record<string, unknown> })
+        .metadata_json;
+      const provider = metadata?.provider;
+      return !provider || provider === ProviderType.GoogleBusinessProfile;
+    });
+
+    if (candidate) {
+      lastSyncLoggedAt =
+        (candidate as { created_at?: string }).created_at ?? null;
+      lastSyncStatus =
+        candidate.action === "reviews.sync" ? "success" : "failed";
+    } else {
+      syncReason = "同期履歴が見つかりません。";
+    }
+  }
+
+  const resolvedSyncAt = lastSyncAt ?? lastSyncLoggedAt;
+
   const { data: replyData, error: replyError } = await admin
     .from("review_replies")
     .select("created_at, reviews!inner(location_id)")
@@ -316,7 +380,8 @@ async function getReviewSummary(params: {
   if (replyError) {
     return {
       total: count ?? 0,
-      lastSyncAt,
+      lastSyncAt: resolvedSyncAt,
+      lastSyncStatus,
       lastReplyAt: null,
       reason: "返信履歴の取得に失敗しました。",
     };
@@ -325,22 +390,32 @@ async function getReviewSummary(params: {
   const latestReply = replyData?.[0] as { created_at?: string } | undefined;
   const lastReplyAt = latestReply?.created_at ?? null;
   const totalCount = count ?? 0;
-  let reason: string | null = null;
+  const reasonParts: string[] = [];
 
-  if (lastSyncAt === null && totalCount > 0) {
-    reason = "同期日時が未記録のため不明です。";
+  if (syncReason) {
+    reasonParts.push(syncReason);
+  }
+
+  const resolvedSyncStatus = lastSyncStatus;
+
+  if (resolvedSyncAt === null && totalCount > 0) {
+    reasonParts.push("最終同期日時が未記録のため不明です。");
+  }
+  if (resolvedSyncStatus === null && totalCount > 0) {
+    reasonParts.push("直近の同期結果が未記録のため不明です。");
   }
   if (lastReplyAt === null && totalCount > 0) {
-    reason =
-      reason ??
-      "返信履歴が未記録のため不明です。返信を送ると記録されます。";
+    reasonParts.push(
+      "返信履歴が未記録のため不明です。返信を送ると記録されます。"
+    );
   }
 
   return {
     total: totalCount,
-    lastSyncAt,
+    lastSyncAt: resolvedSyncAt,
+    lastSyncStatus: resolvedSyncStatus,
     lastReplyAt,
-    reason,
+    reason: reasonParts.length > 0 ? reasonParts.join(" ") : null,
   };
 }
 
@@ -407,6 +482,7 @@ export async function getSetupStatus(params: {
 
   const mediaConfig = getMediaConfig();
   const storageReady = isStorageConfigured();
+  const mediaAssetSummary = await getMediaAssetSummary(params.organizationId);
 
   const progressResult = await listSetupProgress({
     organizationId: params.organizationId,
@@ -505,8 +581,9 @@ export async function getSetupStatus(params: {
       storageReady,
       signedUrlTtlSeconds: mediaConfig.signedUrlTtlSeconds,
       maxUploadMb: mediaConfig.maxUploadMb,
-      uploadedCount: null,
-      reason: "アップロード件数は未集計です。",
+      uploadedCount: mediaAssetSummary.uploadedCount,
+      lastUploadedAt: mediaAssetSummary.lastUploadedAt,
+      reason: mediaAssetSummary.reason,
     },
     progress: {
       totalSteps,

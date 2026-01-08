@@ -29,6 +29,12 @@ function mapStatusLabel(value: string | null) {
   return "不明";
 }
 
+function mapSyncStatus(value: "success" | "failed" | "unknown" | null) {
+  if (!value || value === "unknown") return "不明";
+  if (value === "success") return "成功";
+  return "失敗";
+}
+
 function resolveAutoBadge(status: "done" | "not_done" | "unknown") {
   if (status === "done") return { label: "自動判定: 済", variant: "success" as const };
   if (status === "unknown") return { label: "自動判定: 不明", variant: "muted" as const };
@@ -113,6 +119,12 @@ export default async function SetupChecklistPage() {
           {status.saveReadReason && (
             <p className="text-xs text-amber-600">{status.saveReadReason}</p>
           )}
+          <Link
+            href="/docs/runbooks/setup-progress-governance"
+            className="text-xs text-amber-600 underline"
+          >
+            完了チェックの運用ルールを確認する
+          </Link>
         </CardContent>
       </Card>
 
@@ -168,12 +180,22 @@ export default async function SetupChecklistPage() {
             <div className="space-y-1">
               <p>レビュー件数: {formatCount(status.reviewsSummary.gbp.total)}件</p>
               <p>最終同期: {formatDate(status.reviewsSummary.gbp.lastSyncAt)}</p>
+              <p>
+                直近結果:{" "}
+                {mapSyncStatus(status.reviewsSummary.gbp.lastSyncStatus)}
+              </p>
               <p>最終返信: {formatDate(status.reviewsSummary.gbp.lastReplyAt)}</p>
               {status.reviewsSummary.gbp.reason && (
                 <p className="text-[11px] text-amber-600">
                   {status.reviewsSummary.gbp.reason}
                 </p>
               )}
+              <Link
+                href="/app/locations"
+                className="text-[11px] text-amber-600 underline"
+              >
+                レビュー同期を実行する
+              </Link>
             </div>
             <div className="space-y-2">
               {googleSteps.map((key) => {
@@ -308,6 +330,10 @@ export default async function SetupChecklistPage() {
             <p>署名URL期限: {status.mediaSummary.signedUrlTtlSeconds}秒</p>
             <p>最大アップロード: {status.mediaSummary.maxUploadMb}MB</p>
             <p>アップロード件数: {formatCount(status.mediaSummary.uploadedCount)}件</p>
+            <p>
+              最終アップロード:{" "}
+              {formatDate(status.mediaSummary.lastUploadedAt)}
+            </p>
             {status.mediaSummary.reason && (
               <p className="text-[11px] text-amber-600">{status.mediaSummary.reason}</p>
             )}
