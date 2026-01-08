@@ -10,6 +10,7 @@
 - `supabase/migrations/0003_audit_logs_indexes.sql`
 - `supabase/migrations/0004_setup_progress.sql`
 - `supabase/migrations/0005_media_assets.sql`
+- `supabase/migrations/0006_job_runs.sql`
 
 ## 適用方法A: SQL Editor（推奨）
 1) Supabaseダッシュボードを開く  
@@ -24,6 +25,8 @@
 10) **Run** を実行  
 11) 続けて `supabase/migrations/0005_media_assets.sql` を貼り付け  
 12) **Run** を実行  
+13) 続けて `supabase/migrations/0006_job_runs.sql` を貼り付け  
+14) **Run** を実行  
 
 ## 適用方法B: Supabase CLI（任意）
 1) CLIをインストール  
@@ -47,6 +50,7 @@ supabase db push
 - `/admin/diagnostics` で **audit_logs インデックス: 適用済み** を確認  
 - `/admin/diagnostics` で **setup_progress: 適用済み** を確認  
 - `/admin/diagnostics` で **media_assets: 適用済み** を確認  
+- `/admin/diagnostics` で **job_runs: 適用済み** を確認  
 
 ## よくある失敗
 ### `relation "user_blocks" does not exist`
@@ -68,6 +72,10 @@ supabase db push
 ### `media_assets テーブルが見つかりません`
 - `0005_media_assets.sql` が未適用  
 - SQL Editorで `0005_media_assets.sql` を実行する  
+
+### `job_runs テーブルが見つかりません`
+- `0006_job_runs.sql` が未適用  
+- SQL Editorで `0006_job_runs.sql` を実行する  
 
 ### Supabaseキー未設定
 - `.env.local` の `SUPABASE_SERVICE_ROLE_KEY` を確認する  

@@ -122,6 +122,12 @@ export type MediaAssetsSchemaCheck = {
   message: string | null;
 };
 
+export type JobRunsSchemaCheck = {
+  status: "ok" | "missing" | "unknown";
+  issue: "table_missing" | "unknown" | null;
+  message: string | null;
+};
+
 export type AuditLogsIndexCheck = {
   status: "ok" | "missing" | "unknown";
   message: string | null;
@@ -209,6 +215,29 @@ export function resolveMediaAssetsSchemaStatus(
     issue: "unknown",
     message:
       error.message ?? "media_assets の確認に失敗しました。設定を確認してください。",
+  };
+}
+
+export function resolveJobRunsSchemaStatus(
+  error: { code?: string; message?: string } | null
+): JobRunsSchemaCheck {
+  if (!error) {
+    return { status: "ok", issue: null, message: null };
+  }
+
+  if (error.code === "42P01") {
+    return {
+      status: "missing",
+      issue: "table_missing",
+      message: "job_runs テーブルが見つかりません。",
+    };
+  }
+
+  return {
+    status: "unknown",
+    issue: "unknown",
+    message:
+      error.message ?? "job_runs の確認に失敗しました。設定を確認してください。",
   };
 }
 
@@ -336,6 +365,29 @@ export async function checkMediaAssetsSchema(): Promise<MediaAssetsSchemaCheck> 
   const { error } = await admin.from("media_assets").select("id").limit(1);
 
   return resolveMediaAssetsSchemaStatus(error);
+}
+
+export async function checkJobRunsSchema(): Promise<JobRunsSchemaCheck> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseのサービスキーが未設定のため判定できません。",
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseの設定を確認してください。",
+    };
+  }
+
+  const { error } = await admin.from("job_runs").select("id").limit(1);
+
+  return resolveJobRunsSchemaStatus(error);
 }
 
 export async function checkAuditLogsIndexes(): Promise<AuditLogsIndexCheck> {
