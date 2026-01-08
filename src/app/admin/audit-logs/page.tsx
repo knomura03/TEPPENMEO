@@ -31,6 +31,8 @@ const actionLabels: Record<string, string> = {
   "admin.user.enable_failed": "ユーザー再有効化失敗",
   "admin.user.delete": "ユーザー削除",
   "admin.user.delete_failed": "ユーザー削除失敗",
+  "provider.health_check": "プロバイダ実機ヘルスチェック",
+  "provider.health_check_failed": "プロバイダ実機ヘルスチェック失敗",
 };
 
 const providerLabels: Record<string, string> = {
