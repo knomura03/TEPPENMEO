@@ -129,6 +129,33 @@ export async function deleteLocationProviderLink(input: {
     .eq("provider", input.provider);
 }
 
+export async function listLocationProviderLinks(params: {
+  locationIds: string[];
+  provider: ProviderType;
+}): Promise<LocationProviderLink[]> {
+  if (params.locationIds.length === 0) return [];
+
+  if (!isSupabaseConfigured()) {
+    return mockLocationProviderLinks.filter(
+      (link) =>
+        params.locationIds.includes(link.locationId) &&
+        link.provider === params.provider
+    );
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) return [];
+
+  const { data, error } = await admin
+    .from("location_provider_links")
+    .select("*")
+    .in("location_id", params.locationIds)
+    .eq("provider", params.provider);
+
+  if (error || !data) return [];
+  return data.map((row) => mapLocationProviderLink(row as Record<string, unknown>));
+}
+
 export async function countLocationProviderLinks(params: {
   locationIds: string[];
   provider: ProviderType;

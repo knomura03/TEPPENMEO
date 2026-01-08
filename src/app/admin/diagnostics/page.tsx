@@ -5,6 +5,7 @@ import { ProviderType } from "@/server/providers/types";
 import {
   checkAuditLogsIndexes,
   checkSupabaseConnection,
+  checkSetupProgressSchema,
   checkUserBlocksSchema,
   getEnvCheckGroups,
 } from "@/server/services/diagnostics";
@@ -12,6 +13,7 @@ import { getMediaConfig, isStorageConfigured } from "@/server/services/media";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { getProviderAccount } from "@/server/services/provider-accounts";
 import { listProviderConnections } from "@/server/services/provider-connections";
+import { resolvePermissionDiff } from "@/server/services/provider-permissions";
 import { EnvSnippet } from "./EnvSnippet";
 
 const connectionLabels = {
@@ -43,29 +45,12 @@ function normalizeStringArray(value: unknown): string[] {
   return [];
 }
 
-function resolveScopeStatus(params: {
-  storedScopes: string[];
-  requestedScopes: string[];
-  requiredScopes: string[];
-  normalize?: (scope: string) => string;
-}): "ok" | "missing" | "unknown" | "requested" {
-  if (!params.storedScopes.length) {
-    return params.requestedScopes.length ? "requested" : "unknown";
-  }
-  const normalize = params.normalize ?? ((value: string) => value);
-  const hasAll = params.requiredScopes.every((required) =>
-    params.storedScopes.some(
-      (scope) => normalize(scope) === normalize(required)
-    )
-  );
-  return hasAll ? "ok" : "missing";
-}
-
 export default async function AdminDiagnosticsPage() {
   const { mockRequired, realRequired, envError, providerMockMode } =
     getEnvCheckGroups();
   const supabase = await checkSupabaseConnection();
   const userBlocksSchema = await checkUserBlocksSchema();
+  const setupProgressSchema = await checkSetupProgressSchema();
   const auditLogsIndexes = await checkAuditLogsIndexes();
   const mediaConfig = getMediaConfig();
   const storageReady = isStorageConfigured();
@@ -111,33 +96,33 @@ export default async function AdminDiagnosticsPage() {
   const metaDeclinedScopes = normalizeStringArray(
     metaAccount?.metadata?.permissions_declined
   );
-  const googleScopeStatus = resolveScopeStatus({
-    storedScopes: googleStoredScopes,
-    requestedScopes: googleRequestedScopes,
-    requiredScopes: googleRequiredScopes,
+  const googlePermissionDiff = resolvePermissionDiff({
+    required: googleRequiredScopes,
+    requested: googleRequestedScopes,
+    granted: googleStoredScopes,
     normalize: normalizeGoogleScope,
   });
-  const metaScopeStatus = resolveScopeStatus({
-    storedScopes: metaStoredScopes,
-    requestedScopes: metaRequestedScopes,
-    requiredScopes: metaRequiredPermissions,
+  const metaPermissionDiff = resolvePermissionDiff({
+    required: metaRequiredPermissions,
+    requested: metaRequestedScopes,
+    granted: metaStoredScopes,
   });
 
   const googleScopeLabel =
-    googleStoredScopes.length > 0
-      ? googleStoredScopes.join(", ")
+    googlePermissionDiff.granted.length > 0
+      ? googlePermissionDiff.granted.join(", ")
       : "保存していないため不明";
   const googleRequestedLabel =
-    googleRequestedScopes.length > 0
-      ? googleRequestedScopes.join(", ")
+    googlePermissionDiff.requested.length > 0
+      ? googlePermissionDiff.requested.join(", ")
       : "保存していないため不明";
   const metaScopeLabel =
-    metaStoredScopes.length > 0
-      ? metaStoredScopes.join(", ")
+    metaPermissionDiff.granted.length > 0
+      ? metaPermissionDiff.granted.join(", ")
       : "保存していないため不明";
   const metaRequestedLabel =
-    metaRequestedScopes.length > 0
-      ? metaRequestedScopes.join(", ")
+    metaPermissionDiff.requested.length > 0
+      ? metaPermissionDiff.requested.join(", ")
       : "保存していないため不明";
   const metaDeclinedLabel =
     metaDeclinedScopes.length > 0
@@ -196,17 +181,17 @@ export default async function AdminDiagnosticsPage() {
   if (org && googleStatus === "not_connected") {
     nextSteps.push("ロケーション詳細でGoogle接続を開始してください。");
   }
-  if (org && googleScopeStatus === "missing") {
+  if (org && googlePermissionDiff.state === "missing") {
     nextSteps.push(
-      "Googleのbusiness.manageスコープが不足している可能性が高いです。スコープ設定を確認して再接続してください。"
+      `Googleで不足しているスコープ: ${googlePermissionDiff.missing.join(", ")}`
     );
   }
-  if (org && googleScopeStatus === "requested") {
+  if (org && googlePermissionDiff.state === "requested") {
     nextSteps.push(
-      "Googleのスコープ取得は要求済みです。取得結果は保存していないため、接続時のスコープ設定を確認してください。"
+      "Googleのスコープ取得は要求済みです。付与状況は不明なため、再認可または設定確認を行ってください。"
     );
   }
-  if (org && googleScopeStatus === "unknown") {
+  if (org && googlePermissionDiff.state === "unknown") {
     nextSteps.push(
       "Googleスコープの取得状況が不明です。取得状況は保存していないため、接続時のスコープ設定を確認してください。"
     );
@@ -222,17 +207,17 @@ export default async function AdminDiagnosticsPage() {
   if (org && metaStatus === "not_connected") {
     nextSteps.push("ロケーション詳細でMeta接続を開始してください。");
   }
-  if (org && metaScopeStatus === "missing") {
+  if (org && metaPermissionDiff.state === "missing") {
     nextSteps.push(
-      "Metaの権限が不足している可能性が高いです。App Reviewと権限を確認して再接続してください。"
+      `Metaで不足している権限: ${metaPermissionDiff.missing.join(", ")}`
     );
   }
-  if (org && metaScopeStatus === "requested") {
+  if (org && metaPermissionDiff.state === "requested") {
     nextSteps.push(
       "Meta権限の要求は記録済みです。App Reviewと権限承認の状況を確認してください（推定）。"
     );
   }
-  if (org && metaScopeStatus === "unknown") {
+  if (org && metaPermissionDiff.state === "unknown") {
     nextSteps.push(
       "Metaの権限取得状況が不明です。取得状況は保存していないため、App Reviewや権限設定を確認してください。"
     );
@@ -250,6 +235,16 @@ export default async function AdminDiagnosticsPage() {
   }
   if (userBlocksSchema.status === "unknown") {
     nextSteps.push("user_blocks の確認に失敗しました。設定を確認してください。");
+  }
+  if (setupProgressSchema.status === "missing") {
+    nextSteps.push(
+      "setup_progress マイグレーションを適用してください（セットアップ進捗に必要）。"
+    );
+  }
+  if (setupProgressSchema.status === "unknown") {
+    nextSteps.push(
+      "setup_progress の確認に失敗しました。設定を確認してください。"
+    );
   }
   if (auditLogsIndexes.status === "missing") {
     nextSteps.push(
@@ -410,6 +405,25 @@ export default async function AdminDiagnosticsPage() {
               </p>
             )}
             <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">setup_progress</span>
+              <Badge
+                variant={
+                  setupProgressSchema.status === "ok" ? "success" : "warning"
+                }
+              >
+                {setupProgressSchema.status === "ok"
+                  ? "適用済み"
+                  : setupProgressSchema.status === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            {setupProgressSchema.message && (
+              <p className="text-xs text-amber-300">
+                {setupProgressSchema.message}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
               <span className="text-xs text-slate-300">
                 audit_logs インデックス
               </span>
@@ -430,7 +444,8 @@ export default async function AdminDiagnosticsPage() {
                 {auditLogsIndexes.message}
               </p>
             )}
-            {userBlocksSchema.status !== "ok" && (
+            {(userBlocksSchema.status !== "ok" ||
+              setupProgressSchema.status !== "ok") && (
               <a
                 href="/docs/runbooks/supabase-migrations"
                 className="inline-flex text-xs text-amber-200 underline"
@@ -439,6 +454,7 @@ export default async function AdminDiagnosticsPage() {
               </a>
             )}
             {userBlocksSchema.status === "ok" &&
+              setupProgressSchema.status === "ok" &&
               auditLogsIndexes.status !== "ok" && (
                 <a
                   href="/docs/runbooks/supabase-migrations"
@@ -493,24 +509,26 @@ export default async function AdminDiagnosticsPage() {
             <div className="rounded-md border border-slate-700 bg-slate-900/40 p-3 text-[11px] text-slate-300">
               <p className="font-semibold text-slate-200">Google 権限/スコープ</p>
               <p className="mt-1">
-                必須: {googleRequiredScopes.join(", ")}
+                必須: {googlePermissionDiff.required.join(", ")}
               </p>
               <div className="mt-2 flex items-center justify-between">
                 <span>取得状況</span>
                 <Badge
                   variant={
-                    googleScopeStatus === "ok"
+                    googlePermissionDiff.state === "ok"
                       ? "success"
-                      : googleScopeStatus === "missing"
+                      : googlePermissionDiff.state === "missing"
                         ? "warning"
-                        : "muted"
+                        : googlePermissionDiff.state === "requested"
+                          ? "warning"
+                          : "muted"
                   }
                 >
-                  {googleScopeStatus === "ok"
+                  {googlePermissionDiff.state === "ok"
                     ? "取得済み"
-                    : googleScopeStatus === "missing"
+                    : googlePermissionDiff.state === "missing"
                       ? "不足の可能性"
-                      : googleScopeStatus === "requested"
+                      : googlePermissionDiff.state === "requested"
                         ? "要求済み"
                         : "不明"}
                 </Badge>
@@ -520,30 +538,42 @@ export default async function AdminDiagnosticsPage() {
                 要求済み: {googleRequestedLabel}
               </p>
               <p className="mt-1 text-slate-400">
+                不足:{" "}
+                {googlePermissionDiff.state === "missing"
+                  ? googlePermissionDiff.missing.join(", ")
+                  : googlePermissionDiff.state === "ok"
+                    ? "不足なし"
+                    : googlePermissionDiff.state === "requested"
+                      ? "未判定（要求済みのみ）"
+                      : "判定不可"}
+              </p>
+              <p className="mt-1 text-slate-400">
                 API承認: {googleApiAccessStatus}
               </p>
             </div>
             <div className="rounded-md border border-slate-700 bg-slate-900/40 p-3 text-[11px] text-slate-300">
               <p className="font-semibold text-slate-200">Meta 権限</p>
               <p className="mt-1">
-                必須: {metaRequiredPermissions.join(", ")}
+                必須: {metaPermissionDiff.required.join(", ")}
               </p>
               <div className="mt-2 flex items-center justify-between">
                 <span>取得状況</span>
                 <Badge
                   variant={
-                    metaScopeStatus === "ok"
+                    metaPermissionDiff.state === "ok"
                       ? "success"
-                      : metaScopeStatus === "missing"
+                      : metaPermissionDiff.state === "missing"
                         ? "warning"
-                        : "muted"
+                        : metaPermissionDiff.state === "requested"
+                          ? "warning"
+                          : "muted"
                   }
                 >
-                  {metaScopeStatus === "ok"
+                  {metaPermissionDiff.state === "ok"
                     ? "取得済み"
-                    : metaScopeStatus === "missing"
+                    : metaPermissionDiff.state === "missing"
                       ? "不足の可能性"
-                      : metaScopeStatus === "requested"
+                      : metaPermissionDiff.state === "requested"
                         ? "要求済み"
                         : "不明"}
                 </Badge>
@@ -551,6 +581,16 @@ export default async function AdminDiagnosticsPage() {
               <p className="mt-1 text-slate-400">取得済み: {metaScopeLabel}</p>
               <p className="mt-1 text-slate-400">
                 要求済み: {metaRequestedLabel}
+              </p>
+              <p className="mt-1 text-slate-400">
+                不足:{" "}
+                {metaPermissionDiff.state === "missing"
+                  ? metaPermissionDiff.missing.join(", ")
+                  : metaPermissionDiff.state === "ok"
+                    ? "不足なし"
+                    : metaPermissionDiff.state === "requested"
+                      ? "未判定（要求済みのみ）"
+                      : "判定不可"}
               </p>
               {metaDeclinedLabel && (
                 <p className="mt-1 text-slate-400">

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   getEnvCheckGroups,
   resolveAuditLogsIndexStatus,
+  resolveSetupProgressSchemaStatus,
   resolveUserBlocksSchemaStatus,
 } from "@/server/services/diagnostics";
 import { resetEnvForTests } from "@/server/utils/env";
@@ -34,6 +35,32 @@ describe("user_blocks マイグレーション判定", () => {
 
   it("未知のエラーは未判定として扱う", () => {
     const result = resolveUserBlocksSchemaStatus({
+      code: "XX000",
+      message: "unexpected",
+    });
+    expect(result.status).toBe("unknown");
+    expect(result.issue).toBe("unknown");
+  });
+});
+
+describe("setup_progress マイグレーション判定", () => {
+  it("エラーなしなら適用済み", () => {
+    const result = resolveSetupProgressSchemaStatus(null);
+    expect(result.status).toBe("ok");
+    expect(result.issue).toBeNull();
+  });
+
+  it("テーブル未作成を検知する", () => {
+    const result = resolveSetupProgressSchemaStatus({
+      code: "42P01",
+      message: "relation \"setup_progress\" does not exist",
+    });
+    expect(result.status).toBe("missing");
+    expect(result.issue).toBe("table_missing");
+  });
+
+  it("未知のエラーは未判定として扱う", () => {
+    const result = resolveSetupProgressSchemaStatus({
       code: "XX000",
       message: "unexpected",
     });

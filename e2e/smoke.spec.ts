@@ -39,6 +39,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-diagnostics-permissions-diff", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   expect(hasDiagnostics || hasSignIn).toBeTruthy();
 });
@@ -113,7 +117,14 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-setup-detailed", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
+    if (hasSetup) {
+      await expect(page.getByText("進捗", { exact: true })).toBeVisible();
+    }
     expect(hasSetup || hasSignIn).toBeTruthy();
   }
 );
