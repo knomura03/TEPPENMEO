@@ -420,6 +420,12 @@ export default async function AdminDiagnosticsPage() {
                 {metaConnection.message}
               </p>
             )}
+            <a
+              href="/admin/provider-health"
+              className="text-[11px] text-amber-200 underline"
+            >
+              実機ヘルスチェックを開く
+            </a>
             <p className="text-[11px] text-slate-400">
               対象組織: {org?.name ?? "未設定"}
             </p>
