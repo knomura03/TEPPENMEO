@@ -43,6 +43,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-diagnostics-migrations-media-assets", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   expect(hasDiagnostics || hasSignIn).toBeTruthy();
 });
@@ -121,9 +125,14 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-setup-kpis-media", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
     if (hasSetup) {
       await expect(page.getByText("進捗", { exact: true })).toBeVisible();
+      await expect(page.getByText("最終アップロード")).toBeVisible();
     }
     expect(hasSetup || hasSignIn).toBeTruthy();
   }

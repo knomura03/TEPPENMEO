@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 
 import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
 import { getActiveSessionUser } from "@/server/auth/session";
+import { writeAuditLog } from "@/server/services/audit-logs";
 import { getLocationById } from "@/server/services/locations";
+import { recordMediaAsset } from "@/server/services/media-assets";
 import {
   isMediaError,
   uploadImageForLocation,
@@ -77,6 +79,29 @@ export async function POST(request: Request) {
       locationId: location.id,
       file,
     });
+
+    await recordMediaAsset({
+      organizationId: location.organizationId,
+      uploadedByUserId: user.id,
+      bucket: result.bucket,
+      path: result.path,
+      bytes: result.size ?? null,
+      mimeType: result.mime ?? null,
+    });
+
+    await writeAuditLog({
+      actorUserId: user.id,
+      organizationId: location.organizationId,
+      action: "media.upload",
+      targetType: "location",
+      targetId: location.id,
+      metadata: {
+        bucket: result.bucket,
+        bytes: result.size ?? null,
+        mime_type: result.mime ?? null,
+      },
+    });
+
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
     if (isMediaError(error)) {
