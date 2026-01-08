@@ -110,6 +110,12 @@ export type UserBlocksSchemaCheck = {
   message: string | null;
 };
 
+export type SetupProgressSchemaCheck = {
+  status: "ok" | "missing" | "unknown";
+  issue: "table_missing" | "unknown" | null;
+  message: string | null;
+};
+
 export type AuditLogsIndexCheck = {
   status: "ok" | "missing" | "unknown";
   message: string | null;
@@ -151,6 +157,29 @@ export function resolveUserBlocksSchemaStatus(
     issue: "unknown",
     message:
       error.message ?? "user_blocks の確認に失敗しました。設定を確認してください。",
+  };
+}
+
+export function resolveSetupProgressSchemaStatus(
+  error: { code?: string; message?: string } | null
+): SetupProgressSchemaCheck {
+  if (!error) {
+    return { status: "ok", issue: null, message: null };
+  }
+
+  if (error.code === "42P01") {
+    return {
+      status: "missing",
+      issue: "table_missing",
+      message: "setup_progress テーブルが見つかりません。",
+    };
+  }
+
+  return {
+    status: "unknown",
+    issue: "unknown",
+    message:
+      error.message ?? "setup_progress の確認に失敗しました。設定を確認してください。",
   };
 }
 
@@ -232,6 +261,29 @@ export async function checkUserBlocksSchema(): Promise<UserBlocksSchemaCheck> {
     .limit(1);
 
   return resolveUserBlocksSchemaStatus(error);
+}
+
+export async function checkSetupProgressSchema(): Promise<SetupProgressSchemaCheck> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseのサービスキーが未設定のため判定できません。",
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseの設定を確認してください。",
+    };
+  }
+
+  const { error } = await admin.from("setup_progress").select("id").limit(1);
+
+  return resolveSetupProgressSchemaStatus(error);
 }
 
 export async function checkAuditLogsIndexes(): Promise<AuditLogsIndexCheck> {

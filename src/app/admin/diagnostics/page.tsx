@@ -5,6 +5,7 @@ import { ProviderType } from "@/server/providers/types";
 import {
   checkAuditLogsIndexes,
   checkSupabaseConnection,
+  checkSetupProgressSchema,
   checkUserBlocksSchema,
   getEnvCheckGroups,
 } from "@/server/services/diagnostics";
@@ -66,6 +67,7 @@ export default async function AdminDiagnosticsPage() {
     getEnvCheckGroups();
   const supabase = await checkSupabaseConnection();
   const userBlocksSchema = await checkUserBlocksSchema();
+  const setupProgressSchema = await checkSetupProgressSchema();
   const auditLogsIndexes = await checkAuditLogsIndexes();
   const mediaConfig = getMediaConfig();
   const storageReady = isStorageConfigured();
@@ -251,6 +253,16 @@ export default async function AdminDiagnosticsPage() {
   if (userBlocksSchema.status === "unknown") {
     nextSteps.push("user_blocks の確認に失敗しました。設定を確認してください。");
   }
+  if (setupProgressSchema.status === "missing") {
+    nextSteps.push(
+      "setup_progress マイグレーションを適用してください（セットアップ進捗に必要）。"
+    );
+  }
+  if (setupProgressSchema.status === "unknown") {
+    nextSteps.push(
+      "setup_progress の確認に失敗しました。設定を確認してください。"
+    );
+  }
   if (auditLogsIndexes.status === "missing") {
     nextSteps.push(
       "監査ログのインデックスマイグレーションを適用してください（検索性能に影響します）。"
@@ -410,6 +422,25 @@ export default async function AdminDiagnosticsPage() {
               </p>
             )}
             <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">setup_progress</span>
+              <Badge
+                variant={
+                  setupProgressSchema.status === "ok" ? "success" : "warning"
+                }
+              >
+                {setupProgressSchema.status === "ok"
+                  ? "適用済み"
+                  : setupProgressSchema.status === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            {setupProgressSchema.message && (
+              <p className="text-xs text-amber-300">
+                {setupProgressSchema.message}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
               <span className="text-xs text-slate-300">
                 audit_logs インデックス
               </span>
@@ -430,7 +461,8 @@ export default async function AdminDiagnosticsPage() {
                 {auditLogsIndexes.message}
               </p>
             )}
-            {userBlocksSchema.status !== "ok" && (
+            {(userBlocksSchema.status !== "ok" ||
+              setupProgressSchema.status !== "ok") && (
               <a
                 href="/docs/runbooks/supabase-migrations"
                 className="inline-flex text-xs text-amber-200 underline"
@@ -439,6 +471,7 @@ export default async function AdminDiagnosticsPage() {
               </a>
             )}
             {userBlocksSchema.status === "ok" &&
+              setupProgressSchema.status === "ok" &&
               auditLogsIndexes.status !== "ok" && (
                 <a
                   href="/docs/runbooks/supabase-migrations"
