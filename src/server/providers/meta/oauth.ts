@@ -21,6 +21,12 @@ export type MetaTokenInfo = {
   userId?: string;
 };
 
+export type MetaPermissionStatus = {
+  granted: string[];
+  declined: string[];
+  pending: string[];
+};
+
 type MetaDebugResponse = {
   data?: {
     app_id?: string;
@@ -33,9 +39,17 @@ type MetaDebugResponse = {
   };
 };
 
+type MetaPermissionsResponse = {
+  data?: Array<{
+    permission?: string;
+    status?: string;
+  }>;
+};
+
 const tokenEndpoint = "https://graph.facebook.com/v20.0/oauth/access_token";
 const debugEndpoint = "https://graph.facebook.com/debug_token";
 const meEndpoint = "https://graph.facebook.com/v20.0/me";
+const permissionsEndpoint = "https://graph.facebook.com/v20.0/me/permissions";
 
 export function getMetaEnv() {
   const env = getEnv();
@@ -110,6 +124,37 @@ export async function fetchMetaTokenInfo(
     };
   } catch {
     return {};
+  }
+}
+
+export async function fetchMetaPermissions(
+  accessToken: string
+): Promise<MetaPermissionStatus | null> {
+  const url = new URL(permissionsEndpoint);
+  url.searchParams.set("access_token", accessToken);
+
+  try {
+    const response = await httpRequestJson<MetaPermissionsResponse>(url.toString());
+    const entries = response.data ?? [];
+    const granted: string[] = [];
+    const declined: string[] = [];
+    const pending: string[] = [];
+
+    for (const entry of entries) {
+      if (!entry.permission) continue;
+      const status = entry.status ?? "unknown";
+      if (status === "granted") {
+        granted.push(entry.permission);
+      } else if (status === "declined" || status === "expired") {
+        declined.push(entry.permission);
+      } else {
+        pending.push(entry.permission);
+      }
+    }
+
+    return { granted, declined, pending };
+  } catch {
+    return null;
   }
 }
 
