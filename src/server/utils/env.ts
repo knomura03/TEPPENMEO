@@ -22,6 +22,7 @@ const envSchema = z.object({
   MAX_UPLOAD_MB: z.string().optional(),
   BING_MAPS_KEY: z.string().optional(),
   YAHOO_YOLP_APP_ID: z.string().optional(),
+  CRON_SECRET: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

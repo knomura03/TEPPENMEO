@@ -4,6 +4,8 @@ import {
   getEnvCheckGroups,
   resolveAuditLogsIndexStatus,
   resolveMediaAssetsSchemaStatus,
+  resolveJobRunsRunningIndexStatus,
+  resolveJobSchedulesSchemaStatus,
   resolveJobRunsSchemaStatus,
   resolveSetupProgressSchemaStatus,
   resolveUserBlocksSchemaStatus,
@@ -120,6 +122,58 @@ describe("job_runs マイグレーション判定", () => {
     });
     expect(result.status).toBe("unknown");
     expect(result.issue).toBe("unknown");
+  });
+});
+
+describe("job_schedules マイグレーション判定", () => {
+  it("エラーなしなら適用済み", () => {
+    const result = resolveJobSchedulesSchemaStatus(null);
+    expect(result.status).toBe("ok");
+    expect(result.issue).toBeNull();
+  });
+
+  it("テーブル未作成を検知する", () => {
+    const result = resolveJobSchedulesSchemaStatus({
+      code: "42P01",
+      message: "relation \"job_schedules\" does not exist",
+    });
+    expect(result.status).toBe("missing");
+    expect(result.issue).toBe("table_missing");
+  });
+
+  it("未知のエラーは未判定として扱う", () => {
+    const result = resolveJobSchedulesSchemaStatus({
+      code: "XX000",
+      message: "unexpected",
+    });
+    expect(result.status).toBe("unknown");
+    expect(result.issue).toBe("unknown");
+  });
+});
+
+describe("job_runs 重複防止インデックス判定", () => {
+  it("エラーなしなら適用済み", () => {
+    const result = resolveJobRunsRunningIndexStatus(
+      { job_runs_running_unique_idx: true },
+      null
+    );
+    expect(result.status).toBe("ok");
+  });
+
+  it("関数未作成は未適用として扱う", () => {
+    const result = resolveJobRunsRunningIndexStatus(null, {
+      code: "PGRST202",
+      message: "Could not find the function job_runs_running_unique_status",
+    });
+    expect(result.status).toBe("missing");
+  });
+
+  it("未適用はmissingになる", () => {
+    const result = resolveJobRunsRunningIndexStatus(
+      { job_runs_running_unique_idx: false },
+      null
+    );
+    expect(result.status).toBe("missing");
   });
 });
 

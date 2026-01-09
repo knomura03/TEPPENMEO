@@ -102,6 +102,13 @@ export async function createJobRun(params: {
     .single();
 
   if (error || !data) {
+    if (error?.code === "23505") {
+      return {
+        ok: false,
+        runId: null,
+        reason: "すでに実行中のため開始できません。",
+      };
+    }
     if (error?.code === "42P01") {
       return {
         ok: false,
@@ -117,6 +124,26 @@ export async function createJobRun(params: {
   }
 
   return { ok: true, runId: data.id as string, reason: null };
+}
+
+export async function hasRunningJobRun(params: {
+  organizationId: string;
+  jobKey: string;
+}): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const admin = getSupabaseAdmin();
+  if (!admin) return false;
+
+  const { data, error } = await admin
+    .from("job_runs")
+    .select("id")
+    .eq("organization_id", params.organizationId)
+    .eq("job_key", params.jobKey)
+    .eq("status", "running")
+    .limit(1);
+
+  if (error || !data) return false;
+  return data.length > 0;
 }
 
 export async function finalizeJobRun(params: {
