@@ -19,3 +19,6 @@
 ## 暗号化エラー
 - `TOKEN_ENCRYPTION_KEY` が32バイトか確認
 - 変更した場合は既存トークンを再認可して再保存
+
+## devサーバー起動失敗（ポート/ロック）
+- `docs/runbooks/dev-server-port-lock.md` を参照して復旧する
