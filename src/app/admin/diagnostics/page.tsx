@@ -5,6 +5,7 @@ import { ProviderType } from "@/server/providers/types";
 import {
   checkAuditLogsIndexes,
   checkMediaAssetsSchema,
+  checkJobRunsSchema,
   checkSupabaseConnection,
   checkSetupProgressSchema,
   checkUserBlocksSchema,
@@ -53,6 +54,7 @@ export default async function AdminDiagnosticsPage() {
   const userBlocksSchema = await checkUserBlocksSchema();
   const setupProgressSchema = await checkSetupProgressSchema();
   const mediaAssetsSchema = await checkMediaAssetsSchema();
+  const jobRunsSchema = await checkJobRunsSchema();
   const auditLogsIndexes = await checkAuditLogsIndexes();
   const mediaConfig = getMediaConfig();
   const storageReady = isStorageConfigured();
@@ -258,6 +260,16 @@ export default async function AdminDiagnosticsPage() {
       "media_assets の確認に失敗しました。設定を確認してください。"
     );
   }
+  if (jobRunsSchema.status === "missing") {
+    nextSteps.push(
+      "job_runs マイグレーションを適用してください（ジョブ履歴に必要）。"
+    );
+  }
+  if (jobRunsSchema.status === "unknown") {
+    nextSteps.push(
+      "job_runs の確認に失敗しました。設定を確認してください。"
+    );
+  }
   if (auditLogsIndexes.status === "missing") {
     nextSteps.push(
       "監査ログのインデックスマイグレーションを適用してください（検索性能に影響します）。"
@@ -455,6 +467,23 @@ export default async function AdminDiagnosticsPage() {
               </p>
             )}
             <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">job_runs</span>
+              <Badge
+                variant={jobRunsSchema.status === "ok" ? "success" : "warning"}
+              >
+                {jobRunsSchema.status === "ok"
+                  ? "適用済み"
+                  : jobRunsSchema.status === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            {jobRunsSchema.message && (
+              <p className="text-xs text-amber-300">
+                {jobRunsSchema.message}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
               <span className="text-xs text-slate-300">
                 audit_logs インデックス
               </span>
@@ -477,7 +506,8 @@ export default async function AdminDiagnosticsPage() {
             )}
             {(userBlocksSchema.status !== "ok" ||
               setupProgressSchema.status !== "ok" ||
-              mediaAssetsSchema.status !== "ok") && (
+              mediaAssetsSchema.status !== "ok" ||
+              jobRunsSchema.status !== "ok") && (
               <a
                 href="/docs/runbooks/supabase-migrations"
                 className="inline-flex text-xs text-amber-200 underline"
@@ -488,6 +518,7 @@ export default async function AdminDiagnosticsPage() {
             {userBlocksSchema.status === "ok" &&
               setupProgressSchema.status === "ok" &&
               mediaAssetsSchema.status === "ok" &&
+              jobRunsSchema.status === "ok" &&
               auditLogsIndexes.status !== "ok" && (
                 <a
                   href="/docs/runbooks/supabase-migrations"

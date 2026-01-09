@@ -1,4 +1,5 @@
 import { ProviderType } from "@/server/providers/types";
+import type { JobRun } from "@/server/services/jobs/job-runs";
 
 export const mockOrganization = {
   id: "org-1",
@@ -318,5 +319,27 @@ export const mockAuditLogs = [
     targetId: "user-2",
     createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
     metadata: { reason: "運用上の都合" },
+  },
+];
+
+export const mockJobRuns: JobRun[] = [
+  {
+    id: "job-1",
+    organizationId: mockOrganization.id,
+    jobKey: "gbp_reviews_bulk_sync",
+    status: "succeeded",
+    startedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    finishedAt: new Date(Date.now() - 1000 * 60 * 28).toISOString(),
+    summary: {
+      totalLocations: 1,
+      successCount: 1,
+      failedCount: 0,
+      reviewCount: 1,
+      mockMode: true,
+    },
+    error: {},
+    actorUserId: "user-1",
+    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    organizationName: mockOrganization.name,
   },
 ];
