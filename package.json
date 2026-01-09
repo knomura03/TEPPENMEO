@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "seed": "tsx scripts/seed.ts",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "jobs:tick": "tsx scripts/jobs-tick.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
