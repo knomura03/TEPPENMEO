@@ -31,6 +31,10 @@ jobs:
       - name: Playwrightブラウザをインストール
         run: pnpm exec playwright install --with-deps
       - name: E2E
+        env:
+          CI: "1"
+          PROVIDER_MOCK_MODE: "true"
+          E2E_PORT: "3000"
         run: pnpm e2e
       - name: Playwrightレポートを保存
         if: always()
