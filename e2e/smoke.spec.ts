@@ -133,11 +133,16 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-setup-bulk-sync-scheduling", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
     if (hasSetup) {
       await expect(page.getByText("進捗", { exact: true })).toBeVisible();
       await expect(page.getByText("最終アップロード")).toBeVisible();
       await expect(page.getByText("Googleレビューを一括同期")).toBeVisible();
+      await expect(page.getByText("自動同期", { exact: true })).toBeVisible();
     }
     expect(hasSetup || hasSignIn).toBeTruthy();
   }

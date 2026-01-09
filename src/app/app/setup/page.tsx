@@ -4,14 +4,19 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getMembershipRole, hasRequiredRole, isSystemAdmin } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
-import { checkJobRunsSchema } from "@/server/services/diagnostics";
+import { checkJobRunsSchema, checkJobSchedulesSchema } from "@/server/services/diagnostics";
 import { getLatestJobRun } from "@/server/services/jobs/job-runs";
 import { GBP_BULK_REVIEW_SYNC_JOB_KEY } from "@/server/services/jobs/gbp-bulk-review-sync";
+import { getJobSchedule } from "@/server/services/jobs/job-schedules";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { getSetupStatus } from "@/server/services/setup-status";
 import { isSupabaseAdminConfigured, isSupabaseConfigured } from "@/server/utils/env";
 
-import { BulkReviewSyncCard, type BulkReviewSyncView } from "./BulkReviewSyncCard";
+import {
+  BulkReviewSyncCard,
+  type BulkReviewSyncScheduleView,
+  type BulkReviewSyncView,
+} from "./BulkReviewSyncCard";
 import { SetupProgressToggle } from "./SetupProgressToggle";
 
 function formatDate(value: string | null) {
@@ -98,6 +103,11 @@ export default async function SetupChecklistPage() {
     jobKey: GBP_BULK_REVIEW_SYNC_JOB_KEY,
   });
   const jobRunsSchema = await checkJobRunsSchema();
+  const jobSchedulesSchema = await checkJobSchedulesSchema();
+  const schedule = await getJobSchedule({
+    organizationId: org.id,
+    jobKey: GBP_BULK_REVIEW_SYNC_JOB_KEY,
+  });
 
   const canManageOrg = hasRequiredRole(role, "admin");
   const canRunBulk =
@@ -114,6 +124,20 @@ export default async function SetupChecklistPage() {
         : jobRunsSchema.status !== "ok"
           ? "job_runs マイグレーションが未適用のため実行できません。"
           : null;
+  const canManageSchedule =
+    canManageOrg &&
+    isSupabaseConfigured() &&
+    isSupabaseAdminConfigured() &&
+    jobSchedulesSchema.status === "ok";
+  const scheduleDisabledReason = !canManageOrg
+    ? "管理者のみ保存できます。"
+    : !isSupabaseConfigured()
+      ? "Supabaseが未設定のため保存できません。"
+      : !isSupabaseAdminConfigured()
+        ? "SUPABASE_SERVICE_ROLE_KEY が未設定のため保存できません。"
+        : jobSchedulesSchema.status !== "ok"
+          ? "job_schedules マイグレーションが未適用のため保存できません。"
+          : null;
   const stepMap = new Map(status.steps.map((step) => [step.key, step]));
 
   const googleSteps = [
@@ -124,7 +148,7 @@ export default async function SetupChecklistPage() {
   const metaSteps = ["connect_meta", "link_fb_page", "post_test_meta"];
   const storageSteps = ["enable_storage"];
 
-  const bulkSyncView = latestJob
+  const bulkSyncView: BulkReviewSyncView | null = latestJob
     ? {
         status: mapJobStatus(latestJob.status),
         startedAt: latestJob.startedAt,
@@ -138,6 +162,12 @@ export default async function SetupChecklistPage() {
         },
       }
     : null;
+  const bulkScheduleView: BulkReviewSyncScheduleView = {
+    enabled: schedule?.enabled ?? false,
+    cadenceMinutes: schedule?.cadenceMinutes ?? 1440,
+    nextRunAt: schedule?.nextRunAt ?? null,
+    lastEnqueuedAt: schedule?.lastEnqueuedAt ?? null,
+  };
 
   return (
     <div className="space-y-8">
@@ -293,9 +323,13 @@ export default async function SetupChecklistPage() {
         </Card>
 
         <BulkReviewSyncCard
+          key={`${bulkScheduleView.enabled}-${bulkScheduleView.cadenceMinutes}-${bulkScheduleView.nextRunAt ?? "none"}`}
           canRun={canRunBulk}
           disabledReason={bulkDisabledReason}
           latest={bulkSyncView}
+          schedule={bulkScheduleView}
+          canManageSchedule={canManageSchedule}
+          scheduleDisabledReason={scheduleDisabledReason}
         />
 
         <Card>
