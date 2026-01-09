@@ -4,13 +4,16 @@ import { getSessionUser } from "@/server/auth/session";
 import { ProviderType } from "@/server/providers/types";
 import {
   checkAuditLogsIndexes,
+  checkJobRunsRunningIndex,
   checkMediaAssetsSchema,
+  checkJobSchedulesSchema,
   checkJobRunsSchema,
   checkSupabaseConnection,
   checkSetupProgressSchema,
   checkUserBlocksSchema,
   getEnvCheckGroups,
 } from "@/server/services/diagnostics";
+import { countEnabledJobSchedules } from "@/server/services/jobs/job-schedules";
 import { getMediaConfig, isStorageConfigured } from "@/server/services/media";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { getProviderAccount } from "@/server/services/provider-accounts";
@@ -55,9 +58,12 @@ export default async function AdminDiagnosticsPage() {
   const setupProgressSchema = await checkSetupProgressSchema();
   const mediaAssetsSchema = await checkMediaAssetsSchema();
   const jobRunsSchema = await checkJobRunsSchema();
+  const jobSchedulesSchema = await checkJobSchedulesSchema();
+  const jobRunsRunningIndex = await checkJobRunsRunningIndex();
   const auditLogsIndexes = await checkAuditLogsIndexes();
   const mediaConfig = getMediaConfig();
   const storageReady = isStorageConfigured();
+  const cronSecretConfigured = Boolean(process.env.CRON_SECRET);
 
   const user = await getSessionUser();
   const org = user ? await getPrimaryOrganization(user.id) : null;
@@ -144,6 +150,9 @@ export default async function AdminDiagnosticsPage() {
   const missingMockEnv = mockRequired.filter((check) => !check.present);
   const missingRealEnv = realRequired.filter((check) => !check.present);
   const externalApiEnabled = !providerMockMode;
+  const autoSyncCount = await countEnabledJobSchedules({
+    jobKey: "gbp_reviews_bulk_sync",
+  });
 
   const nextSteps: string[] = [];
   if (envError) {
@@ -265,10 +274,33 @@ export default async function AdminDiagnosticsPage() {
       "job_runs マイグレーションを適用してください（ジョブ履歴に必要）。"
     );
   }
+  if (jobSchedulesSchema.status === "missing") {
+    nextSteps.push(
+      "job_schedules マイグレーションを適用してください（自動同期に必要）。"
+    );
+  }
+  if (jobRunsRunningIndex.status === "missing") {
+    nextSteps.push(
+      "job_runs の重複防止インデックスを適用してください（同時実行の防止）。"
+    );
+  }
   if (jobRunsSchema.status === "unknown") {
     nextSteps.push(
       "job_runs の確認に失敗しました。設定を確認してください。"
     );
+  }
+  if (jobSchedulesSchema.status === "unknown") {
+    nextSteps.push(
+      "job_schedules の確認に失敗しました。設定を確認してください。"
+    );
+  }
+  if (jobRunsRunningIndex.status === "unknown") {
+    nextSteps.push(
+      "job_runs の重複防止インデックス確認に失敗しました。設定を確認してください。"
+    );
+  }
+  if (autoSyncCount.count && !cronSecretConfigured) {
+    nextSteps.push("自動同期が有効なため CRON_SECRET を設定してください。");
   }
   if (auditLogsIndexes.status === "missing") {
     nextSteps.push(
@@ -368,6 +400,12 @@ export default async function AdminDiagnosticsPage() {
             {envError && (
               <p className="pt-2 text-xs text-amber-300">{envError}</p>
             )}
+            <div className="flex items-center justify-between text-xs text-slate-300">
+              <span className="font-semibold">CRON_SECRET</span>
+              <Badge variant={cronSecretConfigured ? "success" : "warning"}>
+                {cronSecretConfigured ? "設定済み" : "未設定"}
+              </Badge>
+            </div>
             <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
               <p className="text-[11px] text-slate-400">
                 空の .env.local スニペット
@@ -379,9 +417,50 @@ export default async function AdminDiagnosticsPage() {
                   "",
                   "# 実機運用で必須",
                   ...realRequired.map((check) => `${check.key}=`),
+                  "",
+                  "# 自動同期（Cron）",
+                  "CRON_SECRET=",
                 ].join("\n")}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        <Card tone="dark">
+          <CardHeader>
+            <p className="text-sm font-semibold">自動同期（GBP）</p>
+            <p className="text-xs text-slate-400">
+              Cron設定と自動同期の有効数を確認します。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">CRON_SECRET</span>
+              <Badge variant={cronSecretConfigured ? "success" : "warning"}>
+                {cronSecretConfigured ? "設定済み" : "未設定"}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">自動同期ON</span>
+              <Badge
+                variant={
+                  autoSyncCount.count === null ? "muted" : "success"
+                }
+              >
+                {autoSyncCount.count === null
+                  ? "未判定"
+                  : `${autoSyncCount.count}件`}
+              </Badge>
+            </div>
+            {autoSyncCount.reason && (
+              <p className="text-xs text-amber-300">{autoSyncCount.reason}</p>
+            )}
+            <a
+              href="/docs/runbooks/gbp-bulk-review-sync"
+              className="inline-flex text-xs text-amber-200 underline"
+            >
+              自動同期の手順書を確認する
+            </a>
           </CardContent>
         </Card>
 
@@ -407,7 +486,7 @@ export default async function AdminDiagnosticsPage() {
           <CardHeader>
             <p className="text-sm font-semibold">マイグレーション</p>
             <p className="text-xs text-slate-400">
-              user_blocks と監査ログインデックスの適用状況を確認します。
+              user_blocks とジョブ系テーブル、監査ログインデックスの適用状況を確認します。
             </p>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -484,6 +563,46 @@ export default async function AdminDiagnosticsPage() {
               </p>
             )}
             <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">job_schedules</span>
+              <Badge
+                variant={
+                  jobSchedulesSchema.status === "ok" ? "success" : "warning"
+                }
+              >
+                {jobSchedulesSchema.status === "ok"
+                  ? "適用済み"
+                  : jobSchedulesSchema.status === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            {jobSchedulesSchema.message && (
+              <p className="text-xs text-amber-300">
+                {jobSchedulesSchema.message}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300">
+                job_runs 重複防止
+              </span>
+              <Badge
+                variant={
+                  jobRunsRunningIndex.status === "ok" ? "success" : "warning"
+                }
+              >
+                {jobRunsRunningIndex.status === "ok"
+                  ? "適用済み"
+                  : jobRunsRunningIndex.status === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            {jobRunsRunningIndex.message && (
+              <p className="text-xs text-amber-300">
+                {jobRunsRunningIndex.message}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
               <span className="text-xs text-slate-300">
                 audit_logs インデックス
               </span>
@@ -507,7 +626,9 @@ export default async function AdminDiagnosticsPage() {
             {(userBlocksSchema.status !== "ok" ||
               setupProgressSchema.status !== "ok" ||
               mediaAssetsSchema.status !== "ok" ||
-              jobRunsSchema.status !== "ok") && (
+              jobRunsSchema.status !== "ok" ||
+              jobSchedulesSchema.status !== "ok" ||
+              jobRunsRunningIndex.status !== "ok") && (
               <a
                 href="/docs/runbooks/supabase-migrations"
                 className="inline-flex text-xs text-amber-200 underline"
@@ -519,6 +640,8 @@ export default async function AdminDiagnosticsPage() {
               setupProgressSchema.status === "ok" &&
               mediaAssetsSchema.status === "ok" &&
               jobRunsSchema.status === "ok" &&
+              jobSchedulesSchema.status === "ok" &&
+              jobRunsRunningIndex.status === "ok" &&
               auditLogsIndexes.status !== "ok" && (
                 <a
                   href="/docs/runbooks/supabase-migrations"

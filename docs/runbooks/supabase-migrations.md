@@ -11,6 +11,8 @@
 - `supabase/migrations/0004_setup_progress.sql`
 - `supabase/migrations/0005_media_assets.sql`
 - `supabase/migrations/0006_job_runs.sql`
+- `supabase/migrations/0007_job_schedules.sql`
+- `supabase/migrations/0008_job_runs_running_unique.sql`
 
 ## 適用方法A: SQL Editor（推奨）
 1) Supabaseダッシュボードを開く  
@@ -27,6 +29,10 @@
 12) **Run** を実行  
 13) 続けて `supabase/migrations/0006_job_runs.sql` を貼り付け  
 14) **Run** を実行  
+15) 続けて `supabase/migrations/0007_job_schedules.sql` を貼り付け  
+16) **Run** を実行  
+17) 続けて `supabase/migrations/0008_job_runs_running_unique.sql` を貼り付け  
+18) **Run** を実行  
 
 ## 適用方法B: Supabase CLI（任意）
 1) CLIをインストール  
@@ -51,6 +57,8 @@ supabase db push
 - `/admin/diagnostics` で **setup_progress: 適用済み** を確認  
 - `/admin/diagnostics` で **media_assets: 適用済み** を確認  
 - `/admin/diagnostics` で **job_runs: 適用済み** を確認  
+- `/admin/diagnostics` で **job_schedules: 適用済み** を確認  
+- `/admin/diagnostics` で **job_runs 重複防止: 適用済み** を確認  
 
 ## よくある失敗
 ### `relation "user_blocks" does not exist`
@@ -76,6 +84,14 @@ supabase db push
 ### `job_runs テーブルが見つかりません`
 - `0006_job_runs.sql` が未適用  
 - SQL Editorで `0006_job_runs.sql` を実行する  
+
+### `job_schedules テーブルが見つかりません`
+- `0007_job_schedules.sql` が未適用  
+- SQL Editorで `0007_job_schedules.sql` を実行する  
+
+### `job_runs の重複防止インデックスが未適用`
+- `0008_job_runs_running_unique.sql` が未適用  
+- SQL Editorで `0008_job_runs_running_unique.sql` を実行する  
 
 ### Supabaseキー未設定
 - `.env.local` の `SUPABASE_SERVICE_ROLE_KEY` を確認する  

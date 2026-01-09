@@ -128,6 +128,17 @@ export type JobRunsSchemaCheck = {
   message: string | null;
 };
 
+export type JobSchedulesSchemaCheck = {
+  status: "ok" | "missing" | "unknown";
+  issue: "table_missing" | "unknown" | null;
+  message: string | null;
+};
+
+export type JobRunsRunningIndexCheck = {
+  status: "ok" | "missing" | "unknown";
+  message: string | null;
+};
+
 export type AuditLogsIndexCheck = {
   status: "ok" | "missing" | "unknown";
   message: string | null;
@@ -239,6 +250,74 @@ export function resolveJobRunsSchemaStatus(
     message:
       error.message ?? "job_runs の確認に失敗しました。設定を確認してください。",
   };
+}
+
+export function resolveJobSchedulesSchemaStatus(
+  error: { code?: string; message?: string } | null
+): JobSchedulesSchemaCheck {
+  if (!error) {
+    return { status: "ok", issue: null, message: null };
+  }
+
+  if (error.code === "42P01") {
+    return {
+      status: "missing",
+      issue: "table_missing",
+      message: "job_schedules テーブルが見つかりません。",
+    };
+  }
+
+  return {
+    status: "unknown",
+    issue: "unknown",
+    message:
+      error.message ?? "job_schedules の確認に失敗しました。設定を確認してください。",
+  };
+}
+
+function isMissingJobRunsRunningIndexFunction(error: {
+  code?: string;
+  message?: string;
+}) {
+  if (!error) return false;
+  if (error.code === "42883" || error.code === "PGRST202") return true;
+  return Boolean(error.message?.includes("job_runs_running_unique_status"));
+}
+
+export function resolveJobRunsRunningIndexStatus(
+  data: Record<string, boolean> | null,
+  error: { code?: string; message?: string } | null
+): JobRunsRunningIndexCheck {
+  if (error) {
+    if (isMissingJobRunsRunningIndexFunction(error)) {
+      return {
+        status: "missing",
+        message:
+          "job_runs の重複防止インデックス判定が見つかりません。マイグレーションを適用してください。",
+      };
+    }
+    return {
+      status: "unknown",
+      message:
+        error.message ??
+        "job_runs の重複防止インデックス確認に失敗しました。設定を確認してください。",
+    };
+  }
+
+  if (!data) {
+    return {
+      status: "unknown",
+      message: "job_runs の重複防止インデックス結果が取得できませんでした。",
+    };
+  }
+
+  const ok = Boolean(data.job_runs_running_unique_idx);
+  return ok
+    ? { status: "ok", message: null }
+    : {
+        status: "missing",
+        message: "job_runs の重複防止インデックスが未適用です。",
+      };
 }
 
 function isMissingAuditLogsIndexFunction(error: {
@@ -388,6 +467,52 @@ export async function checkJobRunsSchema(): Promise<JobRunsSchemaCheck> {
   const { error } = await admin.from("job_runs").select("id").limit(1);
 
   return resolveJobRunsSchemaStatus(error);
+}
+
+export async function checkJobSchedulesSchema(): Promise<JobSchedulesSchemaCheck> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseのサービスキーが未設定のため判定できません。",
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseの設定を確認してください。",
+    };
+  }
+
+  const { error } = await admin.from("job_schedules").select("id").limit(1);
+
+  return resolveJobSchedulesSchemaStatus(error);
+}
+
+export async function checkJobRunsRunningIndex(): Promise<JobRunsRunningIndexCheck> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      status: "unknown",
+      message: "Supabaseのサービスキーが未設定のため判定できません。",
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return {
+      status: "unknown",
+      message: "Supabaseの設定を確認してください。",
+    };
+  }
+
+  const { data, error } = await admin.rpc("job_runs_running_unique_status");
+  const payload =
+    data && typeof data === "object" ? (data as Record<string, boolean>) : null;
+
+  return resolveJobRunsRunningIndexStatus(payload, error);
 }
 
 export async function checkAuditLogsIndexes(): Promise<AuditLogsIndexCheck> {
