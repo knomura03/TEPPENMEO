@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "seed": "tsx scripts/seed.ts",
-    "e2e": "playwright test",
+    "e2e": "node scripts/ensure-port-free.mjs && playwright test",
     "jobs:tick": "tsx scripts/jobs-tick.ts"
   },
   "dependencies": {
