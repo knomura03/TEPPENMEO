@@ -1,16 +1,13 @@
 import { Badge } from "@/components/ui/badge";
+import { Button, buttonStyles } from "@/components/ui/button";
 import { Callout } from "@/components/ui/Callout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import {
-  FilterBar,
-  adminActionPrimaryClass,
-  adminActionSecondaryClass,
-  adminFieldClass,
-  adminLabelClass,
-  adminSelectClass,
-} from "@/components/ui/FilterBar";
+import { FilterBar } from "@/components/ui/FilterBar";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Select } from "@/components/ui/select";
 import { listAdminOrganizations } from "@/server/services/admin-organizations";
 import { isSupabaseAdminConfigured } from "@/server/utils/env";
 import {
@@ -74,6 +71,11 @@ export default async function AdminUsersPage({
         : null;
   const supabaseReady = isSupabaseAdminConfigured();
   const filterFormId = "admin-users-filter";
+  const secondaryLink = buttonStyles({
+    variant: "secondary",
+    size: "md",
+    className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
+  });
 
   return (
     <div className="space-y-8">
@@ -98,7 +100,7 @@ export default async function AdminUsersPage({
             <p className="text-amber-100/80">{userBlocksSchema.message}</p>
           )}
           <div>
-            <a href="/docs/runbooks/supabase-migrations" className={adminActionSecondaryClass}>
+            <a href="/docs/runbooks/supabase-migrations" className={secondaryLink}>
               適用手順を確認する
             </a>
           </div>
@@ -134,14 +136,14 @@ export default async function AdminUsersPage({
         description="メール・状態・組織で絞り込みできます。"
         footer={
           <>
-            <button
+            <Button
               type="submit"
               form={filterFormId}
-              className={adminActionPrimaryClass}
+              className="bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
             >
               検索
-            </button>
-            <a href="/admin/users" className={adminActionSecondaryClass}>
+            </Button>
+            <a href="/admin/users" className={secondaryLink}>
               クリア
             </a>
           </>
@@ -149,37 +151,36 @@ export default async function AdminUsersPage({
       >
         <form id={filterFormId} className="contents" action="/admin/users">
           <div className="md:col-span-2">
-            <label className={adminLabelClass}>検索</label>
-            <input
-              name="q"
-              defaultValue={query}
-              placeholder="メールで検索"
-              className={adminFieldClass}
-            />
+            <FormField label="検索" tone="dark">
+              <Input
+                name="q"
+                defaultValue={query}
+                placeholder="メールで検索"
+                tone="dark"
+              />
+            </FormField>
           </div>
           <div>
-            <label className={adminLabelClass}>状態</label>
-            <select name="status" defaultValue={status} className={adminSelectClass}>
-              <option value="all">すべて</option>
-              <option value="active">有効</option>
-              <option value="invited">招待中</option>
-              <option value="disabled">無効</option>
-            </select>
+            <FormField label="状態" tone="dark">
+              <Select name="status" defaultValue={status} tone="dark">
+                <option value="all">すべて</option>
+                <option value="active">有効</option>
+                <option value="invited">招待中</option>
+                <option value="disabled">無効</option>
+              </Select>
+            </FormField>
           </div>
           <div className="md:col-span-2">
-            <label className={adminLabelClass}>組織</label>
-            <select
-              name="org"
-              defaultValue={organizationId}
-              className={adminSelectClass}
-            >
-              <option value="all">すべて</option>
-              {organizations.map((org) => (
-                <option key={org.id} value={org.id}>
-                  {org.name}
-                </option>
-              ))}
-            </select>
+            <FormField label="組織" tone="dark">
+              <Select name="org" defaultValue={organizationId} tone="dark">
+                <option value="all">すべて</option>
+                {organizations.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
           </div>
         </form>
       </FilterBar>
@@ -200,7 +201,7 @@ export default async function AdminUsersPage({
               title="該当するユーザーがいません。"
               description="フィルタ条件を見直すか、新規招待を行ってください。"
               actions={
-                <a href="/admin/users" className={adminActionSecondaryClass}>
+                <a href="/admin/users" className={secondaryLink}>
                   フィルタをクリア
                 </a>
               }

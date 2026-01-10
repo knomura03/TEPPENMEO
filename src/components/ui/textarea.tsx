@@ -2,9 +2,9 @@ import * as React from "react";
 
 import { cn } from "@/lib/cn";
 
-type InputTone = "light" | "dark";
+type TextareaTone = "light" | "dark";
 
-const toneStyles: Record<InputTone, string> = {
+const toneStyles: Record<TextareaTone, string> = {
   light:
     "border-slate-200 bg-white text-slate-900 placeholder:text-slate-500 focus-visible:outline-slate-400",
   dark:
@@ -13,20 +13,20 @@ const toneStyles: Record<InputTone, string> = {
 
 const invalidStyles = "border-rose-400 focus-visible:outline-rose-300";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  tone?: InputTone;
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  tone?: TextareaTone;
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, tone = "light", ...props }, ref) => {
     const ariaInvalid = props["aria-invalid"];
     const isInvalid = ariaInvalid === true || ariaInvalid === "true";
     return (
-      <input
+      <textarea
         ref={ref}
         className={cn(
-          "min-h-[44px] w-full rounded-md border px-3 text-base shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
+          "min-h-[120px] w-full rounded-md border px-3 py-2 text-base shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60",
           toneStyles[tone],
           isInvalid ? invalidStyles : null,
           className
@@ -37,6 +37,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.displayName = "Input";
+Textarea.displayName = "Textarea";
 
-export { Input };
+export { Textarea };

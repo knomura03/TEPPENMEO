@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
+import { Select } from "@/components/ui/select";
 import {
   runGbpBulkReviewSyncAction,
   type BulkReviewSyncActionResult,
@@ -115,18 +117,18 @@ export function BulkReviewSyncCard({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-slate-900">
+          <p className="text-base font-semibold text-slate-900">
             Googleレビューを一括同期
           </p>
           <Badge variant={latest?.status === "succeeded" ? "success" : "warning"}>
             {statusBadge}
           </Badge>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-sm text-slate-600">
           GBP紐付け済みロケーションのレビューをまとめて同期します。
         </p>
       </CardHeader>
-      <CardContent className="space-y-2 text-xs text-slate-600">
+      <CardContent className="space-y-3 text-sm text-slate-700">
         <p>最終実行: {formatDate(latest?.finishedAt ?? latest?.startedAt ?? null)}</p>
         <p>対象ロケーション: {formatCount(latest?.summary.totalLocations ?? null)}件</p>
         <p>成功: {formatCount(latest?.summary.successCount ?? null)}件</p>
@@ -134,23 +136,23 @@ export function BulkReviewSyncCard({
         <p>レビュー件数: {formatCount(latest?.summary.reviewCount ?? null)}件</p>
         <p>次回予定: {nextRunLabel}</p>
         {latest?.summary.mockMode && (
-          <p className="text-[11px] text-amber-600">
+          <p className="text-sm text-amber-600">
             モック運用のため固定結果です。
           </p>
         )}
         {disabledReason && (
-          <p className="text-[11px] text-amber-600">{disabledReason}</p>
+          <p className="text-sm text-amber-600">{disabledReason}</p>
         )}
         {result && (
-          <div className="rounded-md border border-slate-200 bg-slate-50 p-2 text-[11px] text-slate-600">
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
             <p>{result.message}</p>
             {result.reason && <p className="mt-1">理由: {result.reason}</p>}
           </div>
         )}
         <div className="rounded-md border border-slate-200 bg-white p-3">
-          <p className="text-[11px] font-semibold text-slate-700">自動同期</p>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <label className="flex items-center gap-2 text-[11px] text-slate-600">
+          <p className="text-sm font-semibold text-slate-700">自動同期</p>
+          <div className="mt-3 flex flex-wrap items-end gap-3">
+            <label className="flex items-center gap-2 text-sm text-slate-600">
               <input
                 type="checkbox"
                 checked={scheduleEnabled}
@@ -160,15 +162,18 @@ export function BulkReviewSyncCard({
               />
               <span>有効にする</span>
             </label>
-            <select
-              value={cadenceMinutes}
-              onChange={(event) => setCadenceMinutes(Number(event.target.value))}
-              disabled={scheduleDisabled || isPending || !scheduleEnabled}
-              className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px]"
-            >
-              <option value={360}>6時間ごと</option>
-              <option value={1440}>24時間ごと</option>
-            </select>
+            <div className="min-w-[180px]">
+              <FormField label="頻度">
+                <Select
+                  value={cadenceMinutes}
+                  onChange={(event) => setCadenceMinutes(Number(event.target.value))}
+                  disabled={scheduleDisabled || isPending || !scheduleEnabled}
+                >
+                  <option value={360}>6時間ごと</option>
+                  <option value={1440}>24時間ごと</option>
+                </Select>
+              </FormField>
+            </div>
             <Button
               type="button"
               variant="secondary"
@@ -179,12 +184,12 @@ export function BulkReviewSyncCard({
             </Button>
           </div>
           {scheduleDisabledReason && (
-            <p className="mt-2 text-[11px] text-amber-600">
+            <p className="mt-2 text-sm text-amber-600">
               {scheduleDisabledReason}
             </p>
           )}
           {scheduleResult && (
-            <p className="mt-2 text-[11px] text-slate-500">
+            <p className="mt-2 text-sm text-slate-500">
               {scheduleResult.message}
             </p>
           )}

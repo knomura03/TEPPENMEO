@@ -141,6 +141,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-setup-ui-primitives", {
+      body: screenshot,
+      contentType: "image/png",
+    });
     await testInfo.attach("app-setup-kpis-media", {
       body: screenshot,
       contentType: "image/png",
@@ -174,6 +178,10 @@ test("監査ログはサインインまたは監査ログが表示される", as
     .isVisible();
   const screenshot = await page.screenshot({ fullPage: true });
   await testInfo.attach("admin-audit-logs-design", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+  await testInfo.attach("admin-audit-logs-ui-primitives", {
     body: screenshot,
     contentType: "image/png",
   });
@@ -227,6 +235,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-reviews-ui-primitives", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
     if (hasInbox) {
       await expect(
@@ -261,6 +273,10 @@ test(
     contentType: "image/png",
   });
   await testInfo.attach("admin-users-design", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+  await testInfo.attach("admin-users-ui-primitives", {
     body: screenshot,
     contentType: "image/png",
   });

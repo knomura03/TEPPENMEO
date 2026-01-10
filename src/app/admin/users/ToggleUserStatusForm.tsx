@@ -3,7 +3,8 @@
 import { useFormState } from "react-dom";
 
 import { Button } from "@/components/ui/button";
-import { adminFieldClass } from "@/components/ui/FilterBar";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import {
   toggleAdminUserDisabledAction,
   type AdminUserActionState,
@@ -69,26 +70,30 @@ export function ToggleUserStatusForm({
       <summary className="cursor-pointer text-amber-300 hover:text-amber-200">
         無効化
       </summary>
-      <form action={action} className="mt-2 space-y-2">
+      <form action={action} className="mt-2 space-y-3">
         <input type="hidden" name="userId" value={userId} />
         <input type="hidden" name="mode" value="disable" />
-        <input
-          name="confirmEmail"
-          type="email"
-          placeholder="確認用メールを入力"
-          className={adminFieldClass}
-          required
-          disabled={disabled}
-        />
-        <input
-          name="reason"
-          type="text"
-          placeholder="無効化理由（必須、200文字以内）"
-          className={adminFieldClass}
-          required
-          maxLength={200}
-          disabled={disabled}
-        />
+        <FormField label="確認用メール" required tone="dark">
+          <Input
+            name="confirmEmail"
+            type="email"
+            placeholder="確認用メールを入力"
+            tone="dark"
+            required
+            disabled={disabled}
+          />
+        </FormField>
+        <FormField label="無効化理由" required tone="dark">
+          <Input
+            name="reason"
+            type="text"
+            placeholder="無効化理由（必須、200文字以内）"
+            tone="dark"
+            required
+            maxLength={200}
+            disabled={disabled}
+          />
+        </FormField>
         {state.error && <p className="text-sm text-rose-300">{state.error}</p>}
         {state.success && (
           <p className="text-sm text-emerald-300">{state.success}</p>
