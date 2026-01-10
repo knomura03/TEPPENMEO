@@ -51,6 +51,11 @@ function resolveAutoBadge(status: "done" | "not_done" | "unknown") {
   return { label: "自動判定: 未", variant: "warning" as const };
 }
 
+const actionLinkPrimary =
+  "inline-flex min-h-[44px] items-center justify-center rounded-md bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800";
+const actionLinkSecondary =
+  "inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50";
+
 function mapJobStatus(value: string | null): BulkReviewSyncView["status"] {
   if (value === "succeeded") return "succeeded";
   if (value === "failed") return "failed";
@@ -175,15 +180,15 @@ export default async function SetupChecklistPage() {
         <h1 className="text-2xl font-semibold text-slate-900">
           セットアップチェック
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-base text-slate-600 leading-relaxed">
           状況を集計して、次にやることを案内します。
         </p>
       </div>
 
-      <Card>
+      <Card tone="light">
         <CardHeader>
-          <p className="text-sm font-semibold text-slate-900">進捗</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-base font-semibold text-slate-900">進捗</p>
+          <p className="text-sm text-slate-600">
             完了 {status.progress.completedSteps} / {status.progress.totalSteps}（
             {status.progress.percent}%）
           </p>
@@ -196,11 +201,11 @@ export default async function SetupChecklistPage() {
             />
           </div>
           {status.saveReadReason && (
-            <p className="text-xs text-amber-600">{status.saveReadReason}</p>
+            <p className="text-sm text-amber-700">{status.saveReadReason}</p>
           )}
           <Link
             href="/docs/runbooks/setup-progress-governance"
-            className="text-xs text-amber-600 underline"
+            className={actionLinkSecondary}
           >
             完了チェックの運用ルールを確認する
           </Link>
@@ -208,42 +213,42 @@ export default async function SetupChecklistPage() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-900">ロケーション</p>
+              <p className="text-base font-semibold text-slate-900">ロケーション</p>
               <Badge variant={status.locationsCount > 0 ? "success" : "warning"}>
                 {status.locationsCount}件
               </Badge>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-sm text-slate-600">
               連携の対象となる拠点を管理します。
             </p>
           </CardHeader>
-          <CardContent className="space-y-2 text-xs text-slate-600">
+          <CardContent className="space-y-3 text-sm text-slate-700">
             <p>権限: {role ?? "未判定"}</p>
             <Link
               href="/app/locations"
-              className="inline-flex text-amber-600 underline"
+              className={actionLinkPrimary}
             >
               ロケーション一覧を開く
             </Link>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-900">Google</p>
+              <p className="text-base font-semibold text-slate-900">Google</p>
               <Badge variant={status.providerConnected.google ? "success" : "warning"}>
                 {status.providerConnected.google ? "接続済み" : "未接続"}
               </Badge>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-sm text-slate-600">
               接続→GBP紐付け→投稿テストを順に進めます。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-xs text-slate-600">
+          <CardContent className="space-y-4 text-sm text-slate-700">
             <div className="space-y-1">
               <p>紐付け数: {status.linkedCounts.gbpLinked}件</p>
               <p>投稿回数: {formatCount(status.postsSummary.google.total)}件</p>
@@ -251,7 +256,7 @@ export default async function SetupChecklistPage() {
               <p>最終ステータス: {mapStatusLabel(status.postsSummary.google.lastStatus)}</p>
               <p>失敗件数: {formatCount(status.postsSummary.google.failedCount)}件</p>
               {status.postsSummary.google.reason && (
-                <p className="text-[11px] text-amber-600">
+                <p className="text-xs text-amber-700">
                   {status.postsSummary.google.reason}
                 </p>
               )}
@@ -265,13 +270,13 @@ export default async function SetupChecklistPage() {
               </p>
               <p>最終返信: {formatDate(status.reviewsSummary.gbp.lastReplyAt)}</p>
               {status.reviewsSummary.gbp.reason && (
-                <p className="text-[11px] text-amber-600">
+                <p className="text-xs text-amber-700">
                   {status.reviewsSummary.gbp.reason}
                 </p>
               )}
               <Link
                 href="/app/locations"
-                className="text-[11px] text-amber-600 underline"
+                className={actionLinkPrimary}
               >
                 レビュー同期を実行する
               </Link>
@@ -288,24 +293,24 @@ export default async function SetupChecklistPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-slate-900">
                           {step.label}
                         </p>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs text-slate-600">
                           {step.description}
                         </p>
                       </div>
                       <Badge variant={badge.variant}>{badge.label}</Badge>
                     </div>
                     {step.autoReason && (
-                      <p className="mt-1 text-[11px] text-amber-600">
+                      <p className="mt-1 text-xs text-amber-700">
                         {step.autoReason}
                       </p>
                     )}
                     <div className="mt-2 flex items-center justify-between">
                       <Link
                         href={step.link}
-                        className="text-[11px] text-amber-600 underline"
+                        className={actionLinkSecondary}
                       >
                         次にやることへ
                       </Link>
@@ -332,19 +337,19 @@ export default async function SetupChecklistPage() {
           scheduleDisabledReason={scheduleDisabledReason}
         />
 
-        <Card>
+        <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-900">Meta</p>
+              <p className="text-base font-semibold text-slate-900">Meta</p>
               <Badge variant={status.providerConnected.meta ? "success" : "warning"}>
                 {status.providerConnected.meta ? "接続済み" : "未接続"}
               </Badge>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-sm text-slate-600">
               接続→FBページ紐付け→投稿テストを順に進めます。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-xs text-slate-600">
+          <CardContent className="space-y-4 text-sm text-slate-700">
             <div className="space-y-1">
               <p>紐付け数: {status.linkedCounts.metaLinked}件</p>
               <p>投稿回数: {formatCount(status.postsSummary.meta.total)}件</p>
@@ -352,7 +357,7 @@ export default async function SetupChecklistPage() {
               <p>最終ステータス: {mapStatusLabel(status.postsSummary.meta.lastStatus)}</p>
               <p>失敗件数: {formatCount(status.postsSummary.meta.failedCount)}件</p>
               {status.postsSummary.meta.reason && (
-                <p className="text-[11px] text-amber-600">
+                <p className="text-xs text-amber-700">
                   {status.postsSummary.meta.reason}
                 </p>
               )}
@@ -369,24 +374,24 @@ export default async function SetupChecklistPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-slate-900">
                           {step.label}
                         </p>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs text-slate-600">
                           {step.description}
                         </p>
                       </div>
                       <Badge variant={badge.variant}>{badge.label}</Badge>
                     </div>
                     {step.autoReason && (
-                      <p className="mt-1 text-[11px] text-amber-600">
+                      <p className="mt-1 text-xs text-amber-700">
                         {step.autoReason}
                       </p>
                     )}
                     <div className="mt-2 flex items-center justify-between">
                       <Link
                         href={step.link}
-                        className="text-[11px] text-amber-600 underline"
+                        className={actionLinkSecondary}
                       >
                         次にやることへ
                       </Link>
@@ -403,19 +408,19 @@ export default async function SetupChecklistPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-900">画像アップロード</p>
+              <p className="text-base font-semibold text-slate-900">画像アップロード</p>
               <Badge variant={status.mediaSummary.storageReady ? "success" : "warning"}>
                 {status.mediaSummary.storageReady ? "有効" : "未設定"}
               </Badge>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-sm text-slate-600">
               Storageを設定して画像投稿を有効化します。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-xs text-slate-600">
+          <CardContent className="space-y-4 text-sm text-slate-700">
             <p>署名URL期限: {status.mediaSummary.signedUrlTtlSeconds}秒</p>
             <p>最大アップロード: {status.mediaSummary.maxUploadMb}MB</p>
             <p>アップロード件数: {formatCount(status.mediaSummary.uploadedCount)}件</p>
@@ -424,7 +429,7 @@ export default async function SetupChecklistPage() {
               {formatDate(status.mediaSummary.lastUploadedAt)}
             </p>
             {status.mediaSummary.reason && (
-              <p className="text-[11px] text-amber-600">{status.mediaSummary.reason}</p>
+              <p className="text-xs text-amber-700">{status.mediaSummary.reason}</p>
             )}
             <div className="space-y-2">
               {storageSteps.map((key) => {
@@ -438,24 +443,24 @@ export default async function SetupChecklistPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-slate-900">
                           {step.label}
                         </p>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs text-slate-600">
                           {step.description}
                         </p>
                       </div>
                       <Badge variant={badge.variant}>{badge.label}</Badge>
                     </div>
                     {step.autoReason && (
-                      <p className="mt-1 text-[11px] text-amber-600">
+                      <p className="mt-1 text-xs text-amber-700">
                         {step.autoReason}
                       </p>
                     )}
                     <div className="mt-2 flex items-center justify-between">
                       <Link
                         href={step.link}
-                        className="text-[11px] text-amber-600 underline"
+                        className={actionLinkSecondary}
                       >
                         次にやることへ
                       </Link>
@@ -473,23 +478,23 @@ export default async function SetupChecklistPage() {
         </Card>
 
         {isAdmin && (
-          <Card>
+          <Card tone="light">
             <CardHeader>
-              <p className="text-sm font-semibold text-slate-900">管理者向け</p>
-              <p className="text-xs text-slate-500">
+              <p className="text-base font-semibold text-slate-900">管理者向け</p>
+              <p className="text-sm text-slate-600">
                 設定状況と実機チェックをまとめて確認できます。
               </p>
             </CardHeader>
-            <CardContent className="space-y-2 text-xs text-slate-600">
+            <CardContent className="space-y-3 text-sm text-slate-700">
               <Link
                 href="/admin/diagnostics"
-                className="inline-flex text-amber-600 underline"
+                className={actionLinkPrimary}
               >
                 診断を開く
               </Link>
               <Link
                 href="/admin/provider-health"
-                className="inline-flex text-amber-600 underline"
+                className={actionLinkPrimary}
               >
                 実機ヘルスチェックを開く
               </Link>
