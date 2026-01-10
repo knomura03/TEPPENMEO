@@ -115,6 +115,18 @@ export const mockReviews: Record<
       createdAt: new Date().toISOString(),
     },
   ],
+  "loc-2": [
+    {
+      id: "review-2",
+      provider: ProviderType.Meta,
+      externalReviewId: "review-2",
+      locationId: "loc-2",
+      rating: 4,
+      author: "風",
+      comment: "説明が丁寧で安心できました。",
+      createdAt: new Date().toISOString(),
+    },
+  ],
 };
 
 export const mockPosts = [

@@ -183,6 +183,43 @@ test("監査ログはサインインまたは監査ログが表示される", as
 });
 
 test(
+  "レビュー受信箱はサインインまたはレビュー受信箱が表示される",
+  async ({ page }, testInfo) => {
+    await page.goto("/app/reviews", { waitUntil: "domcontentloaded" });
+    const hasInbox = await page
+      .getByRole("heading", { name: "レビュー受信箱", exact: true })
+      .isVisible();
+    const hasSignIn = await page
+      .getByRole("heading", { name: "サインイン", exact: true })
+      .isVisible();
+
+    const screenshot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("app-reviews-inbox", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-reviews-reply", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+
+    if (hasInbox) {
+      await expect(
+        page.getByRole("heading", { name: "レビュー一覧", exact: true })
+      ).toBeVisible();
+      await expect(page.locator("input[name='q']")).toBeVisible();
+      await expect(page.locator("select[name='locationId']")).toBeVisible();
+      await expect(page.locator("select[name='provider']")).toBeVisible();
+      await expect(page.locator("select[name='period']")).toBeVisible();
+      await expect(page.getByText("未返信のみ", { exact: true })).toBeVisible();
+      await expect(page.getByRole("button", { name: "返信を送信" }).first()).toBeVisible();
+    } else {
+      expect(hasSignIn).toBeTruthy();
+    }
+  }
+);
+
+test(
   "ユーザー管理はサインインまたはユーザー管理が表示される",
   async ({ page }, testInfo) => {
   await page.goto("/admin/users", { waitUntil: "domcontentloaded" });

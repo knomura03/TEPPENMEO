@@ -45,7 +45,19 @@ export async function listReviewsForLocation(
 
 export async function getReviewById(reviewId: string): Promise<Review | null> {
   if (!isSupabaseConfigured()) {
-    return null;
+    const reviews = Object.values(mockReviews).flat();
+    const match = reviews.find((review) => review.id === reviewId);
+    if (!match) return null;
+    return {
+      id: match.id,
+      provider: match.provider,
+      externalReviewId: match.externalReviewId,
+      locationId: match.locationId,
+      rating: match.rating,
+      comment: match.comment ?? null,
+      author: match.author ?? null,
+      createdAt: match.createdAt,
+    };
   }
 
   const admin = getSupabaseAdmin();
