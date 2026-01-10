@@ -3,6 +3,7 @@
 import { useFormState } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { adminFieldClass } from "@/components/ui/FilterBar";
 import {
   toggleAdminUserDisabledAction,
   type AdminUserActionState,
@@ -36,7 +37,7 @@ export function ToggleUserStatusForm({
 
   if (!userBlocksReady) {
     return (
-      <p className="text-[11px] text-amber-300">
+      <p className="text-sm text-amber-300">
         {userBlocksMessage ?? "無効化/有効化は利用できません。"}
       </p>
     );
@@ -44,17 +45,17 @@ export function ToggleUserStatusForm({
 
   if (isDisabled) {
     return (
-      <form action={action} className="space-y-1 text-xs text-slate-300">
+      <form action={action} className="space-y-2 text-sm text-slate-300">
         <input type="hidden" name="userId" value={userId} />
         <input type="hidden" name="mode" value="enable" />
-        {state.error && <p className="text-[11px] text-rose-300">{state.error}</p>}
+        {state.error && <p className="text-sm text-rose-300">{state.error}</p>}
         {state.success && (
-          <p className="text-[11px] text-emerald-300">{state.success}</p>
+          <p className="text-sm text-emerald-300">{state.success}</p>
         )}
         <Button
           type="submit"
           variant="secondary"
-          className="w-full bg-emerald-900/40 text-emerald-200 hover:bg-emerald-900/60"
+          className="w-full min-h-[44px] bg-emerald-900/40 text-emerald-200 hover:bg-emerald-900/60"
           disabled={disabled}
         >
           有効化
@@ -64,7 +65,7 @@ export function ToggleUserStatusForm({
   }
 
   return (
-    <details className="text-xs text-slate-300">
+    <details className="text-sm text-slate-300">
       <summary className="cursor-pointer text-amber-300 hover:text-amber-200">
         無効化
       </summary>
@@ -75,7 +76,7 @@ export function ToggleUserStatusForm({
           name="confirmEmail"
           type="email"
           placeholder="確認用メールを入力"
-          className="h-9 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+          className={adminFieldClass}
           required
           disabled={disabled}
         />
@@ -83,19 +84,19 @@ export function ToggleUserStatusForm({
           name="reason"
           type="text"
           placeholder="無効化理由（必須、200文字以内）"
-          className="h-9 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+          className={adminFieldClass}
           required
           maxLength={200}
           disabled={disabled}
         />
-        {state.error && <p className="text-[11px] text-rose-300">{state.error}</p>}
+        {state.error && <p className="text-sm text-rose-300">{state.error}</p>}
         {state.success && (
-          <p className="text-[11px] text-emerald-300">{state.success}</p>
+          <p className="text-sm text-emerald-300">{state.success}</p>
         )}
         <Button
           type="submit"
           variant="secondary"
-          className="w-full bg-amber-900/40 text-amber-200 hover:bg-amber-900/60"
+          className="w-full min-h-[44px] bg-amber-900/40 text-amber-200 hover:bg-amber-900/60"
           disabled={disabled}
         >
           利用停止

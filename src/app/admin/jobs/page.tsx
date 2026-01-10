@@ -1,5 +1,9 @@
 import { Badge } from "@/components/ui/badge";
+import { Callout } from "@/components/ui/Callout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { FilterBar } from "@/components/ui/FilterBar";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { listJobRuns } from "@/server/services/jobs/job-runs";
 
 function formatDate(value: string | null) {
@@ -22,46 +26,59 @@ function statusLabel(status: string) {
   return "不明";
 }
 
+function statusVariant(status: string) {
+  if (status === "succeeded") return "success" as const;
+  if (status === "running") return "muted" as const;
+  return "warning" as const;
+}
+
 export default async function AdminJobsPage() {
   const jobs = await listJobRuns({ limit: 20 });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">ジョブ履歴</h1>
-        <p className="text-sm text-slate-300">
-          一括同期などの実行履歴を確認します。
-        </p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="ジョブ履歴"
+        description="一括同期などの実行履歴を確認します。"
+        tone="dark"
+      />
 
-      <Card tone="dark">
-        <CardHeader>
-          <p className="text-sm font-semibold">最新20件</p>
-          <p className="text-xs text-slate-400">
-            失敗がある場合はsummary/errorを確認してください。
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {jobs.length === 0 ? (
-            <p className="text-xs text-slate-400">履歴がありません。</p>
-          ) : (
-            <div className="divide-y divide-slate-800 text-xs text-slate-300">
+      <FilterBar
+        title="表示条件"
+        description="現在は最新20件を固定で表示しています。"
+      >
+        <div className="md:col-span-6 text-sm text-slate-300">
+          フィルタ機能は次の改善で追加予定です。
+        </div>
+      </FilterBar>
+
+      {jobs.length === 0 ? (
+        <EmptyState
+          title="履歴がありません。"
+          description="一括同期を実行するとここに履歴が表示されます。"
+        />
+      ) : (
+        <Card tone="dark">
+          <CardHeader className="border-slate-800">
+            <p className="text-base font-semibold text-slate-100">最新20件</p>
+            <p className="text-sm text-slate-300">
+              失敗がある場合はsummary/errorを確認してください。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="divide-y divide-slate-800 text-sm text-slate-300">
               {jobs.map((job) => (
-                <div key={job.id} className="space-y-2 py-3">
+                <div key={job.id} className="space-y-3 py-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="space-y-1">
-                      <p className="font-semibold text-slate-100">
+                      <p className="text-base font-semibold text-slate-100">
                         {job.jobKey}
                       </p>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-sm text-slate-400">
                         組織: {job.organizationName ?? job.organizationId}
                       </p>
                     </div>
-                    <Badge
-                      variant={
-                        job.status === "succeeded" ? "success" : "warning"
-                      }
-                    >
+                    <Badge variant={statusVariant(job.status)}>
                       {statusLabel(job.status)}
                     </Badge>
                   </div>
@@ -74,24 +91,23 @@ export default async function AdminJobsPage() {
                     <p>レビュー件数: {formatCount(job.summary.reviewCount)}件</p>
                   </div>
                   {Object.keys(job.error ?? {}).length > 0 && (
-                    <div className="rounded-md border border-amber-300/40 bg-amber-900/20 p-3 text-[11px] text-amber-100">
-                      <p className="font-semibold">エラー</p>
-                      <pre className="whitespace-pre-wrap break-words">
+                    <Callout title="エラー" tone="warning">
+                      <pre className="whitespace-pre-wrap break-words text-sm text-amber-100">
                         {JSON.stringify(job.error, null, 2)}
                       </pre>
-                    </div>
+                    </Callout>
                   )}
                   {job.summary.mockMode && (
-                    <p className="text-[11px] text-amber-200">
-                      モック運用のため固定結果です。
-                    </p>
+                    <Callout title="モック運用" tone="info">
+                      <p>モック運用のため固定結果です。</p>
+                    </Callout>
                   )}
                 </div>
               ))}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
