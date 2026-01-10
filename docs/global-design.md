@@ -53,10 +53,24 @@ Do:
 - Card tone を必ず使う（light/dark/amber）
 - Badge/Chip/Alert は意味ごとに統一する
 - 空状態は「理由 + 次にやること」をセットで表示する
+- フォームは FormField を基本にし、Input/Select/Textarea は共通コンポーネントを使う
+- Button は variant/size を統一し、Link には buttonStyles を使う
 
 Don't:
 - 同一要素に背景/文字色の矛盾クラスを混在させない
 - 表の行高や余白をページごとに変えない
+- 独自のinputスタイルをページ単位で量産しない
+
+## フォーム/ボタン規約
+Do:
+- FormField を使い、label/hint/error を必ずセットで扱う
+- error がある場合は aria-invalid を true にする
+- Button は variant/size を指定し、md は 44px 以上を満たす
+- 重要導線は Button を使い、Link には buttonStyles を使う
+
+Don't:
+- ラベル無しの入力を置かない
+- エラー表示を input の近くに出さない
 
 ## 文言（日本語UIコピー）
 Do:
