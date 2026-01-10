@@ -13,6 +13,8 @@
 - 変更の粒度は「1フェーズ=1コミット/1PR」。破壊的変更はさらに分割
 - 各PRのレビュー手順は `pnpm lint` `pnpm test` `pnpm typecheck` `pnpm e2e` を実行し記録（不可なら理由を明記）
 - UI変更があるPRは `pnpm e2e` を必須とし、実行不可なら代替確認手順を明記
+- UIを触るPRは `docs/global-design.md` に準拠する
+- UI変更を含むPRは Playwrightスクショを最低1枚以上更新（該当画面）し、差分スクショ名をPR本文に記載する
 - ダウンロード/エクスポート機能を追加したPRはE2Eで導線確認を必須（最低限: ボタン表示とダウンロード開始）
 - push/PRに失敗した場合の手順（SSH/gh auth）は runbook に記録し、変更があれば更新する
 - 外部API実装のPRは `docs/providers` と `docs/spec` の更新が必須（更新なしは禁止）

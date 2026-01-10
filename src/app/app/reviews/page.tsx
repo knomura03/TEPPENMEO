@@ -38,6 +38,11 @@ const periodOptions = [
   { value: "all", label: "全期間" },
 ];
 
+const actionLinkSecondary =
+  "inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50";
+const actionLinkAccent =
+  "inline-flex min-h-[44px] items-center justify-center rounded-md border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800 transition hover:bg-amber-100";
+
 function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "不明";
@@ -174,48 +179,69 @@ export default async function ReviewsInboxPage({
         <h1 className="text-2xl font-semibold text-slate-900">
           レビュー受信箱
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-base text-slate-600 leading-relaxed">
           ロケーションを横断してレビューを確認し、返信対応を進めます。
         </p>
       </div>
 
-      <Card>
+      <Card tone="light">
         <CardHeader>
           <h2 className="text-lg font-semibold text-slate-900">フィルタ</h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-600">
             未返信のみや期間で絞り込み、対応漏れを減らします。
           </p>
         </CardHeader>
         <CardContent>
-          <form method="get" className="grid gap-3 md:grid-cols-5">
-            <Input
-              name="q"
-              placeholder="投稿者・本文・ロケーション名で検索"
-              defaultValue={resolvedSearchParams.q ?? ""}
-            />
-            <Select name="locationId" defaultValue={locationId ?? "all"}>
-              <option value="all">全ロケーション</option>
-              {locations.map((location) => (
-                <option key={location.id} value={location.id}>
-                  {location.name}
-                </option>
-              ))}
-            </Select>
-            <Select name="provider" defaultValue={provider}>
-              {providerOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <Select name="period" defaultValue={period}>
-              {periodOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <label className="flex items-center gap-2 text-xs text-slate-600">
+          <form method="get" className="grid gap-4 md:grid-cols-6">
+            <div className="space-y-1 md:col-span-2">
+              <p className="text-sm font-semibold text-slate-600">検索</p>
+              <Input
+                name="q"
+                placeholder="投稿者・本文・ロケーション名で検索"
+                defaultValue={resolvedSearchParams.q ?? ""}
+                className="text-base"
+              />
+            </div>
+            <div className="space-y-1 md:col-span-2">
+              <p className="text-sm font-semibold text-slate-600">
+                ロケーション
+              </p>
+              <Select
+                name="locationId"
+                defaultValue={locationId ?? "all"}
+                className="text-base"
+              >
+                <option value="all">全ロケーション</option>
+                {locations.map((location) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-1 md:col-span-1">
+              <p className="text-sm font-semibold text-slate-600">
+                プロバイダ
+              </p>
+              <Select name="provider" defaultValue={provider} className="text-base">
+                {providerOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-1 md:col-span-1">
+              <p className="text-sm font-semibold text-slate-600">期間</p>
+              <Select name="period" defaultValue={period} className="text-base">
+                {periodOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <label className="flex items-center gap-2 text-sm text-slate-700 md:col-span-2">
               <input
                 type="checkbox"
                 name="unreplied"
@@ -225,11 +251,13 @@ export default async function ReviewsInboxPage({
               />
               未返信のみ
             </label>
-            <div className="md:col-span-5">
-              <Button type="submit">適用</Button>
+            <div className="flex flex-wrap items-center gap-3 md:col-span-6">
+              <Button type="submit" className="min-h-[44px] px-5">
+                適用
+              </Button>
               <Link
                 href="/docs/runbooks/reviews-inbox"
-                className="ml-4 text-xs text-amber-700 underline"
+                className={actionLinkAccent}
               >
                 運用手順書を見る
               </Link>
@@ -255,10 +283,10 @@ export default async function ReviewsInboxPage({
               <CardContent className="space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-base font-semibold text-slate-900">
                       {review.locationName}
                     </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                       <Badge variant="muted">{providerLabel(review.provider)}</Badge>
                       <span>★ {formatRating(review.rating)}</span>
                       <span>{formatDate(review.createdAt)}</span>
@@ -267,17 +295,17 @@ export default async function ReviewsInboxPage({
                   </div>
                   <Link
                     href={`/app/locations/${review.locationId}`}
-                    className="text-xs text-amber-700 underline"
+                    className="text-sm font-semibold text-amber-700 underline"
                   >
                     ロケーション詳細へ
                   </Link>
                 </div>
 
-                <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
-                  <p className="text-xs font-semibold text-slate-600">
+                <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-base text-slate-800">
+                  <p className="text-sm font-semibold text-slate-600">
                     投稿者: {review.author ?? "不明"}
                   </p>
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">
+                  <p className="mt-2 whitespace-pre-wrap text-base leading-relaxed text-slate-800">
                     {review.comment ?? "本文がありません。"}
                   </p>
                 </div>
@@ -285,7 +313,7 @@ export default async function ReviewsInboxPage({
                 {isGoogle ? (
                   <div className="space-y-2">
                     {!canReply && !review.reply && (
-                      <p className="text-xs text-slate-500">
+                      <p className="text-sm text-slate-500">
                         返信は管理者のみ操作できます。
                       </p>
                     )}
@@ -297,22 +325,27 @@ export default async function ReviewsInboxPage({
                     />
                   </div>
                 ) : (
-                  <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500">
-                    このプロバイダのレビュー返信は未対応です。
-                  </div>
+                  <Card tone="amber">
+                    <CardContent className="text-sm text-amber-100">
+                      <p className="font-semibold">Metaの返信は未対応</p>
+                      <p className="mt-1 text-amber-100/80">
+                        現時点ではGoogleレビューのみ返信できます。
+                      </p>
+                    </CardContent>
+                  </Card>
                 )}
               </CardContent>
             </Card>
           );
         })}
         {inboxPage.items.length === 0 && (
-          <p className="text-sm text-slate-500">
+          <p className="text-base text-slate-600">
             条件に一致するレビューがありません。
           </p>
         )}
       </div>
 
-      <div className="flex items-center justify-between text-sm text-slate-600">
+      <div className="flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
         <p>
           {page} / {totalPages} ページ
         </p>
@@ -320,24 +353,24 @@ export default async function ReviewsInboxPage({
           {page > 1 ? (
             <Link
               href={`/app/reviews?${prevQuery.toString()}`}
-              className="rounded-md border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
+              className={actionLinkSecondary}
             >
               前へ
             </Link>
           ) : (
-            <span className="rounded-md border border-slate-100 bg-slate-50 px-3 py-1 text-xs text-slate-400">
+            <span className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-100 bg-slate-50 px-4 text-sm text-slate-400">
               前へ
             </span>
           )}
           {page < totalPages ? (
             <Link
               href={`/app/reviews?${nextQuery.toString()}`}
-              className="rounded-md border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700"
+              className={actionLinkSecondary}
             >
               次へ
             </Link>
           ) : (
-            <span className="rounded-md border border-slate-100 bg-slate-50 px-3 py-1 text-xs text-slate-400">
+            <span className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-100 bg-slate-50 px-4 text-sm text-slate-400">
               次へ
             </span>
           )}

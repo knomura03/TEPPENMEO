@@ -125,6 +125,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-setup-design", {
+      body: screenshot,
+      contentType: "image/png",
+    });
     await testInfo.attach("app-setup-kpis-media", {
       body: screenshot,
       contentType: "image/png",
@@ -199,6 +203,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-reviews-reply", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-reviews-design", {
       body: screenshot,
       contentType: "image/png",
     });
