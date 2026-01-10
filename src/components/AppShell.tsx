@@ -7,6 +7,7 @@ import { signOutAction } from "@/server/auth/actions";
 const navItems = [
   { href: "/app", label: "ダッシュボード" },
   { href: "/app/setup", label: "セットアップ" },
+  { href: "/app/reviews", label: "レビュー受信箱" },
   { href: "/app/locations", label: "ロケーション" },
 ];
 
