@@ -76,6 +76,18 @@
 ## 権限要件
 - system_admin のみ閲覧/操作可能
 
+## 管理画面のUI規約（global-design準拠）
+- 参照: `docs/global-design.md`
+- 対象画面: `/admin`, `/admin/diagnostics`, `/admin/users`, `/admin/audit-logs`, `/admin/jobs`, `/admin/provider-health`
+- ルール:
+  - 本文は16px基準、14pxは例外扱いにする
+  - フィルタバー/カード/テーブルの余白を統一し、行間と見出し階層を揃える
+  - 状態表示はバッジ＋テキストで示し、色だけに依存しない
+  - 0件/未設定/未適用は EmptyState/Callout を使う
+  - 警告/エラーは「原因」「次にやること」「手順書リンク」を必ず出す
+  - ボタンは最小44pxの押下領域を確保する
+  - UI変更を含むPRはPlaywrightスクショを更新し、PR本文にスクショ名を記載する
+
 ## 監査方針
 - 変更系操作は必ず記録
 - トークン/秘密情報は記録しない
