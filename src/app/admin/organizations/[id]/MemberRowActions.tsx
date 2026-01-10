@@ -30,7 +30,7 @@ export function MemberRoleForm({
       <select
         name="role"
         defaultValue={role}
-        className="h-9 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+        className="min-h-[44px] rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
       >
         <option value="owner">オーナー</option>
         <option value="admin">管理者</option>
@@ -40,15 +40,15 @@ export function MemberRoleForm({
       <Button
         type="submit"
         variant="secondary"
-        className="bg-slate-700 text-slate-100 hover:bg-slate-600"
+        className="min-h-[44px] bg-slate-700 px-4 text-sm text-slate-100 hover:bg-slate-600"
       >
         変更
       </Button>
       {state.error && (
-        <span className="text-[11px] text-rose-300">{state.error}</span>
+        <span className="text-sm text-rose-300">{state.error}</span>
       )}
       {state.success && (
-        <span className="text-[11px] text-emerald-300">{state.success}</span>
+        <span className="text-sm text-emerald-300">{state.success}</span>
       )}
     </form>
   );
@@ -70,15 +70,15 @@ export function MemberRemoveForm({
       <Button
         type="submit"
         variant="secondary"
-        className="bg-rose-900/40 text-rose-200 hover:bg-rose-900/60"
+        className="min-h-[44px] bg-rose-900/40 px-4 text-sm text-rose-200 hover:bg-rose-900/60"
       >
         削除
       </Button>
       {state.error && (
-        <p className="text-[11px] text-rose-300">{state.error}</p>
+        <p className="text-sm text-rose-300">{state.error}</p>
       )}
       {state.success && (
-        <p className="text-[11px] text-emerald-300">{state.success}</p>
+        <p className="text-sm text-emerald-300">{state.success}</p>
       )}
     </form>
   );

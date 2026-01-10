@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { listAuditLogs } from "@/server/services/audit-logs";
 import { listProviderStatus } from "@/server/services/providers";
 
@@ -11,40 +12,39 @@ export default async function AdminOverviewPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">管理概要</h1>
-        <p className="text-sm text-slate-300">
-          システム全体の制御、フラグ、監査ログを管理します。
-        </p>
-      </div>
+      <PageHeader
+        title="管理概要"
+        description="システム全体の制御、フラグ、監査ログを管理します。"
+        tone="dark"
+      />
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card tone="dark">
-          <CardHeader>
-            <p className="text-xs text-slate-400">有効なプロバイダ</p>
+          <CardHeader className="border-slate-800">
+            <p className="text-sm text-slate-300">有効なプロバイダ</p>
             <h2 className="text-3xl font-semibold">{enabled}</h2>
           </CardHeader>
-          <CardContent className="text-xs text-slate-400">
+          <CardContent className="text-sm text-slate-300">
             現在有効な連携数です。
           </CardContent>
         </Card>
         <Card tone="dark">
-          <CardHeader>
-            <p className="text-xs text-slate-400">監査イベント</p>
+          <CardHeader className="border-slate-800">
+            <p className="text-sm text-slate-300">監査イベント</p>
             <h2 className="text-3xl font-semibold">{audits.length}</h2>
           </CardHeader>
-          <CardContent className="text-xs text-slate-400">
+          <CardContent className="text-sm text-slate-300">
             直近50件まで表示します。
           </CardContent>
         </Card>
         <Card tone="dark">
-          <CardHeader>
-            <p className="text-xs text-slate-400">プラットフォーム状態</p>
+          <CardHeader className="border-slate-800">
+            <p className="text-sm text-slate-300">プラットフォーム状態</p>
             <div className="mt-2">
               <Badge variant="success">安定</Badge>
             </div>
           </CardHeader>
-          <CardContent className="text-xs text-slate-400">
+          <CardContent className="text-sm text-slate-300">
             主要機能は稼働中です。
           </CardContent>
         </Card>

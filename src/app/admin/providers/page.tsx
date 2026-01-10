@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { listProviderStatus } from "@/server/services/providers";
 
 const statusLabels = {
@@ -21,20 +22,19 @@ export default function AdminProvidersPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">プロバイダ</h1>
-        <p className="text-sm text-slate-300">
-          機能フラグ、資格情報、対応機能を確認します。
-        </p>
-      </div>
+      <PageHeader
+        title="プロバイダ"
+        description="機能フラグ、資格情報、対応機能を確認します。"
+        tone="dark"
+      />
 
       <Card tone="dark">
-        <CardHeader>
-          <h2 className="text-lg font-semibold text-white">機能フラグ</h2>
+        <CardHeader className="border-slate-800">
+          <h2 className="text-base font-semibold text-slate-100">機能フラグ</h2>
         </CardHeader>
         <CardContent className="text-sm text-slate-300">
           <p>`.env.local` を更新して再起動してください。</p>
-          <ul className="mt-3 grid gap-1 text-xs">
+          <ul className="mt-3 grid gap-2 text-sm">
             <li>
               <span className="font-semibold text-slate-200">
                 YAHOO_PLACE_ENABLED
@@ -52,13 +52,13 @@ export default function AdminProvidersPage() {
       <div className="grid gap-6">
         {providers.map((provider) => (
           <Card key={provider.type} tone="dark">
-            <CardHeader>
+            <CardHeader className="border-slate-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-base font-semibold text-slate-100">
                     {provider.name}
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm text-slate-300">
                     {provider.featureFlag
                       ? `機能フラグ: ${provider.featureFlag}`
                       : "常時有効"}
@@ -88,11 +88,11 @@ export default function AdminProvidersPage() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-slate-400">必須環境変数</p>
+                <p className="text-sm text-slate-300">必須環境変数</p>
                 {provider.requiredEnv.length === 0 ? (
-                  <p className="text-xs text-slate-400">なし</p>
+                  <p className="text-sm text-slate-400">なし</p>
                 ) : (
-                  <ul className="mt-2 grid gap-1 text-xs">
+                  <ul className="mt-2 grid gap-2 text-sm">
                     {provider.requiredEnv.map((envVar) => (
                       <li key={envVar}>
                         <span className="font-semibold text-slate-200">

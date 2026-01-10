@@ -4,6 +4,7 @@ import { useFormState } from "react-dom";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Callout } from "@/components/ui/Callout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   runGoogleHealthCheckAction,
@@ -53,25 +54,26 @@ function HealthCard({
   const apiCallEnabled = state.result?.apiCallEnabled;
   const blockedReason = state.result?.blockedReason ?? null;
   const nextActions = blockedReason?.nextActions ?? state.result?.nextActions ?? [];
+  const hasNextActions = nextActions.length > 0;
 
   return (
     <Card tone="dark">
-      <CardHeader>
+      <CardHeader className="border-slate-800">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold">{title}</p>
-            <p className="text-xs text-slate-400">{description}</p>
+            <p className="text-base font-semibold text-slate-100">{title}</p>
+            <p className="text-sm text-slate-300">{description}</p>
           </div>
           <StatusBadge status={status} />
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 text-xs text-slate-200">
-        <div className="flex items-center justify-between text-[11px] text-slate-400">
+      <CardContent className="space-y-4 text-sm text-slate-200">
+        <div className="flex items-center justify-between text-sm text-slate-400">
           <span>最終実行</span>
           <span>{formatUpdatedAt(state.updatedAt)}</span>
         </div>
         {typeof apiCallEnabled === "boolean" && (
-          <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <div className="flex items-center justify-between text-sm text-slate-400">
             <span>外部API呼び出し</span>
             <Badge variant={apiCallEnabled ? "success" : "warning"}>
               {apiCallEnabled ? "有効" : "無効"}
@@ -80,9 +82,9 @@ function HealthCard({
         )}
 
         {state.error && (
-          <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
-            {state.error}
-          </div>
+          <Callout title="エラー" tone="danger">
+            <p>{state.error}</p>
+          </Callout>
         )}
 
         {state.result?.checks && (
@@ -93,8 +95,8 @@ function HealthCard({
                 className="flex items-start justify-between gap-3 rounded-md border border-slate-800 bg-slate-950/60 px-3 py-2"
               >
                 <div>
-                  <p className="text-[11px] text-slate-400">{check.name}</p>
-                  <p className="text-xs text-slate-200">{check.summary}</p>
+                  <p className="text-sm text-slate-400">{check.name}</p>
+                  <p className="text-sm text-slate-200">{check.summary}</p>
                 </div>
                 <Badge variant={check.ok ? "success" : "warning"}>
                   {check.ok ? "OK" : "NG"}
@@ -105,33 +107,41 @@ function HealthCard({
         )}
 
         {state.result?.debug?.httpStatus && (
-          <p className="text-[11px] text-slate-400">
+          <p className="text-sm text-slate-400">
             HTTPステータス: {state.result.debug.httpStatus}
           </p>
         )}
 
-        {blockedReason && (
-          <div className="rounded-md border border-slate-800 bg-slate-950/60 p-3">
-            <p className="text-[11px] text-slate-400">原因</p>
-            <p className="text-xs text-slate-200">{blockedReason.cause}</p>
-          </div>
-        )}
-
-        {nextActions.length ? (
-          <div>
-            <p className="text-[11px] text-slate-400">次にやること</p>
-            <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-slate-200">
+        {blockedReason ? (
+          <Callout title="原因" tone="warning">
+            <p>{blockedReason.cause}</p>
+            {hasNextActions && (
+              <div>
+                <p className="text-sm font-semibold text-amber-100">
+                  次にやること
+                </p>
+                <ul className="mt-1 list-disc space-y-1 pl-4 text-sm">
+                  {nextActions.map((actionItem) => (
+                    <li key={actionItem}>{actionItem}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Callout>
+        ) : hasNextActions ? (
+          <Callout title="次にやること" tone="info">
+            <ul className="list-disc space-y-1 pl-4 text-sm">
               {nextActions.map((actionItem) => (
                 <li key={actionItem}>{actionItem}</li>
               ))}
             </ul>
-          </div>
+          </Callout>
         ) : null}
 
         <form action={action}>
           <Button
             type="submit"
-            className="w-full bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
+            className="w-full min-h-[44px] bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
           >
             チェック実行
           </Button>

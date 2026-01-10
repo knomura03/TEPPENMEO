@@ -31,6 +31,10 @@ test(
     .isVisible();
 
   const screenshot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("admin-diagnostics-design", {
+    body: screenshot,
+    contentType: "image/png",
+  });
   await testInfo.attach("admin-diagnostics-providers", {
     body: screenshot,
     contentType: "image/png",
@@ -67,6 +71,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-provider-health-design", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   if (hasHealth) {
     await expect(
@@ -91,6 +99,10 @@ test(
 
     const screenshot = await page.screenshot({ fullPage: true });
     await testInfo.attach("admin-overview", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-overview-design", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -152,7 +164,7 @@ test(
   }
 );
 
-test("監査ログはサインインまたは監査ログが表示される", async ({ page }) => {
+test("監査ログはサインインまたは監査ログが表示される", async ({ page }, testInfo) => {
   await page.goto("/admin/audit-logs", { waitUntil: "domcontentloaded" });
   const hasAuditLogs = await page
     .getByRole("heading", { name: "監査ログ", exact: true })
@@ -160,6 +172,11 @@ test("監査ログはサインインまたは監査ログが表示される", as
   const hasSignIn = await page
     .getByRole("heading", { name: "サインイン", exact: true })
     .isVisible();
+  const screenshot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("admin-audit-logs-design", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   if (hasAuditLogs) {
     await expect(page.locator("input[name='from']")).toBeVisible();
@@ -243,6 +260,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-users-design", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   if (hasUsers) {
     await expect(
@@ -284,6 +305,10 @@ test(
 
     const screenshot = await page.screenshot({ fullPage: true });
     await testInfo.attach("admin-jobs", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-jobs-design", {
       body: screenshot,
       contentType: "image/png",
     });

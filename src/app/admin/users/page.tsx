@@ -1,5 +1,16 @@
 import { Badge } from "@/components/ui/badge";
+import { Callout } from "@/components/ui/Callout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import {
+  FilterBar,
+  adminActionPrimaryClass,
+  adminActionSecondaryClass,
+  adminFieldClass,
+  adminLabelClass,
+  adminSelectClass,
+} from "@/components/ui/FilterBar";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { listAdminOrganizations } from "@/server/services/admin-organizations";
 import { isSupabaseAdminConfigured } from "@/server/utils/env";
 import {
@@ -62,61 +73,42 @@ export default async function AdminUsersPage({
         ? "user_blocks の判定に失敗しました。Supabaseの設定を確認してください。"
         : null;
   const supabaseReady = isSupabaseAdminConfigured();
+  const filterFormId = "admin-users-filter";
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">ユーザー管理</h1>
-        <p className="text-sm text-slate-300">
-          システム管理者がユーザーの招待、無効化、削除を行います。
-        </p>
-      </div>
+      <PageHeader
+        title="ユーザー管理"
+        description="システム管理者がユーザーの招待、無効化、削除を行います。"
+        tone="dark"
+      />
 
       {!supabaseReady && (
-        <Card tone="amber">
-          <CardHeader>
-            <p className="text-sm font-semibold">Supabase未設定</p>
-          </CardHeader>
-          <CardContent className="text-xs text-amber-100/80">
-            招待・無効化・削除などの管理操作は
-            <code className="mx-1 rounded bg-amber-100/20 px-1">
-              SUPABASE_SERVICE_ROLE_KEY
-            </code>
-            が必要です。
-            <code className="mx-1 rounded bg-amber-100/20 px-1">
-              .env.local
-            </code>
-            に設定し、SupabaseのAPI設定を確認してください。
-          </CardContent>
-        </Card>
+        <Callout tone="warning" title="Supabase未設定">
+          <p>原因: SUPABASE_SERVICE_ROLE_KEY が未設定です。</p>
+          <p>次にやること: `.env.local` に設定し、SupabaseのAPI設定を確認してください。</p>
+        </Callout>
       )}
 
       {userBlocksSchema.status !== "ok" && (
-        <Card tone="amber">
-          <CardHeader>
-            <p className="text-sm font-semibold">マイグレーション未適用</p>
-          </CardHeader>
-          <CardContent className="space-y-2 text-xs text-amber-100/80">
-            <p>
-              user_blocks の設定が未適用のため、無効化/有効化が利用できません。
-            </p>
-            {userBlocksSchema.message && (
-              <p className="text-amber-100/70">{userBlocksSchema.message}</p>
-            )}
-            <a
-              href="/docs/runbooks/supabase-migrations"
-              className="inline-flex text-amber-200 underline"
-            >
+        <Callout tone="warning" title="マイグレーション未適用">
+          <p>原因: user_blocks の設定が未適用です。</p>
+          <p>次にやること: マイグレーションを適用してください。</p>
+          {userBlocksSchema.message && (
+            <p className="text-amber-100/80">{userBlocksSchema.message}</p>
+          )}
+          <div>
+            <a href="/docs/runbooks/supabase-migrations" className={adminActionSecondaryClass}>
               適用手順を確認する
             </a>
-          </CardContent>
-        </Card>
+          </div>
+        </Callout>
       )}
 
       <Card tone="dark">
-        <CardHeader>
-          <p className="text-sm font-semibold">ユーザー作成</p>
-          <p className="text-xs text-slate-400">
+        <CardHeader className="border-slate-800">
+          <p className="text-base font-semibold text-slate-100">ユーザー作成</p>
+          <p className="text-sm text-slate-300">
             招待メール、招待リンク、仮パスワード方式で作成します。
           </p>
         </CardHeader>
@@ -126,9 +118,9 @@ export default async function AdminUsersPage({
       </Card>
 
       <Card tone="dark">
-        <CardHeader>
-          <p className="text-sm font-semibold">招待テンプレ</p>
-          <p className="text-xs text-slate-400">
+        <CardHeader className="border-slate-800">
+          <p className="text-base font-semibold text-slate-100">招待テンプレ</p>
+          <p className="text-sm text-slate-300">
             招待リンクを差し込んだ件名/本文を生成してコピーします。
           </p>
         </CardHeader>
@@ -137,46 +129,85 @@ export default async function AdminUsersPage({
         </CardContent>
       </Card>
 
-      <Card tone="dark">
-        <CardHeader>
-          <p className="text-sm font-semibold">ユーザー一覧</p>
-          <form className="mt-2 flex flex-wrap gap-2" action="/admin/users">
+      <FilterBar
+        title="ユーザー一覧"
+        description="メール・状態・組織で絞り込みできます。"
+        footer={
+          <>
+            <button
+              type="submit"
+              form={filterFormId}
+              className={adminActionPrimaryClass}
+            >
+              検索
+            </button>
+            <a href="/admin/users" className={adminActionSecondaryClass}>
+              クリア
+            </a>
+          </>
+        }
+      >
+        <form id={filterFormId} className="contents" action="/admin/users">
+          <div className="md:col-span-2">
+            <label className={adminLabelClass}>検索</label>
             <input
               name="q"
               defaultValue={query}
               placeholder="メールで検索"
-              className="h-10 flex-1 rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+              className={adminFieldClass}
             />
-            <select
-              name="status"
-              defaultValue={status}
-              className="h-10 rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
-            >
-              <option value="all">状態: すべて</option>
+          </div>
+          <div>
+            <label className={adminLabelClass}>状態</label>
+            <select name="status" defaultValue={status} className={adminSelectClass}>
+              <option value="all">すべて</option>
               <option value="active">有効</option>
               <option value="invited">招待中</option>
               <option value="disabled">無効</option>
             </select>
+          </div>
+          <div className="md:col-span-2">
+            <label className={adminLabelClass}>組織</label>
             <select
               name="org"
               defaultValue={organizationId}
-              className="h-10 min-w-[180px] rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+              className={adminSelectClass}
             >
-              <option value="all">組織: すべて</option>
+              <option value="all">すべて</option>
               {organizations.map((org) => (
                 <option key={org.id} value={org.id}>
                   {org.name}
                 </option>
               ))}
             </select>
-            <button className="h-10 rounded-md bg-slate-700 px-4 text-sm text-slate-100 hover:bg-slate-600">
-              検索
-            </button>
-          </form>
+          </div>
+        </form>
+      </FilterBar>
+
+      <Card tone="dark">
+        <CardHeader className="border-slate-800">
+          <div className="flex items-center justify-between">
+            <p className="text-base font-semibold text-slate-100">一覧</p>
+            <Badge variant="muted">{users.length}件</Badge>
+          </div>
+          <p className="text-sm text-slate-300">
+            管理者/招待中/無効を一覧で確認します。
+          </p>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-slate-700 text-xs text-slate-400">
+          {users.length === 0 ? (
+            <EmptyState
+              title="該当するユーザーがいません。"
+              description="フィルタ条件を見直すか、新規招待を行ってください。"
+              actions={
+                <a href="/admin/users" className={adminActionSecondaryClass}>
+                  フィルタをクリア
+                </a>
+              }
+            />
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-slate-700 text-sm text-slate-400">
               <tr>
                 <th className="py-2 pr-4">メール</th>
                 <th className="py-2 pr-4">作成日</th>
@@ -190,10 +221,10 @@ export default async function AdminUsersPage({
               {users.map((user) => (
                 <tr key={user.id} className="border-b border-slate-800">
                   <td className="py-3 pr-4 text-sm">{user.email ?? "不明"}</td>
-                  <td className="py-3 pr-4 text-xs text-slate-400">
+                  <td className="py-3 pr-4 text-sm text-slate-400">
                     {formatDate(user.createdAt)}
                   </td>
-                  <td className="py-3 pr-4 text-xs text-slate-300">
+                  <td className="py-3 pr-4 text-sm text-slate-300">
                     {user.membershipCount}
                   </td>
                   <td className="py-3 pr-4">
@@ -223,15 +254,9 @@ export default async function AdminUsersPage({
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && (
-                <tr>
-                  <td className="py-6 text-sm text-slate-400" colSpan={6}>
-                    該当するユーザーがいません。
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
     </div>

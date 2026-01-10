@@ -26,14 +26,14 @@ export function EnvSnippet({ value }: EnvSnippetProps) {
       <textarea
         readOnly
         value={value}
-        className="min-h-[140px] w-full rounded-md border border-slate-800 bg-slate-950/60 p-2 text-[11px] text-slate-200"
+        className="min-h-[160px] w-full rounded-md border border-slate-800 bg-slate-950/60 p-3 text-sm text-slate-200"
       />
-      <div className="flex items-center justify-between text-[11px] text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400">
         <span>{copied ? "コピーしました" : "内容を確認して貼り付け"}</span>
         <Button
           type="button"
           variant="secondary"
-          className="h-8 px-3 text-xs"
+          className="min-h-[44px] px-4 text-sm"
           onClick={handleCopy}
         >
           コピー
