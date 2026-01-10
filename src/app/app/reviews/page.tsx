@@ -1,8 +1,9 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
@@ -39,9 +40,13 @@ const periodOptions = [
 ];
 
 const actionLinkSecondary =
-  "inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50";
+  buttonStyles({ variant: "secondary", size: "md" });
 const actionLinkAccent =
-  "inline-flex min-h-[44px] items-center justify-center rounded-md border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800 transition hover:bg-amber-100";
+  buttonStyles({
+    variant: "secondary",
+    size: "md",
+    className: "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100",
+  });
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -193,53 +198,48 @@ export default async function ReviewsInboxPage({
         </CardHeader>
         <CardContent>
           <form method="get" className="grid gap-4 md:grid-cols-6">
-            <div className="space-y-1 md:col-span-2">
-              <p className="text-sm font-semibold text-slate-600">検索</p>
-              <Input
-                name="q"
-                placeholder="投稿者・本文・ロケーション名で検索"
-                defaultValue={resolvedSearchParams.q ?? ""}
-                className="text-base"
-              />
+            <div className="md:col-span-2">
+              <FormField label="検索">
+                <Input
+                  name="q"
+                  placeholder="投稿者・本文・ロケーション名で検索"
+                  defaultValue={resolvedSearchParams.q ?? ""}
+                />
+              </FormField>
             </div>
-            <div className="space-y-1 md:col-span-2">
-              <p className="text-sm font-semibold text-slate-600">
-                ロケーション
-              </p>
-              <Select
-                name="locationId"
-                defaultValue={locationId ?? "all"}
-                className="text-base"
-              >
-                <option value="all">全ロケーション</option>
-                {locations.map((location) => (
-                  <option key={location.id} value={location.id}>
-                    {location.name}
-                  </option>
-                ))}
-              </Select>
+            <div className="md:col-span-2">
+              <FormField label="ロケーション">
+                <Select name="locationId" defaultValue={locationId ?? "all"}>
+                  <option value="all">全ロケーション</option>
+                  {locations.map((location) => (
+                    <option key={location.id} value={location.id}>
+                      {location.name}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
             </div>
-            <div className="space-y-1 md:col-span-1">
-              <p className="text-sm font-semibold text-slate-600">
-                プロバイダ
-              </p>
-              <Select name="provider" defaultValue={provider} className="text-base">
-                {providerOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
+            <div className="md:col-span-1">
+              <FormField label="プロバイダ">
+                <Select name="provider" defaultValue={provider}>
+                  {providerOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
             </div>
-            <div className="space-y-1 md:col-span-1">
-              <p className="text-sm font-semibold text-slate-600">期間</p>
-              <Select name="period" defaultValue={period} className="text-base">
-                {periodOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
+            <div className="md:col-span-1">
+              <FormField label="期間">
+                <Select name="period" defaultValue={period}>
+                  {periodOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
             </div>
             <label className="flex items-center gap-2 text-sm text-slate-700 md:col-span-2">
               <input
@@ -252,7 +252,7 @@ export default async function ReviewsInboxPage({
               未返信のみ
             </label>
             <div className="flex flex-wrap items-center gap-3 md:col-span-6">
-              <Button type="submit" className="min-h-[44px] px-5">
+              <Button type="submit" size="md">
                 適用
               </Button>
               <Link

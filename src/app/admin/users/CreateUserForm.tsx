@@ -4,12 +4,9 @@ import { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 
 import { Button } from "@/components/ui/button";
-import {
-  adminActionPrimaryClass,
-  adminFieldClass,
-  adminLabelClass,
-  adminSelectClass,
-} from "@/components/ui/FilterBar";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { INVITE_LINK_STORAGE_KEY } from "@/lib/invite-template";
 import {
   createAdminUserAction,
@@ -70,28 +67,22 @@ export function CreateUserForm() {
   return (
     <form action={action} className="space-y-3">
       <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <label className={adminLabelClass}>メールアドレス</label>
-          <input
+        <FormField label="メールアドレス" required tone="dark">
+          <Input
             name="email"
             type="email"
             placeholder="admin@example.com"
-            className={adminFieldClass}
+            tone="dark"
             required
           />
-        </div>
-        <div>
-          <label className={adminLabelClass}>作成方式</label>
-          <select
-            name="mode"
-            defaultValue="invite"
-            className={adminSelectClass}
-          >
+        </FormField>
+        <FormField label="作成方式" tone="dark">
+          <Select name="mode" defaultValue="invite" tone="dark">
             <option value="invite">招待メール</option>
             <option value="invite_link">招待リンク</option>
             <option value="temp">仮パスワード</option>
-          </select>
-        </div>
+          </Select>
+        </FormField>
       </div>
       <MessageBox error={state.error} success={state.success} />
       {state.inviteLink && (
@@ -128,7 +119,7 @@ export function CreateUserForm() {
       )}
       <Button
         type="submit"
-        className={`${adminActionPrimaryClass} w-full`}
+        className="w-full bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
       >
         ユーザーを作成
       </Button>

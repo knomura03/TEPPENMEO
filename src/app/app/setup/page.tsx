@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { buttonStyles } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getMembershipRole, hasRequiredRole, isSystemAdmin } from "@/server/auth/rbac";
@@ -51,10 +52,8 @@ function resolveAutoBadge(status: "done" | "not_done" | "unknown") {
   return { label: "自動判定: 未", variant: "warning" as const };
 }
 
-const actionLinkPrimary =
-  "inline-flex min-h-[44px] items-center justify-center rounded-md bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800";
-const actionLinkSecondary =
-  "inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50";
+const actionLinkPrimary = buttonStyles({ variant: "primary", size: "md" });
+const actionLinkSecondary = buttonStyles({ variant: "secondary", size: "md" });
 
 function mapJobStatus(value: string | null): BulkReviewSyncView["status"] {
   if (value === "succeeded") return "succeeded";

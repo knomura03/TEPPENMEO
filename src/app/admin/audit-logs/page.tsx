@@ -1,15 +1,12 @@
 import { Badge } from "@/components/ui/badge";
+import { Button, buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import {
-  FilterBar,
-  adminActionPrimaryClass,
-  adminActionSecondaryClass,
-  adminFieldClass,
-  adminLabelClass,
-  adminSelectClass,
-} from "@/components/ui/FilterBar";
+import { FilterBar } from "@/components/ui/FilterBar";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Select } from "@/components/ui/select";
 import { listAdminOrganizations } from "@/server/services/admin-organizations";
 import { ProviderType } from "@/server/providers/types";
 import { queryAuditLogs } from "@/server/services/audit-logs";
@@ -180,6 +177,11 @@ export default async function AdminAuditLogsPage({
     return query ? `/admin/audit-logs/export?${query}` : "/admin/audit-logs/export";
   };
   const filterFormId = "audit-log-filter";
+  const secondaryLink = buttonStyles({
+    variant: "secondary",
+    size: "md",
+    className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
+  });
 
   return (
     <div className="space-y-8">
@@ -193,7 +195,7 @@ export default async function AdminAuditLogsPage({
         title="フィルタ"
         description="現在の条件でCSVエクスポートができます（最大5000件）。"
         actions={
-          <a href={buildExportLink()} className={adminActionSecondaryClass}>
+          <a href={buildExportLink()} className={secondaryLink}>
             CSVエクスポート
           </a>
         }
@@ -211,91 +213,80 @@ export default async function AdminAuditLogsPage({
       >
         <form id={filterFormId} className="contents" action="/admin/audit-logs">
           <div className="md:col-span-2">
-            <label className={adminLabelClass}>期間（開始）</label>
-            <input
-              type="date"
-              name="from"
-              defaultValue={filters.from}
-              className={adminFieldClass}
-            />
+            <FormField label="期間（開始）" tone="dark">
+              <Input type="date" name="from" defaultValue={filters.from} tone="dark" />
+            </FormField>
           </div>
           <div className="md:col-span-2">
-            <label className={adminLabelClass}>期間（終了）</label>
-            <input
-              type="date"
-              name="to"
-              defaultValue={filters.to}
-              className={adminFieldClass}
-            />
+            <FormField label="期間（終了）" tone="dark">
+              <Input type="date" name="to" defaultValue={filters.to} tone="dark" />
+            </FormField>
           </div>
           <div className="md:col-span-2">
-            <label className={adminLabelClass}>操作</label>
-            <select
-              name="action"
-              defaultValue={filters.action}
-              className={adminSelectClass}
-            >
-              <option value="">すべて</option>
-              {Object.entries(actionLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            <FormField label="操作" tone="dark">
+              <Select name="action" defaultValue={filters.action} tone="dark">
+                <option value="">すべて</option>
+                {Object.entries(actionLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
           </div>
           <div className="md:col-span-2">
-            <label className={adminLabelClass}>組織</label>
-            <select
-              name="org"
-              defaultValue={filters.organizationId}
-              className={adminSelectClass}
-            >
-              <option value="">すべて</option>
-              {organizations.map((org) => (
-                <option key={org.id} value={org.id}>
-                  {org.name}
-                </option>
-              ))}
-            </select>
+            <FormField label="組織" tone="dark">
+              <Select name="org" defaultValue={filters.organizationId} tone="dark">
+                <option value="">すべて</option>
+                {organizations.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
           </div>
           <div className="md:col-span-2">
-            <label className={adminLabelClass}>操作者（メール）</label>
-            <input
-              name="actor"
-              defaultValue={filters.actor}
-              placeholder="admin@example.com"
-              className={adminFieldClass}
-            />
+            <FormField label="操作者（メール）" tone="dark">
+              <Input
+                name="actor"
+                defaultValue={filters.actor}
+                placeholder="admin@example.com"
+                tone="dark"
+              />
+            </FormField>
           </div>
           <div className="md:col-span-2">
-            <label className={adminLabelClass}>プロバイダ</label>
-            <select
-              name="provider"
-              defaultValue={filters.providerType}
-              className={adminSelectClass}
-            >
-              <option value="all">すべて</option>
-              {Object.entries(providerLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            <FormField label="プロバイダ" tone="dark">
+              <Select name="provider" defaultValue={filters.providerType} tone="dark">
+                <option value="all">すべて</option>
+                {Object.entries(providerLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
           </div>
           <div className="md:col-span-4">
-            <label className={adminLabelClass}>自由検索</label>
-            <input
-              name="text"
-              defaultValue={filters.text}
-              placeholder="action/target/metadata を検索"
-              className={adminFieldClass}
-            />
+            <FormField label="自由検索" tone="dark">
+              <Input
+                name="text"
+                defaultValue={filters.text}
+                placeholder="action/target/metadata を検索"
+                tone="dark"
+              />
+            </FormField>
           </div>
           <div className="md:col-span-2 flex items-end gap-2">
-            <button type="submit" form={filterFormId} className={adminActionPrimaryClass}>
+            <Button
+              type="submit"
+              form={filterFormId}
+              className="bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
+            >
               適用
-            </button>
-            <a href="/admin/audit-logs" className={adminActionSecondaryClass}>
+            </Button>
+            <a href="/admin/audit-logs" className={secondaryLink}>
               クリア
             </a>
           </div>
@@ -307,7 +298,7 @@ export default async function AdminAuditLogsPage({
           title="該当するログがありません。"
           description="フィルタ条件を変更して再度お試しください。"
           actions={
-            <a href="/admin/audit-logs" className={adminActionSecondaryClass}>
+            <a href="/admin/audit-logs" className={secondaryLink}>
               フィルタをクリア
             </a>
           }
@@ -390,14 +381,14 @@ export default async function AdminAuditLogsPage({
             <div className="mt-4 flex items-center justify-between text-sm text-slate-300">
               <div>
                 {page > 1 && (
-                  <a href={buildPageLink(page - 1)} className={adminActionSecondaryClass}>
+                  <a href={buildPageLink(page - 1)} className={secondaryLink}>
                     前へ
                   </a>
                 )}
               </div>
               <div>
                 {hasNext && (
-                  <a href={buildPageLink(page + 1)} className={adminActionSecondaryClass}>
+                  <a href={buildPageLink(page + 1)} className={secondaryLink}>
                     次へ
                   </a>
                 )}

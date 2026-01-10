@@ -3,11 +3,9 @@
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  adminFieldClass,
-  adminLabelClass,
-  adminSelectClass,
-} from "@/components/ui/FilterBar";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import {
   buildInviteTemplate,
   INVITE_LINK_STORAGE_KEY,
@@ -83,62 +81,65 @@ export function InviteTemplatePanel({
   return (
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <label className={adminLabelClass}>組織名</label>
-          <input
+        <FormField label="組織名" tone="dark">
+          <Input
             value={organizationName}
             onChange={(event) => setOrganizationName(event.target.value)}
             placeholder="組織名を入力"
-            className={adminFieldClass}
+            tone="dark"
           />
-          {organizations.length > 0 && (
-            <select
-              value={selectedOrgId}
-              onChange={(event) => handleSelectOrganization(event.target.value)}
-              className={`${adminSelectClass} mt-2`}
-            >
-              {organizations.map((org) => (
-                <option key={org.id} value={org.id}>
-                  {org.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-        <div>
-          <label className={adminLabelClass}>招待リンク</label>
-          <div className="mt-1 flex gap-2">
-            <input
-              value={inviteLink}
-              onChange={(event) => setInviteLink(event.target.value)}
-              placeholder="招待リンクを貼り付け"
-              className={`flex-1 ${adminFieldClass}`}
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              className="min-h-[44px] whitespace-nowrap bg-slate-800 px-4 text-sm text-slate-100 hover:bg-slate-700"
-              onClick={handleApplyStoredInviteLink}
-              disabled={!storedInviteLink}
-            >
-              直近の招待リンクを反映
-            </Button>
+        </FormField>
+        <FormField label="招待リンク" tone="dark">
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <Input
+                value={inviteLink}
+                onChange={(event) => setInviteLink(event.target.value)}
+                placeholder="招待リンクを貼り付け"
+                tone="dark"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                className="min-h-[44px] whitespace-nowrap bg-slate-800 px-4 text-sm text-slate-100 hover:bg-slate-700"
+                onClick={handleApplyStoredInviteLink}
+                disabled={!storedInviteLink}
+              >
+                直近の招待リンクを反映
+              </Button>
+            </div>
+            {storedInviteLink && (
+              <p className="text-sm text-slate-400">
+                直近の招待リンクを読み込み済みです。
+              </p>
+            )}
           </div>
-          {storedInviteLink && (
-            <p className="mt-1 text-sm text-slate-400">
-              直近の招待リンクを読み込み済みです。
-            </p>
-          )}
-        </div>
+        </FormField>
       </div>
+      {organizations.length > 0 && (
+        <FormField label="組織を選択" tone="dark">
+          <Select
+            value={selectedOrgId}
+            onChange={(event) => handleSelectOrganization(event.target.value)}
+            tone="dark"
+          >
+            {organizations.map((org) => (
+              <option key={org.id} value={org.id}>
+                {org.name}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+      )}
       <div>
-        <label className={adminLabelClass}>任意メッセージ（1行）</label>
-        <input
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-          placeholder="例: 初回ログイン後にロールの確認をお願いします。"
-          className={adminFieldClass}
-        />
+        <FormField label="任意メッセージ（1行）" tone="dark">
+          <Input
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            placeholder="例: 初回ログイン後にロールの確認をお願いします。"
+            tone="dark"
+          />
+        </FormField>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
