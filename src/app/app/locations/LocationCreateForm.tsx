@@ -3,6 +3,7 @@
 import { useFormState } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import {
   createLocationAction,
@@ -21,27 +22,23 @@ export function LocationCreateForm({ disabledReason }: LocationCreateFormProps) 
 
   return (
     <form action={action} className="space-y-3">
-      <div className="space-y-1">
-        <label className="text-xs font-semibold text-slate-700">
-          ロケーション名
-        </label>
+      <FormField label="ロケーション名" required>
         <Input
           name="name"
           placeholder="例: TEPPEN 渋谷"
           disabled={isDisabled}
+          required
         />
-      </div>
-      <div className="space-y-1">
-        <label className="text-xs font-semibold text-slate-700">住所</label>
+      </FormField>
+      <FormField label="住所">
         <Input
           name="address"
           placeholder="例: 東京都渋谷区渋谷1-2-3"
           disabled={isDisabled}
         />
-      </div>
+      </FormField>
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">緯度</label>
+        <FormField label="緯度">
           <Input
             name="latitude"
             type="number"
@@ -49,9 +46,8 @@ export function LocationCreateForm({ disabledReason }: LocationCreateFormProps) 
             placeholder="例: 35.6595"
             disabled={isDisabled}
           />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700">経度</label>
+        </FormField>
+        <FormField label="経度">
           <Input
             name="longitude"
             type="number"
@@ -59,16 +55,16 @@ export function LocationCreateForm({ disabledReason }: LocationCreateFormProps) 
             placeholder="例: 139.7005"
             disabled={isDisabled}
           />
-        </div>
+        </FormField>
       </div>
-      <p className="text-xs text-slate-500">
+      <p className="text-sm text-slate-500">
         住所・緯度・経度は任意です。未入力でも作成できます。
       </p>
       {state.error && (
-        <p className="text-xs font-semibold text-rose-600">{state.error}</p>
+        <p className="text-sm font-semibold text-rose-600">{state.error}</p>
       )}
       {disabledReason && (
-        <p className="text-xs text-slate-500">{disabledReason}</p>
+        <p className="text-sm text-slate-500">{disabledReason}</p>
       )}
       <Button type="submit" className="w-full" disabled={isDisabled}>
         新規作成
