@@ -168,6 +168,7 @@ pnpm dev
 - 監査ログ保存方針: `docs/runbooks/audit-log-retention.md`
 - Supabase Storage（画像アップロード）: `docs/runbooks/supabase-storage-media.md`
 - Supabase Storage（権限/監査）: `docs/runbooks/supabase-storage-governance.md`
+- プロバイダ審査チェック: `docs/runbooks/provider-review-prereqs.md`
 - 仕様（ユーザー）: `docs/spec/user-app.md`
 - 仕様（管理）: `docs/spec/admin.md`
 - 仕様（画面一覧）: `docs/spec/screens.md`

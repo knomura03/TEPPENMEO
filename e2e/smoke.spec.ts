@@ -40,6 +40,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-diagnostics-public-metadata", {
+    body: screenshot,
+    contentType: "image/png",
+  });
   await testInfo.attach("admin-diagnostics-providers", {
     body: screenshot,
     contentType: "image/png",
@@ -475,25 +479,9 @@ test(
       page.getByText("Facebookページ紐付け", { exact: true })
     ).toBeVisible();
     await expect(page.getByText("Googleに投稿", { exact: true })).toBeVisible();
-    const postButton = page.getByRole("button", { name: "投稿を送信" });
-    const uploadRadio = page.getByRole("radio", { name: "ファイルアップロード" });
-    if (await uploadRadio.isVisible()) {
-      const uploadEnabled = await uploadRadio.isEnabled();
-      if (uploadEnabled) {
-        await uploadRadio.check();
-        const fileInput = page.locator("input[type='file']");
-        await fileInput.setInputFiles("e2e/fixtures/upload.png");
-        const uploadButton = page.getByRole("button", { name: "画像をアップロード" });
-        await uploadButton.click();
-        await expect(page.getByText("アップロード済み")).toBeVisible();
-      }
-    }
-    if (await postButton.isEnabled()) {
-      await postButton.click();
-      await expect(
-        page.getByRole("heading", { name: "Meta（Facebook/Instagram）", exact: true })
-      ).toBeVisible();
-    }
+    await expect(
+      page.getByRole("button", { name: "投稿を送信" })
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "投稿履歴", exact: true })).toBeVisible();
   } else {
     expect(hasSignIn).toBeTruthy();

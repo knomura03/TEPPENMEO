@@ -10,6 +10,7 @@ import {
 } from "@/server/services/diagnostics";
 import { getMediaConfig, isStorageConfigured } from "@/server/services/media";
 import { isProviderMockMode } from "@/server/utils/feature-flags";
+import { getPublicSiteMetadata } from "@/server/public-site/metadata";
 
 type Mode = "mock" | "real";
 
@@ -57,6 +58,28 @@ async function main() {
 
   if (mode === "real" && !process.env.CRON_SECRET) {
     issues.push("CRON_SECRET 未設定: スケジュール機能を有効にする場合は設定してください。");
+  }
+
+  const publicMetadata = getPublicSiteMetadata();
+  if (mode === "real") {
+    if (!publicMetadata.operatorName) {
+      issues.push("PUBLIC_OPERATOR_NAME 未設定: 公開ページ（privacy/terms/data-deletion）に運営者名を表示します。");
+    }
+    if (!publicMetadata.contactEmail) {
+      issues.push("PUBLIC_CONTACT_EMAIL 未設定: 公開ページの連絡先メールを設定してください。");
+    }
+    if (publicMetadata.invalidKeys.includes("PUBLIC_PRIVACY_EFFECTIVE_DATE")) {
+      issues.push("PUBLIC_PRIVACY_EFFECTIVE_DATE の形式が不正です（YYYY-MM-DD）。");
+    }
+    if (publicMetadata.invalidKeys.includes("PUBLIC_TERMS_EFFECTIVE_DATE")) {
+      issues.push("PUBLIC_TERMS_EFFECTIVE_DATE の形式が不正です（YYYY-MM-DD）。");
+    }
+    if (publicMetadata.invalidKeys.includes("PUBLIC_CONTACT_EMAIL")) {
+      issues.push("PUBLIC_CONTACT_EMAIL の形式が不正です。");
+    }
+    if (publicMetadata.invalidKeys.includes("PUBLIC_CONTACT_URL")) {
+      issues.push("PUBLIC_CONTACT_URL の形式が不正です（URLを指定してください）。");
+    }
   }
 
   const schemaChecks = await Promise.all([
