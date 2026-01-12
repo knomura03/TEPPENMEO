@@ -8,96 +8,17 @@ import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/pagination";
 import { Select } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { buildHrefWithParams } from "@/lib/pagination";
 import { listAdminOrganizations } from "@/server/services/admin-organizations";
-import { ProviderType } from "@/server/providers/types";
 import { queryAuditLogs } from "@/server/services/audit-logs";
+import { ProviderType } from "@/server/providers/types";
 
-const actionLabels: Record<string, string> = {
-  "provider.connect": "プロバイダ接続",
-  "provider.connect_failed": "プロバイダ接続失敗",
-  "provider.disconnect": "プロバイダ切断",
-  "provider.reauth_required": "再認可要求",
-  "provider.link_location": "ロケーション紐付け",
-  "provider.link_location_failed": "ロケーション紐付け失敗",
-  "reviews.sync": "レビュー同期",
-  "reviews.sync_failed": "レビュー同期失敗",
-  "reviews.reply": "レビュー返信",
-  "reviews.reply_failed": "レビュー返信失敗",
-  "posts.publish": "投稿公開",
-  "posts.publish_failed": "投稿失敗",
-  "admin.user.invite": "ユーザー招待（メール）",
-  "admin.user.invite_fallback": "ユーザー招待（リンク）",
-  "admin.user.invite_link": "招待リンク生成",
-  "admin.user.invite_failed": "ユーザー招待失敗",
-  "admin.user.invite_link_failed": "招待リンク生成失敗",
-  "admin.user.create_temp": "仮パスワード作成",
-  "admin.user.create_failed": "ユーザー作成失敗",
-  "admin.user.disable": "ユーザー無効化",
-  "admin.user.disable_failed": "ユーザー無効化失敗",
-  "admin.user.enable": "ユーザー再有効化",
-  "admin.user.enable_failed": "ユーザー再有効化失敗",
-  "admin.user.delete": "ユーザー削除",
-  "admin.user.delete_failed": "ユーザー削除失敗",
-  "provider.health_check": "プロバイダ実機ヘルスチェック",
-  "provider.health_check_failed": "プロバイダ実機ヘルスチェック失敗",
-};
-
-const providerLabels: Record<string, string> = {
-  [ProviderType.GoogleBusinessProfile]: "Google Business Profile",
-  [ProviderType.Meta]: "Meta",
-  [ProviderType.YahooPlace]: "Yahoo!プレイス",
-  [ProviderType.AppleBusinessConnect]: "Apple Business Connect",
-  [ProviderType.BingMaps]: "Bing Maps",
-  [ProviderType.YahooYolp]: "Yahoo! YOLP",
-};
-
-function formatDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString("ja-JP");
-}
-
-function formatMetadataPreview(metadata: Record<string, unknown>) {
-  const text = JSON.stringify(metadata);
-  if (text === "{}") return "なし";
-  return text.length > 100 ? `${text.slice(0, 100)}…` : text;
-}
-
-function resolveProviderLabel(metadata: Record<string, unknown>) {
-  const value =
-    metadata.provider_type ?? metadata.providerType ?? metadata.provider;
-  if (typeof value !== "string") return "不明";
-  return providerLabels[value as ProviderType] ?? value;
-}
-
-function getStatusBadge(
-  log: Awaited<ReturnType<typeof queryAuditLogs>>["logs"][number]
-) {
-  const action = log.action ?? "";
-  const metadata = log.metadata ?? {};
-  const hasError = Boolean(
-    metadata.error ||
-      metadata.error_code ||
-      metadata.errorMessage ||
-      metadata.error_message
-  );
-  if (action.includes("failed") || hasError) {
-    return { label: "失敗", variant: "warning" as const };
-  }
-  if (action.includes("reauth_required")) {
-    return { label: "要対応", variant: "muted" as const };
-  }
-  return { label: "成功", variant: "success" as const };
-}
+import {
+  actionLabels,
+  createAuditLogColumns,
+  providerLabels,
+} from "./columns";
 
 export default async function AdminAuditLogsPage({
   searchParams,
@@ -197,6 +118,7 @@ export default async function AdminAuditLogsPage({
     size: "md",
     className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
   });
+  const columns = createAuditLogColumns({ organizationMap });
 
   return (
     <div className="space-y-8">
@@ -339,62 +261,29 @@ export default async function AdminAuditLogsPage({
             <Table tone="dark">
               <TableHeader>
                 <TableRow>
-                  <TableHead>日時</TableHead>
-                  <TableHead>操作</TableHead>
-                  <TableHead>組織</TableHead>
-                  <TableHead>操作者</TableHead>
-                  <TableHead>対象</TableHead>
-                  <TableHead>プロバイダ</TableHead>
-                  <TableHead>状態</TableHead>
-                  <TableHead>追加情報</TableHead>
+                  {columns.map((column) => (
+                    <TableHead
+                      key={column.header}
+                      className={column.headerClassName}
+                    >
+                      {column.header}
+                    </TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {logs.map((log) => {
-                  const status = getStatusBadge(log);
-                  const orgLabel =
-                    log.organizationName ||
-                    (log.organizationId
-                      ? organizationMap.get(log.organizationId) ?? log.organizationId
-                      : "全体");
-                  const targetLabel =
-                    log.targetType && log.targetId
-                      ? `${log.targetType} / ${log.targetId}`
-                      : log.targetType || log.targetId || "なし";
-                  const metadataPreview = formatMetadataPreview(log.metadata ?? {});
-                  const metadataText = JSON.stringify(log.metadata ?? {}, null, 2);
-                  return (
-                    <TableRow key={log.id}>
-                      <TableCell className="text-slate-300">
-                        {formatDate(log.createdAt)}
+                {logs.map((log) => (
+                  <TableRow key={log.id}>
+                    {columns.map((column) => (
+                      <TableCell
+                        key={`${log.id}-${column.header}`}
+                        className={column.cellClassName}
+                      >
+                        {column.cell(log)}
                       </TableCell>
-                      <TableCell className="text-slate-100">
-                        {actionLabels[log.action] ?? log.action}
-                      </TableCell>
-                      <TableCell className="text-slate-300">{orgLabel}</TableCell>
-                      <TableCell className="text-slate-300">
-                        {log.actorEmail ?? log.actorUserId ?? "不明"}
-                      </TableCell>
-                      <TableCell className="text-slate-300">{targetLabel}</TableCell>
-                      <TableCell className="text-slate-300">
-                        {resolveProviderLabel(log.metadata ?? {})}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={status.variant}>{status.label}</Badge>
-                      </TableCell>
-                      <TableCell className="text-slate-300">
-                        <details>
-                          <summary className="cursor-pointer text-slate-200 hover:text-slate-100">
-                            {metadataPreview}
-                          </summary>
-                          <pre className="mt-2 max-w-md whitespace-pre-wrap rounded-md border border-slate-800 bg-slate-950 p-3 text-sm text-slate-200">
-                            {metadataText}
-                          </pre>
-                        </details>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                    ))}
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
             <Pagination

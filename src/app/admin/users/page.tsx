@@ -8,43 +8,15 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { listAdminOrganizations } from "@/server/services/admin-organizations";
 import { isSupabaseAdminConfigured } from "@/server/utils/env";
-import {
-  type AdminUserStatus,
-  listAdminUsers,
-} from "@/server/services/admin-users";
+import { listAdminUsers, type AdminUserStatus } from "@/server/services/admin-users";
 import { checkUserBlocksSchema } from "@/server/services/diagnostics";
 
 import { CreateUserForm } from "./CreateUserForm";
-import { DeleteUserForm } from "./DeleteUserForm";
 import { InviteTemplatePanel } from "./InviteTemplatePanel";
-import { ToggleUserStatusForm } from "./ToggleUserStatusForm";
-
-function formatDate(value: string | null) {
-  if (!value) return "不明";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "不明";
-  return date.toLocaleString("ja-JP");
-}
-
-function getStatusLabel(status: AdminUserStatus) {
-  if (status === "disabled") {
-    return { label: "無効", variant: "warning" as const };
-  }
-  if (status === "invited") {
-    return { label: "招待中", variant: "muted" as const };
-  }
-  return { label: "有効", variant: "success" as const };
-}
+import { createAdminUserColumns } from "./columns";
 
 function parseStatus(value: string | undefined): AdminUserStatus | "all" {
   if (!value || value === "all") return "all";
@@ -83,6 +55,10 @@ export default async function AdminUsersPage({
     variant: "secondary",
     size: "md",
     className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
+  });
+  const columns = createAdminUserColumns({
+    userBlocksReady,
+    userBlocksMessage,
   });
 
   return (
@@ -218,49 +194,27 @@ export default async function AdminUsersPage({
             <Table tone="dark">
               <TableHeader>
                 <TableRow>
-                  <TableHead>メール</TableHead>
-                  <TableHead>作成日</TableHead>
-                  <TableHead>所属組織数</TableHead>
-                  <TableHead>システム管理</TableHead>
-                  <TableHead>状態</TableHead>
-                  <TableHead>操作</TableHead>
+                  {columns.map((column) => (
+                    <TableHead
+                      key={column.header}
+                      className={column.headerClassName}
+                    >
+                      {column.header}
+                    </TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell>{user.email ?? "不明"}</TableCell>
-                    <TableCell className="text-slate-400">
-                      {formatDate(user.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-slate-300">
-                      {user.membershipCount}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={user.isSystemAdmin ? "success" : "muted"}>
-                        {user.isSystemAdmin ? "管理者" : "一般"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {(() => {
-                        const status = getStatusLabel(user.status);
-                        return (
-                          <Badge variant={status.variant}>{status.label}</Badge>
-                        );
-                      })()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-2">
-                        <ToggleUserStatusForm
-                          userId={user.id}
-                          email={user.email}
-                          isDisabled={user.isDisabled}
-                          userBlocksReady={userBlocksReady}
-                          userBlocksMessage={userBlocksMessage}
-                        />
-                        <DeleteUserForm userId={user.id} email={user.email} />
-                      </div>
-                    </TableCell>
+                    {columns.map((column) => (
+                      <TableCell
+                        key={`${user.id}-${column.header}`}
+                        className={column.cellClassName}
+                      >
+                        {column.cell(user)}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 ))}
               </TableBody>
