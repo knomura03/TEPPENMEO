@@ -26,31 +26,26 @@ Supabaseダッシュボード → **Project Settings** → **API** から取得:
 - `anon public key`
 - `service_role key`（取り扱い注意）
 
-### 3) SQLを適用（`0001_init.sql` + `0002_user_blocks.sql`）
-
-#### 方法A: SQL Editor
-1. Supabaseダッシュボード → **SQL Editor**
-2. **New query**
-3. `supabase/migrations/0001_init.sql` を全文貼り付け
-4. **Run** で実行
-5. 続けて `supabase/migrations/0002_user_blocks.sql` を貼り付け
-6. **Run** で実行
-
-#### 方法B: Supabase CLI
+### 3) マイグレーション適用（CLI推奨）
 1. CLIをインストール
 ```bash
 npm i -g supabase
+```
+2. ログイン
+```bash
 supabase login
 ```
-2. プロジェクトをリンク
+3. プロジェクトをリンク
 ```bash
 supabase init
 supabase link --project-ref <プロジェクトREF>
 ```
-3. マイグレーション適用
+4. マイグレーション適用
 ```bash
 supabase db push
 ```
+
+※ SQL Editorの手動適用は原則使いません。詰まった場合は `docs/runbooks/supabase-migrations-troubleshooting.md` を参照してください。
 
 ### 4) 環境変数を設定
 ```bash
@@ -124,6 +119,10 @@ pnpm dev
 - `.env.local` の `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` を再確認
 - `SUPABASE_SERVICE_ROLE_KEY` が空だとseedが失敗
 
+### マイグレーション詰まり
+- `SQLSTATE 42710: type already exists` や `migration history mismatch` はRunbookで対処  
+- `docs/runbooks/supabase-migrations-troubleshooting.md` を参照
+
 ### `TOKEN_ENCRYPTION_KEY must be 32 bytes`
 - 32バイト（256bit）で生成したキーを使用
 - 例: `openssl rand -base64 32`
@@ -159,6 +158,7 @@ pnpm dev
 - main保護設定: `docs/runbooks/github-branch-protection.md`
 - MCP（Playwright連携）: `docs/runbooks/mcp-playwright.md`
 - Supabaseマイグレーション: `docs/runbooks/supabase-migrations.md`
+- Supabaseマイグレーション詰まり: `docs/runbooks/supabase-migrations-troubleshooting.md`
 - 監査ログ調査: `docs/runbooks/audit-log-debugging.md`
 - 監査ログ保存方針: `docs/runbooks/audit-log-retention.md`
 - Supabase Storage（画像アップロード）: `docs/runbooks/supabase-storage-media.md`
