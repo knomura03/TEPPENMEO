@@ -61,6 +61,10 @@
 - `GOOGLE_CLIENT_SECRET` : OAuthクライアントシークレット（GCPコンソール）
 - `GOOGLE_REDIRECT_URI` : リダイレクトURI（上記設定値）
 - `APP_BASE_URL` : アプリのベースURL（任意だが推奨）
+- 公開URL（審査向け）
+  - Privacy Policy: `https://<APP_BASE_URL>/privacy`
+  - Terms of Service: `https://<APP_BASE_URL>/terms`
+  - Data Deletion: `https://<APP_BASE_URL>/data-deletion`
 
 ## 動作確認手順（成功/失敗の見分け方）
 

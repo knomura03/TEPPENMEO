@@ -419,12 +419,12 @@ export default async function AdminDiagnosticsPage() {
         <CardHeader>
           <p className="text-sm font-semibold text-slate-900">審査/公開ページ</p>
           <p className="text-sm text-slate-700">
-            プライバシー/規約/データ削除の公開ページと運営者情報の設定状況を確認します。
+            プライバシー/規約/データ削除の公開ページを確認できます。
           </p>
         </CardHeader>
         <CardContent className="grid gap-3 text-sm text-slate-800 sm:grid-cols-2">
           <div className="space-y-1">
-            <p className="font-semibold">運営者情報</p>
+            <p className="font-semibold">運営者/連絡先</p>
             <Badge variant={publicInfoSet ? "success" : "warning"}>
               {publicInfoSet ? "設定済み" : "未設定"}
             </Badge>

@@ -69,6 +69,10 @@
 - `SUPABASE_STORAGE_BUCKET` : 画像アップロード用バケット名（Supabase Storage）
 - `MEDIA_SIGNED_URL_TTL_SECONDS` : 署名URLの有効期限（秒）
 - `MAX_UPLOAD_MB` : 画像アップロードの最大サイズ（MB）
+- 公開URL（審査向け）
+  - Privacy Policy: `https://<APP_BASE_URL>/privacy`
+  - Terms of Service: `https://<APP_BASE_URL>/terms`
+  - Data Deletion: `https://<APP_BASE_URL>/data-deletion`（Meta App Review で要求される場合があります）
 
 ## 画像アップロード（Supabase Storage）
 ### 前提
