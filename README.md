@@ -162,6 +162,8 @@ pnpm dev
 - Supabaseマイグレーション: `docs/runbooks/supabase-migrations.md`
 - Supabaseマイグレーション詰まり: `docs/runbooks/supabase-migrations-troubleshooting.md`
 - Supabaseローカル/リモートの違い: `docs/runbooks/supabase-local-vs-remote.md`
+- リリース手順（staging）: `docs/runbooks/release-staging.md`
+- リリース手順（prod）: `docs/runbooks/release-production.md`
 - 監査ログ調査: `docs/runbooks/audit-log-debugging.md`
 - 監査ログ保存方針: `docs/runbooks/audit-log-retention.md`
 - Supabase Storage（画像アップロード）: `docs/runbooks/supabase-storage-media.md`
@@ -192,3 +194,4 @@ pnpm dev
 - 型チェック: `pnpm typecheck`
 - シード: `pnpm seed`
 - E2E: `pnpm e2e`
+- プレフライト: `pnpm preflight --mode mock|real`
