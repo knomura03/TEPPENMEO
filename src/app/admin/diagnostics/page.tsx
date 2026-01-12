@@ -999,6 +999,18 @@ export default async function AdminDiagnosticsPage() {
               >
                 モック→実機の切り替え手順
               </a>
+              <a
+                href="/docs/runbooks/google-gbp-approval-and-oauth-setup"
+                className={adminActionSecondaryClass}
+              >
+                Google審査Runbook
+              </a>
+              <a
+                href="/docs/runbooks/meta-app-review-and-oauth-setup"
+                className={adminActionSecondaryClass}
+              >
+                Meta審査Runbook
+              </a>
             </div>
             <p className="text-sm text-slate-400">
               対象組織: {org?.name ?? "未設定"}
