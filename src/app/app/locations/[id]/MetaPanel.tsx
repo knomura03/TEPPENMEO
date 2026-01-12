@@ -5,7 +5,10 @@ import { useMemo, useState } from "react";
 import { useFormState } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   linkMetaPageAction,
   publishMetaPostAction,
@@ -47,7 +50,7 @@ const initialState: ActionState = { error: null, success: null };
 
 function ErrorBox({ error }: { error: UiError }) {
   return (
-    <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+    <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
       <p className="font-semibold">原因</p>
       <p>{error.cause}</p>
       <p className="mt-2 font-semibold">次にやること</p>
@@ -58,7 +61,7 @@ function ErrorBox({ error }: { error: UiError }) {
 
 function SuccessBox({ message }: { message: string }) {
   return (
-    <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+    <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
       {message}
     </div>
   );
@@ -200,7 +203,7 @@ export function MetaPanel(props: {
           <p className="text-sm font-semibold text-slate-900">
             Meta（Facebook/Instagram）
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-500">
             接続状態: {props.connectionLabel}
           </p>
         </div>
@@ -216,14 +219,14 @@ export function MetaPanel(props: {
       )}
 
       {props.connectionMessage && !needsReauth && (
-        <p className="text-xs text-amber-700">{props.connectionMessage}</p>
+        <p className="text-sm text-amber-700">{props.connectionMessage}</p>
       )}
 
       <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-        <p className="text-xs font-semibold text-slate-700">
+        <p className="text-sm font-semibold text-slate-700">
           Facebookページ紐付け
         </p>
-        <p className="text-xs text-slate-500">
+        <p className="text-sm text-slate-500">
           管理するFacebookページをこのロケーションに紐付けます。
         </p>
 
@@ -234,14 +237,14 @@ export function MetaPanel(props: {
         )}
 
         {props.link && (
-          <div className="mt-3 rounded-md border border-slate-200 bg-white p-3 text-xs text-slate-600">
+          <div className="mt-3 rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-600">
             <p className="font-semibold text-slate-900">
               現在の紐付け:{" "}
               {typeof props.link.metadata.page_name === "string"
                 ? props.link.metadata.page_name
                 : "未設定"}
             </p>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-sm text-slate-500">
               Instagram:{" "}
               {instagramId
                 ? instagramUsername ?? instagramId
@@ -272,19 +275,21 @@ export function MetaPanel(props: {
             name="instagramUsername"
             value={selectedPage?.instagram?.username ?? ""}
           />
-          <Select
-            value={selectedId}
-            onChange={(event) => setSelectedId(event.target.value)}
-            disabled={!props.canEdit || !isConnected || props.candidates.length === 0}
-          >
-            {props.candidates.map((candidate) => (
-              <option key={candidate.id} value={candidate.id}>
-                {candidate.name}
-              </option>
-            ))}
-          </Select>
+          <FormField label="Facebookページ" required>
+            <Select
+              value={selectedId}
+              onChange={(event) => setSelectedId(event.target.value)}
+              disabled={!props.canEdit || !isConnected || props.candidates.length === 0}
+            >
+              {props.candidates.map((candidate) => (
+                <option key={candidate.id} value={candidate.id}>
+                  {candidate.name}
+                </option>
+              ))}
+            </Select>
+          </FormField>
           {linkDisabledReason && (
-            <p className="text-xs text-slate-500">{linkDisabledReason}</p>
+            <p className="text-sm text-slate-500">{linkDisabledReason}</p>
           )}
           {linkState.error && <ErrorBox error={linkState.error} />}
           {linkState.success && <SuccessBox message={linkState.success} />}
@@ -315,12 +320,12 @@ export function MetaPanel(props: {
       </div>
 
       <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-        <p className="text-xs font-semibold text-slate-700">投稿作成</p>
-        <p className="text-xs text-slate-500">
+        <p className="text-sm font-semibold text-slate-700">投稿作成</p>
+        <p className="text-sm text-slate-500">
           Facebook/Googleは本文必須。Instagramは画像が必須です。
         </p>
         {!props.link && (
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-sm text-slate-500">
             投稿するにはFacebookページを紐付けてください。
           </p>
         )}
@@ -335,16 +340,17 @@ export function MetaPanel(props: {
                 : ""
             }
           />
-          <textarea
-            name="content"
-            rows={4}
-            placeholder="投稿本文を入力"
-            className="w-full rounded-md border border-slate-200 bg-white p-2 text-xs text-slate-700 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-            disabled={!canPostAny}
-          />
+          <FormField label="投稿本文" required>
+            <Textarea
+              name="content"
+              rows={4}
+              placeholder="投稿本文を入力"
+              disabled={!canPostAny}
+            />
+          </FormField>
           <div className="rounded-md border border-slate-200 bg-white p-3">
-            <p className="text-xs font-semibold text-slate-700">画像の指定方法</p>
-            <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-600">
+            <p className="text-sm font-semibold text-slate-700">画像の指定方法</p>
+            <div className="mt-2 flex flex-wrap gap-4 text-sm text-slate-600">
               <label className="flex items-center gap-2">
                 <input
                   type="radio"
@@ -369,31 +375,35 @@ export function MetaPanel(props: {
               </label>
             </div>
             {imageMode === "url" && (
-              <input
-                name="imageUrl"
-                value={imageUrl}
-                onChange={(event) => setImageUrl(event.target.value)}
-                placeholder="画像URL（任意・Instagram投稿時は必須）"
-                className="mt-3 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-                disabled={!canPostAny}
-              />
+              <div className="mt-3">
+                <FormField label="画像URL">
+                  <Input
+                    name="imageUrl"
+                    value={imageUrl}
+                    onChange={(event) => setImageUrl(event.target.value)}
+                    placeholder="画像URL（任意・Instagram投稿時は必須）"
+                    disabled={!canPostAny}
+                  />
+                </FormField>
+              </div>
             )}
             {imageMode === "upload" && (
               <div className="mt-3 space-y-2">
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/gif"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0] ?? null;
-                    setSelectedFile(file);
-                    if (file) {
-                      setUploadState({ status: "idle" });
-                    }
-                  }}
-                  disabled={!canPostAny}
-                  className="block w-full text-xs text-slate-700"
-                />
-                <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                <FormField label="画像ファイル">
+                  <Input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null;
+                      setSelectedFile(file);
+                      if (file) {
+                        setUploadState({ status: "idle" });
+                      }
+                    }}
+                    disabled={!canPostAny}
+                  />
+                </FormField>
+                <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
                   <span>PNG/JPEG/WebP/GIF</span>
                   <span>最大{props.maxUploadMb}MB</span>
                 </div>
@@ -412,7 +422,7 @@ export function MetaPanel(props: {
                   <ErrorBox error={uploadState.error} />
                 )}
                 {uploadState.status === "success" && (
-                  <div className="rounded-md border border-slate-200 bg-slate-50 p-2 text-xs text-slate-600">
+                  <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
                     <p className="font-semibold text-slate-800">
                       アップロード済み
                     </p>
@@ -430,7 +440,7 @@ export function MetaPanel(props: {
               </div>
             )}
           </div>
-          <div className="flex flex-wrap gap-4 text-xs text-slate-600">
+          <div className="flex flex-wrap gap-4 text-sm text-slate-600">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -457,17 +467,17 @@ export function MetaPanel(props: {
               Googleに投稿
             </label>
             {!instagramId && (
-              <span className="text-[11px] text-slate-500">
+              <span className="text-sm text-slate-500">
                 Instagram連携が未検出です
               </span>
             )}
             {metaDisabledReason && (
-              <span className="text-[11px] text-slate-500">
+              <span className="text-sm text-slate-500">
                 {metaDisabledReason}
               </span>
             )}
             {googleDisabledReason && (
-              <span className="text-[11px] text-slate-500">
+              <span className="text-sm text-slate-500">
                 {googleDisabledReason}
               </span>
             )}

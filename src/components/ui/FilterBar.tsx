@@ -1,3 +1,4 @@
+import { buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 
@@ -9,11 +10,17 @@ export const adminSelectClass =
 
 export const adminLabelClass = "mb-1 block text-sm font-semibold text-slate-200";
 
-export const adminActionPrimaryClass =
-  "inline-flex min-h-[44px] items-center justify-center rounded-md bg-amber-400 px-4 text-sm font-semibold text-slate-900 hover:bg-amber-300";
+export const adminActionPrimaryClass = buttonStyles({
+  variant: "primary",
+  size: "md",
+  className: "bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300",
+});
 
-export const adminActionSecondaryClass =
-  "inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-4 text-sm font-semibold text-slate-100 hover:bg-slate-900";
+export const adminActionSecondaryClass = buttonStyles({
+  variant: "secondary",
+  size: "md",
+  className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
+});
 
 type FilterBarProps = {
   title: string;

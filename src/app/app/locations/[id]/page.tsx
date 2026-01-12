@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
@@ -157,6 +157,14 @@ export default async function LocationDetailPage({
     reauth_required: "再認可が必要",
   } as const;
 
+  const connectLinkClass = buttonStyles({ variant: "primary", size: "md", className: "w-full" });
+  const connectDisabledClass = buttonStyles({
+    variant: "secondary",
+    size: "md",
+    className:
+      "w-full border-slate-200 bg-slate-200 text-slate-500 hover:bg-slate-200 pointer-events-none",
+  });
+
   return (
     <div className="space-y-8">
       <div>
@@ -173,7 +181,7 @@ export default async function LocationDetailPage({
           <h2 className="text-lg font-semibold text-slate-900">
             プロバイダ連携
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-500">
             プロバイダごとに接続して同期します。
           </p>
         </CardHeader>
@@ -207,7 +215,7 @@ export default async function LocationDetailPage({
                     <p className="text-sm font-semibold text-slate-900">
                       {provider.name}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm text-slate-500">
                       {statusLabels[provider.status]}
                     </p>
                   </div>
@@ -240,7 +248,7 @@ export default async function LocationDetailPage({
                     )}
                 </div>
                 {connectionMessage && (
-                  <p className="mt-3 text-xs text-amber-700">
+                  <p className="mt-3 text-sm text-amber-700">
                     {connectionMessage}
                   </p>
                 )}
@@ -249,11 +257,7 @@ export default async function LocationDetailPage({
                     <>
                       {connectionStatus !== "connected" && (
                         <a
-                          className={`flex h-10 w-full items-center justify-center rounded-md text-sm font-semibold ${
-                            provider.enabled
-                              ? "bg-slate-900 text-white"
-                              : "pointer-events-none bg-slate-200 text-slate-500"
-                          }`}
+                          className={provider.enabled ? connectLinkClass : connectDisabledClass}
                           href={provider.enabled ? connectHref ?? undefined : undefined}
                           aria-disabled={!provider.enabled}
                         >
@@ -297,7 +301,7 @@ export default async function LocationDetailPage({
           <h2 className="text-lg font-semibold text-slate-900">
             Google Business Profile
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-500">
             GBPロケーションの紐付けとレビュー同期を行います。
           </p>
         </CardHeader>
@@ -328,7 +332,7 @@ export default async function LocationDetailPage({
           <h2 className="text-lg font-semibold text-slate-900">
             Meta（Facebook/Instagram）
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-500">
             Facebookページの紐付けと投稿作成を行います。
           </p>
         </CardHeader>
@@ -389,10 +393,10 @@ export default async function LocationDetailPage({
                 </p>
                 <Badge variant="success">{review.rating}</Badge>
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-sm text-slate-400">
                 投稿日時: {review.createdAt}
               </p>
-              <p className="text-xs text-slate-500">{review.comment}</p>
+              <p className="text-sm text-slate-500">{review.comment}</p>
               {review.provider === ProviderType.GoogleBusinessProfile && (
                 <div className="mt-3">
                   <ReviewReplyForm
