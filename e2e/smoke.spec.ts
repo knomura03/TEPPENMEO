@@ -186,6 +186,10 @@ test("監査ログはサインインまたは監査ログが表示される", as
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-audit-logs-table", {
+    body: screenshot,
+    contentType: "image/png",
+  });
   await testInfo.attach("admin-audit-logs-ui-primitives", {
     body: screenshot,
     contentType: "image/png",
@@ -244,6 +248,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-reviews-table", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
     if (hasInbox) {
       await expect(
@@ -264,54 +272,59 @@ test(
 test(
   "ユーザー管理はサインインまたはユーザー管理が表示される",
   async ({ page }, testInfo) => {
-  await page.goto("/admin/users", { waitUntil: "domcontentloaded" });
-  const hasUsers = await page
-    .getByRole("heading", { name: "ユーザー管理" })
-    .isVisible();
-  const hasSignIn = await page
-    .getByRole("heading", { name: "サインイン", exact: true })
-    .isVisible();
-
-  const screenshot = await page.screenshot({ fullPage: true });
-  await testInfo.attach("admin-users", {
-    body: screenshot,
-    contentType: "image/png",
-  });
-  await testInfo.attach("admin-users-design", {
-    body: screenshot,
-    contentType: "image/png",
-  });
-  await testInfo.attach("admin-users-ui-primitives", {
-    body: screenshot,
-    contentType: "image/png",
-  });
-
-  if (hasUsers) {
-    await expect(
-      page.getByRole("heading", { name: "ユーザー管理" })
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "ユーザーを作成" })
-    ).toBeVisible();
-    await expect(page.getByText("招待テンプレ", { exact: true })).toBeVisible();
-    await expect(
-      page.locator("select[name='mode'] option[value='invite_link']")
-    ).toHaveCount(1);
-    await expect(page.locator("select[name='status']")).toBeVisible();
-    await expect(page.locator("select[name='org']")).toBeVisible();
-    const hasDisableControl = await page
-      .locator("summary", { hasText: "無効化" })
-      .first()
+    await page.goto("/admin/users", { waitUntil: "domcontentloaded" });
+    const hasUsers = await page
+      .getByRole("heading", { name: "ユーザー管理" })
       .isVisible();
-    const hasMigrationWarning = await page
-      .getByText("マイグレーション未適用", { exact: false })
+    const hasSignIn = await page
+      .getByRole("heading", { name: "サインイン", exact: true })
       .isVisible();
 
-    expect(hasDisableControl || hasMigrationWarning).toBeTruthy();
-  } else {
-    expect(hasSignIn).toBeTruthy();
+    const screenshot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("admin-users", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-users-design", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-users-ui-primitives", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-users-table", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+
+    if (hasUsers) {
+      await expect(
+        page.getByRole("heading", { name: "ユーザー管理" })
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "ユーザーを作成" })
+      ).toBeVisible();
+      await expect(page.getByText("招待テンプレ", { exact: true })).toBeVisible();
+      await expect(
+        page.locator("select[name='mode'] option[value='invite_link']")
+      ).toHaveCount(1);
+      await expect(page.locator("select[name='status']")).toBeVisible();
+      await expect(page.locator("select[name='org']")).toBeVisible();
+      const hasDisableControl = await page
+        .locator("summary", { hasText: "無効化" })
+        .first()
+        .isVisible();
+      const hasMigrationWarning = await page
+        .getByText("マイグレーション未適用", { exact: false })
+        .isVisible();
+
+      expect(hasDisableControl || hasMigrationWarning).toBeTruthy();
+    } else {
+      expect(hasSignIn).toBeTruthy();
+    }
   }
-});
+);
 
 test(
   "ジョブ履歴はサインインまたはジョブ履歴が表示される",
@@ -330,6 +343,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("admin-jobs-design", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-jobs-table", {
       body: screenshot,
       contentType: "image/png",
     });
