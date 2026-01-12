@@ -82,3 +82,8 @@ supabase migration repair <version> --status applied --linked
 - `/admin/diagnostics` のマイグレーション警告が消える  
 - `supabase migration list --linked` で `applied` が揃う  
 - 不明な場合は `docs/runbooks/supabase-migrations.md` も併読する
+
+## 補足（ローカル/リモートの違い）
+- `supabase status` はローカル環境の確認用です  
+- リモート運用だけなら不要です  
+- 詳細は `docs/runbooks/supabase-local-vs-remote.md` を参照してください
