@@ -8,6 +8,14 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { listAdminOrganizations } from "@/server/services/admin-organizations";
 import { isSupabaseAdminConfigured } from "@/server/utils/env";
 import {
@@ -207,56 +215,56 @@ export default async function AdminUsersPage({
               }
             />
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-700 text-sm text-slate-400">
-              <tr>
-                <th className="py-2 pr-4">メール</th>
-                <th className="py-2 pr-4">作成日</th>
-                <th className="py-2 pr-4">所属組織数</th>
-                <th className="py-2 pr-4">システム管理</th>
-                <th className="py-2 pr-4">状態</th>
-                <th className="py-2">操作</th>
-              </tr>
-            </thead>
-            <tbody className="text-slate-200">
-              {users.map((user) => (
-                <tr key={user.id} className="border-b border-slate-800">
-                  <td className="py-3 pr-4 text-sm">{user.email ?? "不明"}</td>
-                  <td className="py-3 pr-4 text-sm text-slate-400">
-                    {formatDate(user.createdAt)}
-                  </td>
-                  <td className="py-3 pr-4 text-sm text-slate-300">
-                    {user.membershipCount}
-                  </td>
-                  <td className="py-3 pr-4">
-                    <Badge variant={user.isSystemAdmin ? "success" : "muted"}>
-                      {user.isSystemAdmin ? "管理者" : "一般"}
-                    </Badge>
-                  </td>
-                  <td className="py-3 pr-4">
-                    {(() => {
-                      const status = getStatusLabel(user.status);
-                      return (
-                        <Badge variant={status.variant}>{status.label}</Badge>
-                      );
-                    })()}
-                  </td>
-                  <td className="py-3">
-                    <div className="flex flex-col gap-2">
-                      <ToggleUserStatusForm
-                        userId={user.id}
-                        email={user.email}
-                        isDisabled={user.isDisabled}
-                        userBlocksReady={userBlocksReady}
-                        userBlocksMessage={userBlocksMessage}
-                      />
-                      <DeleteUserForm userId={user.id} email={user.email} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <Table tone="dark">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>メール</TableHead>
+                  <TableHead>作成日</TableHead>
+                  <TableHead>所属組織数</TableHead>
+                  <TableHead>システム管理</TableHead>
+                  <TableHead>状態</TableHead>
+                  <TableHead>操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.email ?? "不明"}</TableCell>
+                    <TableCell className="text-slate-400">
+                      {formatDate(user.createdAt)}
+                    </TableCell>
+                    <TableCell className="text-slate-300">
+                      {user.membershipCount}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={user.isSystemAdmin ? "success" : "muted"}>
+                        {user.isSystemAdmin ? "管理者" : "一般"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        const status = getStatusLabel(user.status);
+                        return (
+                          <Badge variant={status.variant}>{status.label}</Badge>
+                        );
+                      })()}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-2">
+                        <ToggleUserStatusForm
+                          userId={user.id}
+                          email={user.email}
+                          isDisabled={user.isDisabled}
+                          userBlocksReady={userBlocksReady}
+                          userBlocksMessage={userBlocksMessage}
+                        />
+                        <DeleteUserForm userId={user.id} email={user.email} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>

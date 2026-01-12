@@ -6,7 +6,17 @@ import { FilterBar } from "@/components/ui/FilterBar";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Pagination } from "@/components/ui/pagination";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { buildHrefWithParams } from "@/lib/pagination";
 import { listAdminOrganizations } from "@/server/services/admin-organizations";
 import { ProviderType } from "@/server/providers/types";
 import { queryAuditLogs } from "@/server/services/audit-logs";
@@ -60,6 +70,13 @@ function formatMetadataPreview(metadata: Record<string, unknown>) {
   const text = JSON.stringify(metadata);
   if (text === "{}") return "なし";
   return text.length > 100 ? `${text.slice(0, 100)}…` : text;
+}
+
+function resolveProviderLabel(metadata: Record<string, unknown>) {
+  const value =
+    metadata.provider_type ?? metadata.providerType ?? metadata.provider;
+  if (typeof value !== "string") return "不明";
+  return providerLabels[value as ProviderType] ?? value;
 }
 
 function getStatusBadge(
@@ -147,20 +164,18 @@ export default async function AdminAuditLogsPage({
     });
   if (filters.text) activeFilters.push({ key: "検索", value: filters.text });
 
-  const buildPageLink = (nextPage: number) => {
-    const params = new URLSearchParams();
-    if (filters.from) params.set("from", filters.from);
-    if (filters.to) params.set("to", filters.to);
-    if (filters.action) params.set("action", filters.action);
-    if (filters.organizationId) params.set("org", filters.organizationId);
-    if (filters.actor) params.set("actor", filters.actor);
-    if (filters.providerType && filters.providerType !== "all") {
-      params.set("provider", filters.providerType);
-    }
-    if (filters.text) params.set("text", filters.text);
-    params.set("page", String(nextPage));
-    return `/admin/audit-logs?${params.toString()}`;
-  };
+  const prevHref =
+    page > 1
+      ? buildHrefWithParams("/admin/audit-logs", resolved, {
+          page: page - 1,
+        })
+      : null;
+  const nextHref =
+    hasNext
+      ? buildHrefWithParams("/admin/audit-logs", resolved, {
+          page: page + 1,
+        })
+      : null;
 
   const buildExportLink = () => {
     const params = new URLSearchParams();
@@ -320,20 +335,21 @@ export default async function AdminAuditLogsPage({
               </div>
             </div>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-700 text-sm text-slate-400">
-                <tr>
-                  <th className="py-3 pr-4">日時</th>
-                  <th className="py-3 pr-4">操作</th>
-                  <th className="py-3 pr-4">組織</th>
-                  <th className="py-3 pr-4">操作者</th>
-                  <th className="py-3 pr-4">対象</th>
-                  <th className="py-3 pr-4">状態</th>
-                  <th className="py-3 pr-4">追加情報</th>
-                </tr>
-              </thead>
-              <tbody className="text-slate-200">
+          <CardContent className="space-y-4">
+            <Table tone="dark">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>日時</TableHead>
+                  <TableHead>操作</TableHead>
+                  <TableHead>組織</TableHead>
+                  <TableHead>操作者</TableHead>
+                  <TableHead>対象</TableHead>
+                  <TableHead>プロバイダ</TableHead>
+                  <TableHead>状態</TableHead>
+                  <TableHead>追加情報</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {logs.map((log) => {
                   const status = getStatusBadge(log);
                   const orgLabel =
@@ -348,22 +364,25 @@ export default async function AdminAuditLogsPage({
                   const metadataPreview = formatMetadataPreview(log.metadata ?? {});
                   const metadataText = JSON.stringify(log.metadata ?? {}, null, 2);
                   return (
-                    <tr key={log.id} className="border-b border-slate-800">
-                      <td className="py-3 pr-4 text-slate-300">
+                    <TableRow key={log.id}>
+                      <TableCell className="text-slate-300">
                         {formatDate(log.createdAt)}
-                      </td>
-                      <td className="py-3 pr-4 text-slate-100">
+                      </TableCell>
+                      <TableCell className="text-slate-100">
                         {actionLabels[log.action] ?? log.action}
-                      </td>
-                      <td className="py-3 pr-4 text-slate-300">{orgLabel}</td>
-                      <td className="py-3 pr-4 text-slate-300">
+                      </TableCell>
+                      <TableCell className="text-slate-300">{orgLabel}</TableCell>
+                      <TableCell className="text-slate-300">
                         {log.actorEmail ?? log.actorUserId ?? "不明"}
-                      </td>
-                      <td className="py-3 pr-4 text-slate-300">{targetLabel}</td>
-                      <td className="py-3 pr-4">
+                      </TableCell>
+                      <TableCell className="text-slate-300">{targetLabel}</TableCell>
+                      <TableCell className="text-slate-300">
+                        {resolveProviderLabel(log.metadata ?? {})}
+                      </TableCell>
+                      <TableCell>
                         <Badge variant={status.variant}>{status.label}</Badge>
-                      </td>
-                      <td className="py-3 pr-4 text-slate-300">
+                      </TableCell>
+                      <TableCell className="text-slate-300">
                         <details>
                           <summary className="cursor-pointer text-slate-200 hover:text-slate-100">
                             {metadataPreview}
@@ -372,28 +391,18 @@ export default async function AdminAuditLogsPage({
                             {metadataText}
                           </pre>
                         </details>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
-            <div className="mt-4 flex items-center justify-between text-sm text-slate-300">
-              <div>
-                {page > 1 && (
-                  <a href={buildPageLink(page - 1)} className={secondaryLink}>
-                    前へ
-                  </a>
-                )}
-              </div>
-              <div>
-                {hasNext && (
-                  <a href={buildPageLink(page + 1)} className={secondaryLink}>
-                    次へ
-                  </a>
-                )}
-              </div>
-            </div>
+              </TableBody>
+            </Table>
+            <Pagination
+              tone="dark"
+              summary={`ページ ${page}（${pageSize}件/ページ）`}
+              prevHref={prevHref}
+              nextHref={nextHref}
+            />
           </CardContent>
         </Card>
       )}

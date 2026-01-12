@@ -1,11 +1,23 @@
 import Link from "next/link";
+import { Fragment } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { Pagination } from "@/components/ui/pagination";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { buildHrefWithParams } from "@/lib/pagination";
 import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
 import { ProviderType } from "@/server/providers/types";
@@ -152,31 +164,20 @@ export default async function ReviewsInboxPage({
     1,
     Math.ceil(inboxPage.total / inboxPage.pageSize)
   );
-  const queryParams = new URLSearchParams();
-  if (resolvedSearchParams.q) {
-    queryParams.set("q", resolvedSearchParams.q);
-  }
-  if (provider !== "all") {
-    queryParams.set("provider", provider);
-  }
-  if (locationId) {
-    queryParams.set("locationId", locationId);
-  }
-  if (period !== "all") {
-    queryParams.set("period", period);
-  }
-  if (onlyUnreplied) {
-    queryParams.set("unreplied", "1");
-  }
-
-  const prevQuery = new URLSearchParams(queryParams);
-  const nextQuery = new URLSearchParams(queryParams);
-  if (page > 1) {
-    prevQuery.set("page", String(page - 1));
-  }
-  if (page < totalPages) {
-    nextQuery.set("page", String(page + 1));
-  }
+  const basePath = "/app/reviews";
+  const prevHref =
+    page > 1
+      ? buildHrefWithParams(basePath, resolvedSearchParams, {
+          page: page - 1,
+        })
+      : null;
+  const nextHref =
+    page < totalPages
+      ? buildHrefWithParams(basePath, resolvedSearchParams, {
+          page: page + 1,
+        })
+      : null;
+  const pageSummary = `全${inboxPage.total}件 / ${page} / ${totalPages}ページ`;
 
   return (
     <div className="space-y-8">
@@ -266,116 +267,122 @@ export default async function ReviewsInboxPage({
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">レビュー一覧</h2>
-        <Badge variant="default">{inboxPage.total}件</Badge>
-      </div>
-
-      <div className="space-y-4">
-        {inboxPage.items.map((review) => {
-          const isGoogle =
-            review.provider === ProviderType.GoogleBusinessProfile;
-          const replyBadge = review.reply
-            ? { label: "返信済み", variant: "success" as const }
-            : { label: "未返信", variant: "warning" as const };
-          return (
-            <Card key={review.id} tone="light">
-              <CardContent className="space-y-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-base font-semibold text-slate-900">
-                      {review.locationName}
-                    </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                      <Badge variant="muted">{providerLabel(review.provider)}</Badge>
-                      <span>★ {formatRating(review.rating)}</span>
-                      <span>{formatDate(review.createdAt)}</span>
-                      <Badge variant={replyBadge.variant}>{replyBadge.label}</Badge>
-                    </div>
-                  </div>
-                  <Link
-                    href={`/app/locations/${review.locationId}`}
-                    className="text-sm font-semibold text-amber-700 underline"
-                  >
-                    ロケーション詳細へ
-                  </Link>
-                </div>
-
-                <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-base text-slate-800">
-                  <p className="text-sm font-semibold text-slate-600">
-                    投稿者: {review.author ?? "不明"}
-                  </p>
-                  <p className="mt-2 whitespace-pre-wrap text-base leading-relaxed text-slate-800">
-                    {review.comment ?? "本文がありません。"}
-                  </p>
-                </div>
-
-                {isGoogle ? (
-                  <div className="space-y-2">
-                    {!canReply && !review.reply && (
-                      <p className="text-sm text-slate-500">
-                        返信は管理者のみ操作できます。
-                      </p>
-                    )}
-                    <ReviewInboxReplyForm
-                      locationId={review.locationId}
-                      reviewId={review.id}
-                      canEdit={canReply}
-                      existingReply={review.reply}
-                    />
-                  </div>
-                ) : (
-                  <Card tone="amber">
-                    <CardContent className="text-sm text-amber-100">
-                      <p className="font-semibold">Metaの返信は未対応</p>
-                      <p className="mt-1 text-amber-100/80">
-                        現時点ではGoogleレビューのみ返信できます。
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-        {inboxPage.items.length === 0 && (
-          <p className="text-base text-slate-600">
-            条件に一致するレビューがありません。
-          </p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-        <p>
-          {page} / {totalPages} ページ
-        </p>
-        <div className="flex items-center gap-2">
-          {page > 1 ? (
-            <Link
-              href={`/app/reviews?${prevQuery.toString()}`}
-              className={actionLinkSecondary}
-            >
-              前へ
-            </Link>
+      <Card tone="light">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">レビュー一覧</h2>
+            <Badge variant="default">{inboxPage.total}件</Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {inboxPage.items.length === 0 ? (
+            <EmptyState
+              title="条件に一致するレビューがありません。"
+              description="レビュー同期を実行するか、条件を調整してください。"
+              actions={
+                <Link href="/app/locations" className={actionLinkSecondary}>
+                  ロケーションへ
+                </Link>
+              }
+            />
           ) : (
-            <span className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-100 bg-slate-50 px-4 text-sm text-slate-400">
-              前へ
-            </span>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>日時</TableHead>
+                  <TableHead>ロケーション</TableHead>
+                  <TableHead>プロバイダ</TableHead>
+                  <TableHead>評価</TableHead>
+                  <TableHead>投稿者</TableHead>
+                  <TableHead>状態</TableHead>
+                  <TableHead>操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {inboxPage.items.map((review) => {
+                  const isGoogle =
+                    review.provider === ProviderType.GoogleBusinessProfile;
+                  const replyBadge = review.reply
+                    ? { label: "返信済み", variant: "success" as const }
+                    : { label: "未返信", variant: "warning" as const };
+                  return (
+                    <Fragment key={review.id}>
+                      <TableRow>
+                        <TableCell className="whitespace-nowrap">
+                          {formatDate(review.createdAt)}
+                        </TableCell>
+                        <TableCell>{review.locationName}</TableCell>
+                        <TableCell>
+                          <Badge variant="muted">
+                            {providerLabel(review.provider)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>★ {formatRating(review.rating)}</TableCell>
+                        <TableCell>{review.author ?? "不明"}</TableCell>
+                        <TableCell>
+                          <Badge variant={replyBadge.variant}>
+                            {replyBadge.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/app/locations/${review.locationId}`}
+                            className="text-sm font-semibold text-amber-700 underline"
+                          >
+                            ロケーション詳細へ
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="bg-slate-50/40 hover:bg-slate-50/40">
+                        <TableCell colSpan={7} className="space-y-4">
+                          <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-base text-slate-800">
+                            <p className="text-sm font-semibold text-slate-600">
+                              投稿者: {review.author ?? "不明"}
+                            </p>
+                            <p className="mt-2 whitespace-pre-wrap text-base leading-relaxed text-slate-800">
+                              {review.comment ?? "本文がありません。"}
+                            </p>
+                          </div>
+                          {isGoogle ? (
+                            <div className="space-y-2">
+                              {!canReply && !review.reply && (
+                                <p className="text-sm text-slate-500">
+                                  返信は管理者のみ操作できます。
+                                </p>
+                              )}
+                              <ReviewInboxReplyForm
+                                locationId={review.locationId}
+                                reviewId={review.id}
+                                canEdit={canReply}
+                                existingReply={review.reply}
+                              />
+                            </div>
+                          ) : (
+                            <Card tone="amber">
+                              <CardContent className="text-sm text-amber-100">
+                                <p className="font-semibold">Metaの返信は未対応</p>
+                                <p className="mt-1 text-amber-100/80">
+                                  現時点ではGoogleレビューのみ返信できます。
+                                </p>
+                              </CardContent>
+                            </Card>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    </Fragment>
+                  );
+                })}
+              </TableBody>
+            </Table>
           )}
-          {page < totalPages ? (
-            <Link
-              href={`/app/reviews?${nextQuery.toString()}`}
-              className={actionLinkSecondary}
-            >
-              次へ
-            </Link>
-          ) : (
-            <span className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-slate-100 bg-slate-50 px-4 text-sm text-slate-400">
-              次へ
-            </span>
-          )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
+
+      <Pagination
+        summary={pageSummary}
+        prevHref={prevHref}
+        nextHref={nextHref}
+      />
     </div>
   );
 }
