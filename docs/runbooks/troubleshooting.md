@@ -16,6 +16,10 @@
 - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` を再確認
 - SupabaseのAuth設定が有効か確認
 
+## Supabaseマイグレーション詰まり
+- `SQLSTATE 42710: type already exists` や `migration history mismatch` など
+- `docs/runbooks/supabase-migrations-troubleshooting.md` を参照
+
 ## 暗号化エラー
 - `TOKEN_ENCRYPTION_KEY` が32バイトか確認
 - 変更した場合は既存トークンを再認可して再保存

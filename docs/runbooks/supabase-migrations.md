@@ -1,4 +1,4 @@
-# Supabaseマイグレーション適用手順
+# Supabaseマイグレーション適用手順（CLI推奨）
 
 ## 目的
 - DBマイグレーションの未適用を防ぎ、管理機能が止まらないようにする
@@ -14,41 +14,31 @@
 - `supabase/migrations/0007_job_schedules.sql`
 - `supabase/migrations/0008_job_runs_running_unique.sql`
 
-## 適用方法A: SQL Editor（推奨）
-1) Supabaseダッシュボードを開く  
-2) **SQL Editor** → **New query**  
-3) `supabase/migrations/0001_init.sql` を全文貼り付け  
-4) **Run** を実行  
-5) 続けて `supabase/migrations/0002_user_blocks.sql` を貼り付け  
-6) **Run** を実行  
-7) 続けて `supabase/migrations/0003_audit_logs_indexes.sql` を貼り付け  
-8) **Run** を実行  
-9) 続けて `supabase/migrations/0004_setup_progress.sql` を貼り付け  
-10) **Run** を実行  
-11) 続けて `supabase/migrations/0005_media_assets.sql` を貼り付け  
-12) **Run** を実行  
-13) 続けて `supabase/migrations/0006_job_runs.sql` を貼り付け  
-14) **Run** を実行  
-15) 続けて `supabase/migrations/0007_job_schedules.sql` を貼り付け  
-16) **Run** を実行  
-17) 続けて `supabase/migrations/0008_job_runs_running_unique.sql` を貼り付け  
-18) **Run** を実行  
-
-## 適用方法B: Supabase CLI（任意）
+## 推奨: Supabase CLIで統一
 1) CLIをインストール  
 ```bash
 npm i -g supabase
+```
+2) ログイン  
+```bash
 supabase login
 ```
-2) プロジェクトをリンク  
+3) プロジェクトを初期化  
 ```bash
 supabase init
+```
+4) プロジェクトをリンク  
+```bash
 supabase link --project-ref <プロジェクトREF>
 ```
-3) マイグレーション適用  
+5) マイグレーション適用  
 ```bash
 supabase db push
 ```
+
+## SQL Editorの手動適用について（非推奨）
+- 原則使用しません。CLIで統一してください。  
+- どうしても詰まる場合は `docs/runbooks/supabase-migrations-troubleshooting.md` を参照してください。  
 
 ## 適用後の確認
 - `/admin/diagnostics` で **マイグレーション: 適用済み** を確認  
@@ -60,39 +50,11 @@ supabase db push
 - `/admin/diagnostics` で **job_schedules: 適用済み** を確認  
 - `/admin/diagnostics` で **job_runs 重複防止: 適用済み** を確認  
 
-## よくある失敗
-### `relation "user_blocks" does not exist`
-- `0002_user_blocks.sql` が未適用  
-- SQL Editorで `0002_user_blocks.sql` を再実行する  
+## よくある詰まり
+- `SQLSTATE 42710: type already exists`  
+- `migration history mismatch`  
+- `relation does not exist`  
+→ `docs/runbooks/supabase-migrations-troubleshooting.md` を参照してください  
 
-### `column "reason" does not exist`
-- `user_blocks` はあるがカラム不足  
-- `0002_user_blocks.sql` を再適用する  
-
-### `監査ログのインデックス判定関数が見つかりません`
-- `0003_audit_logs_indexes.sql` が未適用  
-- SQL Editorで `0003_audit_logs_indexes.sql` を実行する  
-
-### `setup_progress テーブルが見つかりません`
-- `0004_setup_progress.sql` が未適用  
-- SQL Editorで `0004_setup_progress.sql` を実行する  
-
-### `media_assets テーブルが見つかりません`
-- `0005_media_assets.sql` が未適用  
-- SQL Editorで `0005_media_assets.sql` を実行する  
-
-### `job_runs テーブルが見つかりません`
-- `0006_job_runs.sql` が未適用  
-- SQL Editorで `0006_job_runs.sql` を実行する  
-
-### `job_schedules テーブルが見つかりません`
-- `0007_job_schedules.sql` が未適用  
-- SQL Editorで `0007_job_schedules.sql` を実行する  
-
-### `job_runs の重複防止インデックスが未適用`
-- `0008_job_runs_running_unique.sql` が未適用  
-- SQL Editorで `0008_job_runs_running_unique.sql` を実行する  
-
-### Supabaseキー未設定
-- `.env.local` の `SUPABASE_SERVICE_ROLE_KEY` を確認する  
-- `NEXT_PUBLIC_SUPABASE_URL` も合わせて確認する  
+## 補足
+- `.env.local` の `SUPABASE_SERVICE_ROLE_KEY` / `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` を確認  

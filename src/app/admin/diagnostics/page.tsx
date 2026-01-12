@@ -712,6 +712,12 @@ export default async function AdminDiagnosticsPage() {
                   >
                     適用手順を確認する
                   </a>
+                  <a
+                    href="/docs/runbooks/supabase-migrations-troubleshooting"
+                    className={adminActionSecondaryClass}
+                  >
+                    詰まり対応を見る
+                  </a>
                 </div>
               </Callout>
             )}
