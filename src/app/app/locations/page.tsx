@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
@@ -79,7 +81,7 @@ export default async function LocationsPage({
           <h2 className="text-lg font-semibold text-slate-900">
             ロケーション新規作成
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-500">
             ロケーションを追加してプロバイダ連携の対象を増やします。
           </p>
         </CardHeader>
@@ -108,7 +110,7 @@ export default async function LocationsPage({
                 <p className="text-sm font-semibold text-slate-900">
                   {location.name}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm text-slate-500">
                   {location.address ?? "住所が未登録です"}
                 </p>
               </Link>
@@ -126,27 +128,31 @@ export default async function LocationsPage({
             <h2 className="text-lg font-semibold text-slate-900">
               地図検索
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-sm text-slate-500">
               住所候補を検索してロケーション登録を補助します。
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <form className="space-y-3" method="get">
-              <Select name="provider" defaultValue={providerValue}>
-                {searchProviders.map((provider) => (
-                  <option key={provider.value} value={provider.value}>
-                    {provider.label}
-                  </option>
-                ))}
-              </Select>
-              <Input
-                name="query"
-                placeholder="店舗名や住所を入力"
-                defaultValue={resolvedSearchParams.query}
-              />
-              <button className="h-10 w-full rounded-md bg-slate-900 text-sm font-semibold text-white">
+              <FormField label="検索プロバイダ">
+                <Select name="provider" defaultValue={providerValue}>
+                  {searchProviders.map((provider) => (
+                    <option key={provider.value} value={provider.value}>
+                      {provider.label}
+                    </option>
+                  ))}
+                </Select>
+              </FormField>
+              <FormField label="キーワード">
+                <Input
+                  name="query"
+                  placeholder="店舗名や住所を入力"
+                  defaultValue={resolvedSearchParams.query}
+                />
+              </FormField>
+              <Button type="submit" className="w-full">
                 検索する
-              </button>
+              </Button>
             </form>
 
             <div className="space-y-2">
@@ -155,19 +161,19 @@ export default async function LocationsPage({
                   key={result.id}
                   className="rounded-md border border-slate-200 bg-white px-3 py-2"
                 >
-                  <p className="text-xs font-semibold text-slate-900">
+                  <p className="text-sm font-semibold text-slate-900">
                     {result.name}
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-sm text-slate-500">
                     {result.address ?? "住所情報なし"}
                   </p>
                 </div>
               ))}
               {searchError && (
-                <p className="text-xs text-amber-600">{searchError}</p>
+                <p className="text-sm text-amber-600">{searchError}</p>
               )}
               {results.length === 0 && resolvedSearchParams.query && (
-                <p className="text-xs text-slate-500">
+                <p className="text-sm text-slate-500">
                   結果がありません。別のキーワードを試してください。
                 </p>
               )}

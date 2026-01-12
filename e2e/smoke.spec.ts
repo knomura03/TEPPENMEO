@@ -7,7 +7,7 @@ test("認証画面が表示される", async ({ page }) => {
 
 test("ロケーション画面はサインインまたはロケーションが表示される", async ({
   page,
-}) => {
+}, testInfo) => {
   await page.goto("/app/locations", { waitUntil: "domcontentloaded" });
   const hasLocations = await page
     .getByRole("heading", { name: "ロケーション", exact: true })
@@ -16,6 +16,12 @@ test("ロケーション画面はサインインまたはロケーションが�
     .getByRole("heading", { name: "サインイン", exact: true })
     .isVisible();
 
+  const screenshot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("app-locations-ui-primitives", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+
   expect(hasLocations || hasSignIn).toBeTruthy();
 });
 
@@ -23,12 +29,11 @@ test(
   "管理診断はサインインまたは診断が表示される",
   async ({ page }, testInfo) => {
   await page.goto("/admin/diagnostics", { waitUntil: "domcontentloaded" });
-  const hasDiagnostics = await page
-    .getByRole("heading", { name: "診断" })
-    .isVisible();
-  const hasSignIn = await page
-    .getByRole("heading", { name: "サインイン" })
-    .isVisible();
+  const hasDiagnostics =
+    (await page.getByRole("heading", { name: "診断" }).count()) > 0;
+  const hasSignIn =
+    (await page.getByRole("heading", { name: "サインイン", exact: true }).count()) >
+    0;
 
   const screenshot = await page.screenshot({ fullPage: true });
   await testInfo.attach("admin-diagnostics-design", {
@@ -443,6 +448,10 @@ test(
 
   const composerShot = await page.screenshot({ fullPage: true });
   await testInfo.attach("app-location-post-composer", {
+    body: composerShot,
+    contentType: "image/png",
+  });
+  await testInfo.attach("app-location-detail-ui-primitives", {
     body: composerShot,
     contentType: "image/png",
   });

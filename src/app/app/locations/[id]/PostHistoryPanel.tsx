@@ -4,8 +4,11 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonStyles } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import type { MediaItem } from "@/server/services/media";
 import type {
   PostHistoryItem,
@@ -386,7 +389,7 @@ export function PostHistoryPanel(props: {
     return (
       <div
         key={key}
-        className="flex h-24 w-36 flex-col items-center justify-center rounded-md border border-slate-200 bg-slate-50 p-2 text-[11px] text-slate-500"
+        className="flex h-24 w-36 flex-col items-center justify-center rounded-md border border-slate-200 bg-slate-50 p-2 text-sm text-slate-500"
       >
         <span>{state.status === "loading" ? "プレビュー取得中" : "プレビュー未取得"}</span>
         {state.status === "error" && (
@@ -395,7 +398,7 @@ export function PostHistoryPanel(props: {
         <button
           type="button"
           onClick={() => requestSignedUrl(ref)}
-          className="mt-1 text-[11px] text-slate-700 underline"
+          className={buttonStyles({ variant: "link", size: "sm", className: "mt-1 px-0" })}
         >
           プレビュー取得
         </button>
@@ -408,7 +411,7 @@ export function PostHistoryPanel(props: {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">投稿履歴</h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-500">
             検索・フィルタ・ページ送りで投稿を探せます。
           </p>
         </div>
@@ -417,15 +420,11 @@ export function PostHistoryPanel(props: {
       <Card tone="light">
         <CardContent className="space-y-3">
           <div className="grid gap-3 md:grid-cols-3">
-            <div className="space-y-1">
-              <label className="text-[11px] font-semibold text-slate-600">
-                本文検索
-              </label>
-              <input
+            <FormField label="本文検索">
+              <Input
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
                 placeholder="本文の一部"
-                className="h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-xs text-slate-700"
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
                     event.preventDefault();
@@ -433,13 +432,9 @@ export function PostHistoryPanel(props: {
                   }
                 }}
               />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[11px] font-semibold text-slate-600">
-                状態
-              </label>
-              <select
-                className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-xs"
+            </FormField>
+            <FormField label="状態">
+              <Select
                 value={statusDraft}
                 onChange={(event) =>
                   setStatusDraft(event.target.value as PostHistoryStatus)
@@ -450,14 +445,10 @@ export function PostHistoryPanel(props: {
                     {option.label}
                   </option>
                 ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-[11px] font-semibold text-slate-600">
-                対象
-              </label>
-              <select
-                className="h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-xs"
+              </Select>
+            </FormField>
+            <FormField label="対象">
+              <Select
                 value={targetDraft}
                 onChange={(event) =>
                   setTargetDraft(event.target.value as PostHistoryTarget)
@@ -468,8 +459,8 @@ export function PostHistoryPanel(props: {
                     {option.label}
                   </option>
                 ))}
-              </select>
-            </div>
+              </Select>
+            </FormField>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -484,7 +475,7 @@ export function PostHistoryPanel(props: {
             >
               クリア
             </Button>
-            <div className="ml-auto text-xs text-slate-500">
+            <div className="ml-auto text-sm text-slate-500">
               全{total}件 / {page} / {totalPages}
             </div>
           </div>
@@ -500,7 +491,7 @@ export function PostHistoryPanel(props: {
           )}
 
           {errorMessage && (
-            <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
               {errorMessage}
             </div>
           )}
@@ -509,7 +500,7 @@ export function PostHistoryPanel(props: {
 
       {posts.length === 0 && !isLoading ? (
         <Card tone="light">
-          <CardContent className="text-xs text-slate-500">
+          <CardContent className="text-sm text-slate-500">
             投稿履歴がありません。
           </CardContent>
         </Card>
@@ -525,7 +516,7 @@ export function PostHistoryPanel(props: {
                 <CardContent className="space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-sm text-slate-500">
                         作成日時: {formatDate(post.createdAt)}
                       </p>
                       <p className="mt-2 text-sm font-semibold text-slate-900">
@@ -536,23 +527,23 @@ export function PostHistoryPanel(props: {
                     <Badge variant={status.variant}>{status.label}</Badge>
                   </div>
 
-                  <details className="text-xs text-slate-500">
+                  <details className="text-sm text-slate-500">
                     <summary className="cursor-pointer text-slate-700">
                       投稿本文を表示
                     </summary>
-                    <p className="mt-2 whitespace-pre-wrap rounded-md border border-slate-200 bg-slate-50 p-2 text-xs text-slate-700">
+                    <p className="mt-2 whitespace-pre-wrap rounded-md border border-slate-200 bg-slate-50 p-2 text-sm text-slate-700">
                       {post.content}
                     </p>
                   </details>
 
                   <div className="grid gap-3 md:grid-cols-2">
                     <div>
-                      <p className="text-xs font-semibold text-slate-700">
+                      <p className="text-sm font-semibold text-slate-700">
                         対象プロバイダ
                       </p>
                       <div className="mt-2 space-y-2">
                         {post.targets.length === 0 ? (
-                          <p className="text-xs text-slate-500">対象なし</p>
+                          <p className="text-sm text-slate-500">対象なし</p>
                         ) : (
                           post.targets.map((target, index) => {
                             const targetKey = extractTargetKey(target);
@@ -610,7 +601,7 @@ export function PostHistoryPanel(props: {
                                 className="rounded-md border border-slate-200 bg-slate-50 p-3"
                               >
                                 <div className="flex flex-wrap items-center justify-between gap-2">
-                                  <p className="text-xs font-semibold text-slate-700">
+                                  <p className="text-sm font-semibold text-slate-700">
                                     {providerLabel}
                                     {targetLabel ? ` / ${targetLabel}` : ""}
                                   </p>
@@ -619,7 +610,7 @@ export function PostHistoryPanel(props: {
                                   </Badge>
                                 </div>
                                 {target.error && (
-                                  <div className="mt-2 text-[11px] text-amber-700">
+                                  <div className="mt-2 text-sm text-amber-700">
                                     <p>原因: {target.error}</p>
                                     <p>
                                       次にやること: {resolveNextAction(target.error)}
@@ -627,11 +618,10 @@ export function PostHistoryPanel(props: {
                                   </div>
                                 )}
                                 {target.status === "failed" && targetKey && (
-                                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+                                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                                     <Button
                                       type="button"
                                       variant="secondary"
-                                      className="h-7 px-2 text-[11px]"
                                       disabled={
                                         !canRetryTarget ||
                                         retryStatus.status === "loading"
@@ -666,10 +656,10 @@ export function PostHistoryPanel(props: {
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-slate-700">画像</p>
+                      <p className="text-sm font-semibold text-slate-700">画像</p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {post.media.length === 0 ? (
-                          <p className="text-xs text-slate-500">画像なし</p>
+                          <p className="text-sm text-slate-500">画像なし</p>
                         ) : (
                           post.media.map((media, index) =>
                             renderMediaPreview(media, `${post.id}-${index}`)
@@ -685,7 +675,7 @@ export function PostHistoryPanel(props: {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500">
         <span>
           {total}件中 {posts.length}件を表示
         </span>
@@ -693,7 +683,6 @@ export function PostHistoryPanel(props: {
           <Button
             type="button"
             variant="secondary"
-            className="h-8 px-3 text-xs"
             disabled={!hasPrev || isLoading}
             onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           >
@@ -702,7 +691,6 @@ export function PostHistoryPanel(props: {
           <Button
             type="button"
             variant="secondary"
-            className="h-8 px-3 text-xs"
             disabled={!hasNext || isLoading}
             onClick={() => setPage((prev) => prev + 1)}
           >

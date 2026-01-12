@@ -67,10 +67,20 @@ Do:
 - error がある場合は aria-invalid を true にする
 - Button は variant/size を指定し、md は 44px 以上を満たす
 - 重要導線は Button を使い、Link には buttonStyles を使う
+- 送信中は loading 表示、無効時は disabled 表示を統一する
 
 Don't:
 - ラベル無しの入力を置かない
 - エラー表示を input の近くに出さない
+
+## FilterBar運用
+Do:
+- 「適用」「リセット」は Button / buttonStyles に統一する
+- FilterBar内の入力は FormField に寄せる
+- 送信不可の理由は近くに短く表示する
+
+Don't:
+- ページごとに適用/リセットの文言や位置を変えない
 
 ## 文言（日本語UIコピー）
 Do:
