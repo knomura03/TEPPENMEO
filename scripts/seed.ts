@@ -2,6 +2,9 @@ import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
+import "./_load-env";
+import { formatSeedEnvErrors, type EnvIssue } from "../src/lib/seed-env";
+
 const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
@@ -9,12 +12,33 @@ const envSchema = z.object({
   SYSTEM_ADMIN_PASSWORD: z.string().min(8).optional(),
 });
 
-const env = envSchema.parse({
+const rawEnv = {
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   SYSTEM_ADMIN_EMAIL: process.env.SYSTEM_ADMIN_EMAIL,
   SYSTEM_ADMIN_PASSWORD: process.env.SYSTEM_ADMIN_PASSWORD,
-});
+};
+
+const parsed = envSchema.safeParse(rawEnv);
+if (!parsed.success) {
+  const issueMap: Record<string, EnvIssue> = {};
+  parsed.error.issues.forEach((issue) => {
+    const key = issue.path[0];
+    if (typeof key !== "string") return;
+    if (issue.code === "invalid_type") {
+      const value = rawEnv[key as keyof typeof rawEnv];
+      if (value === undefined) {
+        issueMap[key] = "missing";
+        return;
+      }
+    }
+    issueMap[key] = "invalid";
+  });
+  console.error(formatSeedEnvErrors(issueMap));
+  process.exit(1);
+}
+
+const env = parsed.data;
 
 const supabase = createClient(
   env.NEXT_PUBLIC_SUPABASE_URL,
