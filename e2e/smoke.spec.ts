@@ -60,6 +60,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-diagnostics-public-metadata", {
+    body: screenshot,
+    contentType: "image/png",
+  });
   await testInfo.attach("admin-diagnostics-providers", {
     body: screenshot,
     contentType: "image/png",

@@ -5,6 +5,7 @@
 - [ ] 利用規約: `/terms`
 - [ ] データ削除手順: `/data-deletion`（Meta審査で要求される場合あり）
 - [ ] APP_BASE_URL に公開ドメインを設定し、各URLが閲覧できる
+- [ ] 運営者/連絡先（PUBLIC_OPERATOR_NAME / PUBLIC_CONTACT_EMAIL）が設定済み
 
 ## ドメインとリダイレクトURI
 - [ ] staging/prod のドメインが確定している

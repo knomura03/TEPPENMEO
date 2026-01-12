@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { adminActionSecondaryClass } from "@/components/ui/FilterBar";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getSessionUser } from "@/server/auth/session";
+import { getPublicSiteMetadata } from "@/server/public-site/metadata";
 import { ProviderType } from "@/server/providers/types";
 import {
   checkAuditLogsIndexes,
@@ -200,6 +201,9 @@ export default async function AdminDiagnosticsPage() {
   const autoSyncCount = await countEnabledJobSchedules({
     jobKey: "gbp_reviews_bulk_sync",
   });
+  const publicMetadata = getPublicSiteMetadata();
+  const publicInfoSet =
+    Boolean(publicMetadata.operatorName) && Boolean(publicMetadata.contactEmail);
 
   const nextSteps: string[] = [];
   if (envError) {
@@ -418,19 +422,35 @@ export default async function AdminDiagnosticsPage() {
             プライバシー/規約/データ削除の公開ページを確認できます。
           </p>
         </CardHeader>
-        <CardContent className="grid gap-2 text-sm text-slate-800 sm:grid-cols-2">
-          <Link className="text-blue-700 underline" href="/">
-            公開トップページ
-          </Link>
-          <Link className="text-blue-700 underline" href="/privacy">
-            プライバシーポリシー
-          </Link>
-          <Link className="text-blue-700 underline" href="/terms">
-            利用規約
-          </Link>
-          <Link className="text-blue-700 underline" href="/data-deletion">
-            データ削除手順
-          </Link>
+        <CardContent className="grid gap-3 text-sm text-slate-800 sm:grid-cols-2">
+          <div className="space-y-1">
+            <p className="font-semibold">運営者/連絡先</p>
+            <Badge variant={publicInfoSet ? "success" : "warning"}>
+              {publicInfoSet ? "設定済み" : "未設定"}
+            </Badge>
+            {!publicInfoSet && (
+              <p className="text-xs text-slate-600">
+                PUBLIC_OPERATOR_NAME / PUBLIC_CONTACT_EMAIL を設定してください。
+              </p>
+            )}
+          </div>
+          <div className="space-y-1">
+            <p className="font-semibold">公開ページ</p>
+            <div className="flex flex-col gap-1">
+              <Link className="text-blue-700 underline" href="/">
+                公開トップ
+              </Link>
+              <Link className="text-blue-700 underline" href="/privacy">
+                プライバシーポリシー
+              </Link>
+              <Link className="text-blue-700 underline" href="/terms">
+                利用規約
+              </Link>
+              <Link className="text-blue-700 underline" href="/data-deletion">
+                データ削除
+              </Link>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

@@ -3,8 +3,10 @@ import Link from "next/link";
 import { Callout } from "@/components/ui/Callout";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getPublicSiteMetadata } from "@/server/public-site/metadata";
 
 export default function DataDeletionPage() {
+  const metadata = getPublicSiteMetadata();
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-12">
@@ -28,11 +30,27 @@ export default function DataDeletionPage() {
 
             <section className="space-y-2">
               <h2 className="text-base font-semibold text-slate-900">2. 依頼方法</h2>
-              <Callout title="連絡先は未指定です" tone="warning">
-                <p className="text-sm text-slate-700">
-                  削除依頼の受付窓口が未指定のため、確定後に更新します。
-                </p>
-              </Callout>
+              {metadata.contactEmail ? (
+                <Callout title="削除依頼窓口" tone="info">
+                  <p className="text-sm text-slate-700">
+                    運営者: {metadata.operatorName ?? "未指定"} / 連絡先メール: {metadata.contactEmail}
+                  </p>
+                  {metadata.contactUrl && (
+                    <p className="text-sm text-slate-700">
+                      問い合わせURL:{" "}
+                      <Link className="text-blue-700 underline" href={metadata.contactUrl}>
+                        お問い合わせフォーム
+                      </Link>
+                    </p>
+                  )}
+                </Callout>
+              ) : (
+                <Callout title="連絡先は未指定です" tone="warning">
+                  <p className="text-sm text-slate-700">
+                    削除依頼の受付窓口が未設定です。環境変数で設定してください。
+                  </p>
+                </Callout>
+              )}
               <p>暫定措置: 管理者から削除依頼を受けた場合、手動で処理します。</p>
             </section>
 

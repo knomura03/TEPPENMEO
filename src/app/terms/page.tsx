@@ -3,8 +3,10 @@ import Link from "next/link";
 import { Callout } from "@/components/ui/Callout";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getPublicSiteMetadata } from "@/server/public-site/metadata";
 
 export default function TermsPage() {
+  const metadata = getPublicSiteMetadata();
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-12">
@@ -54,11 +56,34 @@ export default function TermsPage() {
 
             <section className="space-y-2">
               <h2 className="text-base font-semibold text-slate-900">7. お問い合わせ</h2>
-              <Callout title="連絡先は未指定です" tone="warning">
-                <p className="text-sm text-slate-700">
-                  運営者情報と連絡先が確定していないため、確定後に更新します。
-                </p>
-              </Callout>
+              {metadata.contactEmail ? (
+                <Callout title="お問い合わせ" tone="info">
+                  <p className="text-sm text-slate-700">
+                    運営者: {metadata.operatorName ?? "未指定"} / 連絡先メール: {metadata.contactEmail}
+                  </p>
+                  {metadata.contactUrl && (
+                    <p className="text-sm text-slate-700">
+                      問い合わせURL:{" "}
+                      <Link className="text-blue-700 underline" href={metadata.contactUrl}>
+                        お問い合わせフォーム
+                      </Link>
+                    </p>
+                  )}
+                </Callout>
+              ) : (
+                <Callout title="連絡先は未指定です" tone="warning">
+                  <p className="text-sm text-slate-700">
+                    運営者情報と連絡先が未設定です。環境変数で設定してください。
+                  </p>
+                </Callout>
+              )}
+            </section>
+
+            <section className="space-y-2">
+              <h2 className="text-base font-semibold text-slate-900">8. 施行日</h2>
+              <p className="text-sm text-slate-700">
+                {metadata.termsEffectiveDate ?? "未指定（確定後に環境変数で設定してください）"}
+              </p>
             </section>
           </CardContent>
         </Card>
