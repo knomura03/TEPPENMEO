@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import { Callout } from "@/components/ui/Callout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -406,6 +408,29 @@ export default async function AdminDiagnosticsPage() {
             </a>
           </p>
           <p>- preflight: `pnpm preflight --mode mock|real` を実行</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <p className="text-sm font-semibold text-slate-900">審査/公開ページ</p>
+          <p className="text-sm text-slate-700">
+            プライバシー/規約/データ削除の公開ページを確認できます。
+          </p>
+        </CardHeader>
+        <CardContent className="grid gap-2 text-sm text-slate-800 sm:grid-cols-2">
+          <Link className="text-blue-700 underline" href="/">
+            公開トップページ
+          </Link>
+          <Link className="text-blue-700 underline" href="/privacy">
+            プライバシーポリシー
+          </Link>
+          <Link className="text-blue-700 underline" href="/terms">
+            利用規約
+          </Link>
+          <Link className="text-blue-700 underline" href="/data-deletion">
+            データ削除手順
+          </Link>
         </CardContent>
       </Card>
 

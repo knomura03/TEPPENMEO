@@ -19,6 +19,10 @@
 | ユーザー管理 | `/admin/users` | システム管理 | ユーザー管理 | 招待/テンプレ/無効化理由/削除/検索/フィルタ | admin-users-design / admin-users-table / admin-users-table-details |
 | 組織一覧 | `/admin/organizations` | システム管理 | 組織管理 | 一覧/遷移 | - |
 | 組織メンバー管理 | `/admin/organizations/[id]` | システム管理 | メンバー管理 | 追加/変更/削除 | - |
+| 公開トップ | `/` | 公開 | 概要/ログイン導線 | 公開情報確認 | public-home |
+| プライバシーポリシー | `/privacy` | 公開 | プライバシー表示 | 公開確認 | public-privacy |
+| 利用規約 | `/terms` | 公開 | 規約表示 | 公開確認 | public-terms |
+| データ削除 | `/data-deletion` | 公開 | 削除手順案内 | 公開確認 | public-data-deletion |
 
 ## 画面遷移の基本
 - 未ログイン時は `/auth/sign-in` へ誘導

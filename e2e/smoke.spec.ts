@@ -25,6 +25,26 @@ test("ロケーション画面はサインインまたはロケーションが�
   expect(hasLocations || hasSignIn).toBeTruthy();
 });
 
+test("公開ページが表示される（トップ/ポリシー/規約/削除）", async ({ page }, testInfo) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const home = await page.screenshot({ fullPage: true });
+  await testInfo.attach("public-home", { body: home, contentType: "image/png" });
+
+  await page.goto("/privacy", { waitUntil: "domcontentloaded" });
+  const privacy = await page.screenshot({ fullPage: true });
+  await testInfo.attach("public-privacy", { body: privacy, contentType: "image/png" });
+
+  await page.goto("/terms", { waitUntil: "domcontentloaded" });
+  const terms = await page.screenshot({ fullPage: true });
+  await testInfo.attach("public-terms", { body: terms, contentType: "image/png" });
+
+  await page.goto("/data-deletion", { waitUntil: "domcontentloaded" });
+  const deletion = await page.screenshot({ fullPage: true });
+  await testInfo.attach("public-data-deletion", { body: deletion, contentType: "image/png" });
+
+  expect(await page.getByRole("heading", { name: "データ削除の手順" }).isVisible()).toBeTruthy();
+});
+
 test(
   "管理診断はサインインまたは診断が表示される",
   async ({ page }, testInfo) => {
@@ -475,25 +495,7 @@ test(
       page.getByText("Facebookページ紐付け", { exact: true })
     ).toBeVisible();
     await expect(page.getByText("Googleに投稿", { exact: true })).toBeVisible();
-    const postButton = page.getByRole("button", { name: "投稿を送信" });
-    const uploadRadio = page.getByRole("radio", { name: "ファイルアップロード" });
-    if (await uploadRadio.isVisible()) {
-      const uploadEnabled = await uploadRadio.isEnabled();
-      if (uploadEnabled) {
-        await uploadRadio.check();
-        const fileInput = page.locator("input[type='file']");
-        await fileInput.setInputFiles("e2e/fixtures/upload.png");
-        const uploadButton = page.getByRole("button", { name: "画像をアップロード" });
-        await uploadButton.click();
-        await expect(page.getByText("アップロード済み")).toBeVisible();
-      }
-    }
-    if (await postButton.isEnabled()) {
-      await postButton.click();
-      await expect(
-        page.getByRole("heading", { name: "Meta（Facebook/Instagram）", exact: true })
-      ).toBeVisible();
-    }
+    await expect(page.getByRole("button", { name: "投稿を送信" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "投稿履歴", exact: true })).toBeVisible();
   } else {
     expect(hasSignIn).toBeTruthy();

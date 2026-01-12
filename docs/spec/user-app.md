@@ -9,6 +9,7 @@
 - セットアップ: `/app/setup`
 - ロケーション一覧: `/app/locations`
 - ロケーション詳細: `/app/locations/[id]`
+- 公開ページ: `/` `/privacy` `/terms` `/data-deletion`（審査用URLとして利用）
 
 ## 機能要件
 

@@ -20,6 +20,7 @@
 - `SQLSTATE 42710: type already exists` や `migration history mismatch` など
 - `docs/runbooks/supabase-migrations-troubleshooting.md` を参照
 - ローカル/リモートの違いは `docs/runbooks/supabase-local-vs-remote.md`
+- 審査準備: 公開ページの確認は `docs/runbooks/provider-review-prereqs.md`
 
 ## 暗号化エラー
 - `TOKEN_ENCRYPTION_KEY` が32バイトか確認
