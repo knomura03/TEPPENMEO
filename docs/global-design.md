@@ -82,6 +82,17 @@ Do:
 Don't:
 - ページごとに適用/リセットの文言や位置を変えない
 
+## Table / Pagination
+Do:
+- Tableは semanticな <table> を使い、行高・余白を統一する
+- ヘッダは `th` + `scope="col"` を必ず付与する
+- 0件時は EmptyState を使い、「次にやること」を提示する
+- Paginationはフィルタ条件を保持して遷移する（searchParamsを維持）
+
+Don't:
+- divテーブルでレイアウトしない
+- 空状態の説明を省略しない
+
 ## 文言（日本語UIコピー）
 Do:
 - 短く、次の行動が明確になる表現にする
