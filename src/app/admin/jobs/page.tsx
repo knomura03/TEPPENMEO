@@ -1,8 +1,4 @@
-import { Fragment } from "react";
-
-import { Badge } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
-import { Callout } from "@/components/ui/Callout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FilterBar } from "@/components/ui/FilterBar";
@@ -17,31 +13,7 @@ import {
 } from "@/components/ui/table";
 import { listJobRuns } from "@/server/services/jobs/job-runs";
 
-function formatDate(value: string | null) {
-  if (!value) return "未記録";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "不明";
-  return date.toLocaleString("ja-JP");
-}
-
-function formatCount(value: number | null | undefined) {
-  if (value === null || value === undefined) return "不明";
-  return value.toString();
-}
-
-function statusLabel(status: string) {
-  if (status === "succeeded") return "成功";
-  if (status === "failed") return "失敗";
-  if (status === "partial") return "一部失敗";
-  if (status === "running") return "実行中";
-  return "不明";
-}
-
-function statusVariant(status: string) {
-  if (status === "succeeded") return "success" as const;
-  if (status === "running") return "muted" as const;
-  return "warning" as const;
-}
+import { createJobColumns } from "./columns";
 
 export default async function AdminJobsPage() {
   const jobs = await listJobRuns({ limit: 20 });
@@ -50,6 +22,7 @@ export default async function AdminJobsPage() {
     size: "md",
     className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
   });
+  const columns = createJobColumns();
 
   return (
     <div className="space-y-8">
@@ -90,74 +63,29 @@ export default async function AdminJobsPage() {
             <Table tone="dark">
               <TableHeader>
                 <TableRow>
-                  <TableHead>ジョブ</TableHead>
-                  <TableHead>組織</TableHead>
-                  <TableHead>状態</TableHead>
-                  <TableHead>開始</TableHead>
-                  <TableHead>終了</TableHead>
-                  <TableHead>対象数</TableHead>
-                  <TableHead>成功</TableHead>
-                  <TableHead>失敗</TableHead>
-                  <TableHead>レビュー件数</TableHead>
+                  {columns.map((column) => (
+                    <TableHead
+                      key={column.header}
+                      className={column.headerClassName}
+                    >
+                      {column.header}
+                    </TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {jobs.map((job) => {
-                  const hasError = Object.keys(job.error ?? {}).length > 0;
-                  return (
-                    <Fragment key={job.id}>
-                      <TableRow>
-                        <TableCell className="text-slate-100">
-                          {job.jobKey}
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          {job.organizationName ?? job.organizationId}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusVariant(job.status)}>
-                            {statusLabel(job.status)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          {formatDate(job.startedAt)}
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          {formatDate(job.finishedAt)}
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          {formatCount(job.summary.totalLocations)}件
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          {formatCount(job.summary.successCount)}件
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          {formatCount(job.summary.failedCount)}件
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          {formatCount(job.summary.reviewCount)}件
-                        </TableCell>
-                      </TableRow>
-                      {(hasError || job.summary.mockMode) && (
-                        <TableRow className="bg-slate-950/40 hover:bg-slate-950/40">
-                          <TableCell colSpan={9} className="space-y-2">
-                            {hasError && (
-                              <Callout title="エラー" tone="warning">
-                                <pre className="whitespace-pre-wrap break-words text-sm text-amber-100">
-                                  {JSON.stringify(job.error, null, 2)}
-                                </pre>
-                              </Callout>
-                            )}
-                            {job.summary.mockMode && (
-                              <Callout title="モック運用" tone="info">
-                                <p>モック運用のため固定結果です。</p>
-                              </Callout>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </Fragment>
-                  );
-                })}
+                {jobs.map((job) => (
+                  <TableRow key={job.id}>
+                    {columns.map((column) => (
+                      <TableCell
+                        key={`${job.id}-${column.header}`}
+                        className={column.cellClassName}
+                      >
+                        {column.cell(job)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </CardContent>

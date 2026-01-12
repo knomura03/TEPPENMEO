@@ -194,6 +194,15 @@ test("監査ログはサインインまたは監査ログが表示される", as
     body: screenshot,
     contentType: "image/png",
   });
+  const detailToggle = page.locator("summary", { hasText: "詳細" }).first();
+  if (hasAuditLogs && (await detailToggle.count()) > 0) {
+    await detailToggle.click();
+  }
+  const detailShot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("admin-audit-logs-table-details", {
+    body: detailShot,
+    contentType: "image/png",
+  });
 
   if (hasAuditLogs) {
     await expect(page.locator("input[name='from']")).toBeVisible();
@@ -252,6 +261,15 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    const detailToggle = page.locator("summary", { hasText: "詳細" }).first();
+    if (hasInbox && (await detailToggle.count()) > 0) {
+      await detailToggle.click();
+    }
+    const detailShot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("app-reviews-table-details", {
+      body: detailShot,
+      contentType: "image/png",
+    });
 
     if (hasInbox) {
       await expect(
@@ -295,6 +313,15 @@ test(
     });
     await testInfo.attach("admin-users-table", {
       body: screenshot,
+      contentType: "image/png",
+    });
+    const detailToggle = page.locator("summary", { hasText: "詳細" }).first();
+    if (hasUsers && (await detailToggle.count()) > 0) {
+      await detailToggle.click();
+    }
+    const detailShot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("admin-users-table-details", {
+      body: detailShot,
       contentType: "image/png",
     });
 
@@ -348,6 +375,15 @@ test(
     });
     await testInfo.attach("admin-jobs-table", {
       body: screenshot,
+      contentType: "image/png",
+    });
+    const detailToggle = page.locator("summary", { hasText: "詳細" }).first();
+    if (hasJobs && (await detailToggle.count()) > 0) {
+      await detailToggle.click();
+    }
+    const detailShot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("admin-jobs-table-details", {
+      body: detailShot,
       contentType: "image/png",
     });
 
