@@ -412,6 +412,12 @@ export default async function AdminDiagnosticsPage() {
             </a>
           </p>
           <p>- preflight: `pnpm preflight --mode mock|real` を実行</p>
+          <p>
+            - 実機スモークテスト:{" "}
+            <a className="text-blue-700 underline" href="/docs/runbooks/real-mode-smoke-test">
+              docs/runbooks/real-mode-smoke-test.md
+            </a>
+          </p>
         </CardContent>
       </Card>
 
