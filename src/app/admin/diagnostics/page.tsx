@@ -385,6 +385,29 @@ export default async function AdminDiagnosticsPage() {
         description="実画面テストに必要な設定を簡易チェックします。"
         tone="dark"
       />
+      <Card>
+        <CardHeader>
+          <p className="text-sm font-semibold text-slate-900">リリース手順とpreflight</p>
+          <p className="text-sm text-slate-700">
+            staging→prod の一本道と事前チェックを実行できます。値は表示しません。
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-slate-800">
+          <p>
+            - stagingリリース手順:{" "}
+            <a className="text-blue-700 underline" href="/docs/runbooks/release-staging">
+              docs/runbooks/release-staging.md
+            </a>
+          </p>
+          <p>
+            - 本番リリース手順:{" "}
+            <a className="text-blue-700 underline" href="/docs/runbooks/release-production">
+              docs/runbooks/release-production.md
+            </a>
+          </p>
+          <p>- preflight: `pnpm preflight --mode mock|real` を実行</p>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card tone="dark">
