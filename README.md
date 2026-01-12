@@ -29,7 +29,8 @@ Supabaseダッシュボード → **Project Settings** → **API** から取得:
 ### 3) マイグレーション適用（CLI推奨）
 1. CLIをインストール
 ```bash
-npm i -g supabase
+brew update
+brew install supabase
 ```
 2. ログイン
 ```bash
@@ -46,6 +47,7 @@ supabase db push
 ```
 
 ※ SQL Editorの手動適用は原則使いません。詰まった場合は `docs/runbooks/supabase-migrations-troubleshooting.md` を参照してください。
+※ `supabase status` はローカル開発用（Docker必須）です。リモート運用のみなら不要です（詳細: `docs/runbooks/supabase-local-vs-remote.md`）。
 
 ### 4) 環境変数を設定
 ```bash
@@ -159,6 +161,7 @@ pnpm dev
 - MCP（Playwright連携）: `docs/runbooks/mcp-playwright.md`
 - Supabaseマイグレーション: `docs/runbooks/supabase-migrations.md`
 - Supabaseマイグレーション詰まり: `docs/runbooks/supabase-migrations-troubleshooting.md`
+- Supabaseローカル/リモートの違い: `docs/runbooks/supabase-local-vs-remote.md`
 - 監査ログ調査: `docs/runbooks/audit-log-debugging.md`
 - 監査ログ保存方針: `docs/runbooks/audit-log-retention.md`
 - Supabase Storage（画像アップロード）: `docs/runbooks/supabase-storage-media.md`

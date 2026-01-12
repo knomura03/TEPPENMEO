@@ -58,3 +58,7 @@ supabase db push
 
 ## 補足
 - `.env.local` の `SUPABASE_SERVICE_ROLE_KEY` / `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` を確認  
+- `supabase status` はローカル用（Docker必須）です。リモート運用のみなら不要です  
+  - 詳細: `docs/runbooks/supabase-local-vs-remote.md`
+- `supabase/config.toml` と `supabase/seed.sql` はリポジトリ管理  
+- `supabase/.temp` などのローカル生成物は `.gitignore` で除外
