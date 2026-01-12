@@ -211,6 +211,31 @@ export default async function SetupChecklistPage() {
         </CardContent>
       </Card>
 
+      <Card tone="light">
+        <CardHeader>
+          <p className="text-base font-semibold text-slate-900">
+            実機スモークテスト
+          </p>
+          <p className="text-sm text-slate-600">
+            PROVIDER_MOCK_MODE=false での最短確認手順です。実機検証が必要なときに参照してください。
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-slate-700">
+          <p>
+            Google接続→紐付け→投稿→レビュー同期→返信、Meta接続→ページ紐付け→投稿（画像含む）、
+            ジョブ実行/スケジュール、監査ログ確認までをクリック単位でまとめています。
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/docs/runbooks/real-mode-smoke-test"
+              className={actionLinkSecondary}
+            >
+              実機スモークテスト手順を見る
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 md:grid-cols-2">
         <Card tone="light">
           <CardHeader>

@@ -68,6 +68,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-diagnostics-real-mode-smoke-link", {
+    body: screenshot,
+    contentType: "image/png",
+  });
   await testInfo.attach("admin-diagnostics-mock-mode", {
     body: screenshot,
     contentType: "image/png",
@@ -178,14 +182,18 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
-    await testInfo.attach("app-setup-bulk-sync", {
-      body: screenshot,
-      contentType: "image/png",
-    });
-    await testInfo.attach("app-setup-bulk-sync-scheduling", {
-      body: screenshot,
-      contentType: "image/png",
-    });
+  await testInfo.attach("app-setup-bulk-sync", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+  await testInfo.attach("app-setup-bulk-sync-scheduling", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+  await testInfo.attach("app-setup-real-mode-smoke-link", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
     if (hasSetup) {
       await expect(page.getByText("進捗", { exact: true })).toBeVisible();
