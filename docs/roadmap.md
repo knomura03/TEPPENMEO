@@ -10,6 +10,8 @@
 - [ ] Google: staging/prod ドメインのリダイレクトURI登録、審査状況確認
 - [ ] Meta: staging/prod ドメインのリダイレクトURI登録、App Review状況確認
 - [ ] CRON: `CRON_SECRET` を設定し、スケジュールが必要な環境で有効化
+- [ ] Google審査準備: `docs/runbooks/google-gbp-approval-and-oauth-setup.md` に沿って同意画面/スコープ/公開URLを設定し、テストユーザーで確認
+- [ ] Meta審査準備: `docs/runbooks/meta-app-review-and-oauth-setup.md` に沿って App Domain/Redirect URI/権限申請/テスター追加を完了
 
 ## Codex作業タスク（PRで対応）
 - [ ] preflightコマンドでmock/realの必須項目を検査（値は出さない）

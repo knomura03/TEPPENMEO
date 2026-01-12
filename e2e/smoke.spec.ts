@@ -72,6 +72,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-diagnostics-provider-review-links", {
+    body: screenshot,
+    contentType: "image/png",
+  });
   await testInfo.attach("admin-diagnostics-mock-mode", {
     body: screenshot,
     contentType: "image/png",

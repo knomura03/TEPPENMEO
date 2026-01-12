@@ -177,3 +177,8 @@
 - OAuthフロー: 接続〜トークン保存まで実装済み
 - リフレッシュ: 実装済み（期限近接時に更新）
 - 実API呼び出し: ロケーション取得/レビュー同期/返信/投稿作成まで対応
+
+## 追加の参考ドキュメント
+- stagingリリース手順: `docs/runbooks/release-staging.md`
+- 本番リリース手順: `docs/runbooks/release-production.md`
+- 審査・設定の詳細手順: `docs/runbooks/google-gbp-approval-and-oauth-setup.md`

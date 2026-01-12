@@ -167,3 +167,8 @@
 - OAuth直後に長期トークンへ交換を試みる
 - 有効期限が近い場合は再認可が必要になる
 - 失敗時は「再認可が必要」と表示されるため、再接続で復旧する
+
+## 追加の参考ドキュメント
+- stagingリリース手順: `docs/runbooks/release-staging.md`
+- 本番リリース手順: `docs/runbooks/release-production.md`
+- 審査・設定の詳細手順: `docs/runbooks/meta-app-review-and-oauth-setup.md`
