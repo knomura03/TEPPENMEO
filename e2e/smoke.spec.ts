@@ -93,6 +93,32 @@ test(
 });
 
 test(
+  "リリース準備ダッシュボードはサインインまたは表示される",
+  async ({ page }, testInfo) => {
+    await page.goto("/admin/release", { waitUntil: "domcontentloaded" });
+    const hasRelease = await page
+      .getByRole("heading", { name: "リリース準備", exact: true })
+      .isVisible();
+    const hasSignIn = await page
+      .getByRole("heading", { name: "サインイン", exact: true })
+      .isVisible();
+
+    const screenshot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("admin-release-dashboard", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+
+    if (hasRelease) {
+      await expect(page.getByText("環境と公開情報")).toBeVisible();
+      await expect(page.getByText("Supabase").first()).toBeVisible();
+    } else {
+      expect(hasSignIn).toBeTruthy();
+    }
+  }
+);
+
+test(
   "実機ヘルスチェックはサインインまたはヘルスチェックが表示される",
   async ({ page }, testInfo) => {
   await page.goto("/admin/provider-health", { waitUntil: "domcontentloaded" });
