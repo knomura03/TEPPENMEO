@@ -930,6 +930,12 @@ export default async function AdminDiagnosticsPage() {
                   >
                     Google手順書を確認する
                   </a>
+                  <a
+                    href="/docs/runbooks/google-gbp-approval-and-oauth-setup"
+                    className={adminActionSecondaryClass}
+                  >
+                    審査・設定Runbookを見る
+                  </a>
                 </div>
               </Callout>
             )}
@@ -947,6 +953,12 @@ export default async function AdminDiagnosticsPage() {
                     className={adminActionSecondaryClass}
                   >
                     Meta手順書を確認する
+                  </a>
+                  <a
+                    href="/docs/runbooks/meta-app-review-and-oauth-setup"
+                    className={adminActionSecondaryClass}
+                  >
+                    審査・設定Runbookを見る
                   </a>
                 </div>
               </Callout>
@@ -986,6 +998,18 @@ export default async function AdminDiagnosticsPage() {
                 className={adminActionSecondaryClass}
               >
                 モック→実機の切り替え手順
+              </a>
+              <a
+                href="/docs/runbooks/google-gbp-approval-and-oauth-setup"
+                className={adminActionSecondaryClass}
+              >
+                Google審査Runbook
+              </a>
+              <a
+                href="/docs/runbooks/meta-app-review-and-oauth-setup"
+                className={adminActionSecondaryClass}
+              >
+                Meta審査Runbook
               </a>
             </div>
             <p className="text-sm text-slate-400">
