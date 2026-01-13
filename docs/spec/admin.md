@@ -13,6 +13,7 @@
 - ユーザー管理: `/admin/users`
 - 組織一覧: `/admin/organizations`
 - 組織メンバー管理: `/admin/organizations/[id]`
+- リリース準備: `/admin/release`
 
 ## 機能要件
 
@@ -88,6 +89,23 @@
   - ジョブ / 組織 / 状態 / 開始 / 終了 / 対象数 / 成功 / 失敗 / レビュー件数 / 詳細
 - 詳細:
   - summary/error を確認でき、機密キーはマスクする
+
+### リリース準備ダッシュボード
+- 目的: リリース前に必要な設定・権限・公開情報を1画面で確認する
+- 表示要素（値は出さず、設定済み/未設定のみ）
+  - 環境: mock/real、APP_BASE_URL、PUBLIC_*（運営者/連絡先）
+  - Supabase: 接続可否、マイグレーション適用状況
+  - Storage/Cron/Jobs: バケット設定、サービスキー、CRON_SECRET、自動同期ON数
+  - Providers: Google/Meta 接続状態と権限差分（保存済み情報ベース）
+  - 実機スモーク: Runbookリンクと合格基準
+- 導線:
+  - 診断・実機ヘルス・リリースRunbook・スモークRunbook・各プロバイダ審査Runbookへのリンク
+- 権限:
+  - system_admin のみアクセス可能
+- 受け入れ条件:
+  - 値は表示せず「設定済み/未設定」「OK/注意」を示す
+  - 各セクションに「次にやること」リンクがある
+  - /admin/diagnostics から遷移できる
 
 ## 権限要件
 - system_admin のみ閲覧/操作可能
