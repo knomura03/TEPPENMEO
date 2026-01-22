@@ -418,6 +418,12 @@ export default async function AdminDiagnosticsPage() {
               docs/runbooks/real-mode-smoke-test.md
             </a>
           </p>
+          <p>
+            - リリース準備ダッシュボード:{" "}
+            <a className="text-blue-700 underline" href="/admin/release">
+              /admin/release
+            </a>
+          </p>
         </CardContent>
       </Card>
 
