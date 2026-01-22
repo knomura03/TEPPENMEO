@@ -38,7 +38,7 @@ export function AddMemberForm({ organizationId }: { organizationId: string }) {
             className={adminSelectClass}
           >
             <option value="owner">オーナー</option>
-            <option value="admin">管理者</option>
+            <option value="admin">組織管理者</option>
             <option value="member">メンバー</option>
             <option value="viewer">閲覧</option>
           </select>

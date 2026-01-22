@@ -67,7 +67,7 @@ async function requireLocationAccess(locationId: string): Promise<AccessResult> 
     return {
       error: {
         cause: "所属組織が見つかりません。",
-        nextAction: "管理者に組織設定を確認してください。",
+        nextAction: "組織管理者に組織設定を確認してください。",
       },
     };
   }
@@ -77,7 +77,7 @@ async function requireLocationAccess(locationId: string): Promise<AccessResult> 
     return {
       error: {
         cause: "権限がありません。",
-        nextAction: "管理者に権限付与を依頼してください。",
+        nextAction: "組織管理者に権限付与を依頼してください。",
       },
     };
   }

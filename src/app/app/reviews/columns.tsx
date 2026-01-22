@@ -133,7 +133,7 @@ export function createReviewColumns(params: {
               <div className="space-y-2">
                 {!params.canReply && !review.reply && (
                   <p className="text-sm text-slate-500">
-                    返信は管理者のみ操作できます。
+                    返信は組織管理者のみ操作できます。
                   </p>
                 )}
                 <ReviewInboxReplyForm

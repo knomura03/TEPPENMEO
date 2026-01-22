@@ -495,7 +495,7 @@ export async function getSetupStatus(params: {
   const saveUnavailableReason = saveAvailable
     ? null
     : !canManage
-      ? "管理者のみ完了チェックを保存できます。"
+      ? "組織管理者のみ完了チェックを保存できます。"
       : !isSupabaseConfigured()
         ? "Supabaseが未設定のため保存できません。"
         : "SUPABASE_SERVICE_ROLE_KEY が未設定のため保存できません。";

@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     }
     const isAdmin = await isSystemAdmin(user.id);
     if (!isAdmin) {
-      return new Response("system admin 権限が必要です。", { status: 403 });
+      return new Response("システム管理者権限が必要です。", { status: 403 });
     }
   }
 

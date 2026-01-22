@@ -5,6 +5,7 @@ import { DetailsDisclosure } from "@/components/ui/details-disclosure";
 import type { AdminUser, AdminUserStatus } from "@/server/services/admin-users";
 
 import { DeleteUserForm } from "./DeleteUserForm";
+import { SystemAdminToggleForm } from "./SystemAdminToggleForm";
 import { ToggleUserStatusForm } from "./ToggleUserStatusForm";
 
 type ColumnDef<T> = {
@@ -34,6 +35,8 @@ function getStatusLabel(status: AdminUserStatus) {
 export function createAdminUserColumns(params: {
   userBlocksReady: boolean;
   userBlocksMessage: string | null;
+  canManageSystemAdmin: boolean;
+  currentUserId: string | null;
 }): ColumnDef<AdminUser>[] {
   return [
     {
@@ -54,10 +57,10 @@ export function createAdminUserColumns(params: {
       headerClassName: "whitespace-nowrap",
     },
     {
-      header: "システム管理",
+      header: "システム管理者",
       cell: (user) => (
         <Badge variant={user.isSystemAdmin ? "success" : "muted"}>
-          {user.isSystemAdmin ? "管理者" : "一般"}
+          {user.isSystemAdmin ? "付与済み" : "未付与"}
         </Badge>
       ),
       cellClassName: "whitespace-nowrap",
@@ -76,6 +79,13 @@ export function createAdminUserColumns(params: {
       header: "操作",
       cell: (user) => (
         <div className="flex flex-col gap-2">
+          <SystemAdminToggleForm
+            userId={user.id}
+            email={user.email}
+            isSystemAdmin={user.isSystemAdmin}
+            currentUserId={params.currentUserId}
+            canManage={params.canManageSystemAdmin}
+          />
           <ToggleUserStatusForm
             userId={user.id}
             email={user.email}
@@ -104,8 +114,8 @@ export function createAdminUserColumns(params: {
               mask: false,
             },
             {
-              label: "システム管理",
-              value: user.isSystemAdmin ? "管理者" : "一般",
+              label: "システム管理者",
+              value: user.isSystemAdmin ? "付与済み" : "未付与",
               mask: false,
             },
             { label: "状態", value: user.status, mask: false },

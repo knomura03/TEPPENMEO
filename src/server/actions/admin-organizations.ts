@@ -43,7 +43,7 @@ async function requireSystemAdmin() {
   }
   if (user.isBlocked) {
     return {
-      error: "このアカウントは無効化されています。管理者に連絡してください。",
+      error: "このアカウントは無効化されています。システム管理者に連絡してください。",
       userId: null,
     };
   }
