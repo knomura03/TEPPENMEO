@@ -8,7 +8,7 @@ import { isSystemAdmin } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
 import { getReleaseReadiness } from "@/server/services/release-readiness";
 
-const linkClass = "text-blue-700 underline";
+const linkClass = "text-[color:var(--primary)] underline";
 
 export default async function ReleaseDashboardPage() {
   const user = await getSessionUser();
@@ -23,7 +23,7 @@ export default async function ReleaseDashboardPage() {
           tone="dark"
         />
         <Callout tone="warning" title="権限がありません">
-          <p>system admin 権限が必要です。</p>
+          <p>システム管理者権限が必要です。</p>
         </Callout>
       </div>
     );
@@ -307,7 +307,7 @@ export default async function ReleaseDashboardPage() {
             <a className={linkClass} href="/docs/runbooks/real-mode-smoke-test">
               実機スモークテスト手順
             </a>
-            <a className={linkClass} href="/admin/setup">
+            <a className={linkClass} href="/app/setup">
               セットアップへ
             </a>
             <a className={linkClass} href="/admin/diagnostics">

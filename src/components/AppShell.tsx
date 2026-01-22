@@ -19,17 +19,19 @@ type AppShellProps = {
 
 export function AppShell({ children, userEmail, active }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50">
-      <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-[#eef2ff]">
+      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-slate-900 text-white">
-              <div className="flex h-full w-full items-center justify-center text-sm font-bold">
-                TM
-              </div>
-            </div>
+            <img
+              src="/logo.svg"
+              alt="TEPPEN MEO"
+              className="h-10 w-auto"
+            />
             <div>
-              <p className="text-sm font-semibold text-slate-900">TEPPEN MEO</p>
+              <p className="text-sm font-semibold text-[color:var(--primary)]">
+                TEPPEN MEO
+              </p>
               <p className="text-xs text-slate-500">プロバイダ統合ワークスペース</p>
             </div>
           </div>
@@ -54,7 +56,8 @@ export function AppShell({ children, userEmail, active }: AppShellProps) {
               href={item.href}
               className={cn(
                 "rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100",
-                active === item.label && "bg-slate-100 text-slate-900"
+                active === item.label &&
+                  "bg-[color:var(--primary)]/10 text-[color:var(--primary)]"
               )}
             >
               {item.label}

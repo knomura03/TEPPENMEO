@@ -29,6 +29,7 @@ test("公開ページが表示される（トップ/ポリシー/規約/削除�
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const home = await page.screenshot({ fullPage: true });
   await testInfo.attach("public-home", { body: home, contentType: "image/png" });
+  await testInfo.attach("public-home-branding", { body: home, contentType: "image/png" });
 
   await page.goto("/privacy", { waitUntil: "domcontentloaded" });
   const privacy = await page.screenshot({ fullPage: true });
@@ -105,6 +106,10 @@ test(
 
     const screenshot = await page.screenshot({ fullPage: true });
     await testInfo.attach("admin-release-dashboard", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-release-branding", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -201,6 +206,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-setup-design", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-setup-branding", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -383,6 +392,10 @@ test(
     }
     const detailShot = await page.screenshot({ fullPage: true });
     await testInfo.attach("admin-users-table-details", {
+      body: detailShot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-users-permissions-ui", {
       body: detailShot,
       contentType: "image/png",
     });

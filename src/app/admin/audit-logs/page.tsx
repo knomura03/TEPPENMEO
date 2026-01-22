@@ -216,11 +216,7 @@ export default async function AdminAuditLogsPage({
             </FormField>
           </div>
           <div className="md:col-span-2 flex items-end gap-2">
-            <Button
-              type="submit"
-              form={filterFormId}
-              className="bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
-            >
+            <Button type="submit" form={filterFormId} variant="primary">
               適用
             </Button>
             <a href="/admin/audit-logs" className={secondaryLink}>

@@ -6,6 +6,8 @@
   --card: #ffffff;
   --accent: #f59e0b;
   --muted: #94a3b8;
+  --primary: #001976;
+  --primary-hover: #0a2aa6;
 }
 
 @theme inline {
@@ -14,6 +16,7 @@
   --color-card: var(--card);
   --color-accent: var(--accent);
   --color-muted: var(--muted);
+  --color-primary: var(--primary);
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
 }

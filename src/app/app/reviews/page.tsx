@@ -49,7 +49,8 @@ const actionLinkAccent =
   buttonStyles({
     variant: "secondary",
     size: "md",
-    className: "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100",
+    className:
+      "border-[color:var(--primary)]/20 bg-[color:var(--primary)]/10 text-[color:var(--primary)] hover:bg-[color:var(--primary)]/20",
   });
 
 function resolvePeriod(period?: string): { period: string; from: string | null } {
@@ -86,7 +87,10 @@ export default async function ReviewsInboxPage({
         <p className="text-sm text-slate-500">
           ログイン後にレビュー対応を開始できます。
         </p>
-        <Link href="/auth/sign-in" className="text-amber-600 underline">
+        <Link
+          href="/auth/sign-in"
+          className="text-[color:var(--primary)] underline"
+        >
           サインインへ
         </Link>
       </div>
@@ -101,7 +105,7 @@ export default async function ReviewsInboxPage({
           レビュー受信箱
         </h1>
         <p className="text-sm text-slate-500">
-          所属組織が見つかりません。管理者に確認してください。
+          所属組織が見つかりません。組織管理者に確認してください。
         </p>
       </div>
     );

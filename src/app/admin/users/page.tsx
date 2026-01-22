@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/select";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
+import { getSessionUser } from "@/server/auth/session";
+import { isSystemAdmin } from "@/server/auth/rbac";
 import { listAdminOrganizations } from "@/server/services/admin-organizations";
 import { isSupabaseAdminConfigured } from "@/server/utils/env";
 import { listAdminUsers, type AdminUserStatus } from "@/server/services/admin-users";
@@ -40,6 +42,11 @@ export default async function AdminUsersPage({
     status,
     organizationId,
   });
+  const sessionUser = await getSessionUser();
+  const currentUserId = sessionUser?.id ?? null;
+  const canManageSystemAdmin = sessionUser
+    ? await isSystemAdmin(sessionUser.id)
+    : false;
   const organizations = await listAdminOrganizations();
   const userBlocksSchema = await checkUserBlocksSchema();
   const userBlocksReady = userBlocksSchema.status === "ok";
@@ -59,13 +66,15 @@ export default async function AdminUsersPage({
   const columns = createAdminUserColumns({
     userBlocksReady,
     userBlocksMessage,
+    canManageSystemAdmin,
+    currentUserId,
   });
 
   return (
     <div className="space-y-8">
       <PageHeader
         title="ユーザー管理"
-        description="システム管理者がユーザーの招待、無効化、削除を行います。"
+        description="システム管理者がユーザーの招待、無効化、削除を行います。システム管理者の変更は全組織に影響します。"
         tone="dark"
       />
 
@@ -123,7 +132,7 @@ export default async function AdminUsersPage({
             <Button
               type="submit"
               form={filterFormId}
-              className="bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
+              variant="primary"
             >
               検索
             </Button>
@@ -176,7 +185,7 @@ export default async function AdminUsersPage({
             <Badge variant="muted">{users.length}件</Badge>
           </div>
           <p className="text-sm text-slate-300">
-            管理者/招待中/無効を一覧で確認します。
+            有効/招待中/無効を一覧で確認します。
           </p>
         </CardHeader>
         <CardContent className="overflow-x-auto">

@@ -28,19 +28,23 @@ export function AdminShell({ children, userEmail, active }: AdminShellProps) {
       <header className="border-b border-slate-700/60 bg-slate-900/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-amber-400 text-slate-900">
-              <div className="flex h-full w-full items-center justify-center text-sm font-bold">
-                AD
-              </div>
-            </div>
+            <img
+              src="/logo.svg"
+              alt="TEPPEN MEO"
+              className="h-10 w-auto"
+            />
             <div>
-              <p className="text-sm font-semibold">システム管理</p>
-              <p className="text-xs text-slate-400">TEPPEN MEO 統合管理</p>
+              <p className="text-sm font-semibold text-[color:var(--primary)]">
+                システム管理
+              </p>
+              <p className="text-xs text-slate-400">
+                TEPPEN MEO 統合管理
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden text-right text-xs text-slate-400 sm:block">
-              <p>管理者ユーザー</p>
+              <p>システム管理者</p>
               <p className="font-medium text-slate-200">
                 {userEmail ?? "モック管理者"}
               </p>
@@ -63,7 +67,8 @@ export function AdminShell({ children, userEmail, active }: AdminShellProps) {
               href={item.href}
               className={cn(
                 "rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800",
-                active === item.label && "bg-slate-800 text-white"
+                active === item.label &&
+                  "bg-[color:var(--primary)]/25 text-white"
               )}
             >
               {item.label}

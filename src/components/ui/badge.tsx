@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 type BadgeVariant = "default" | "success" | "warning" | "muted";
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-slate-100 text-slate-700",
+  default: "bg-[color:var(--primary)]/10 text-[color:var(--primary)]",
   success: "bg-emerald-100 text-emerald-800",
   warning: "bg-amber-100 text-amber-800",
   muted: "bg-slate-50 text-slate-500",
