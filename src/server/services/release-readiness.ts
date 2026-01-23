@@ -7,6 +7,7 @@ import {
   checkJobSchedulesSchema,
   checkJobRunsSchema,
   checkMediaAssetsSchema,
+  checkPostTemplatesSchema,
   checkSetupProgressSchema,
   checkSupabaseConnection,
   checkUserBlocksSchema,
@@ -15,6 +16,7 @@ import {
 import { countEnabledJobSchedules } from "@/server/services/jobs/job-schedules";
 import { getMediaConfig, isStorageConfigured } from "@/server/services/media";
 import { getPrimaryOrganization } from "@/server/services/organizations";
+import { countPostTemplates } from "@/server/services/post-templates";
 import { getProviderAccount } from "@/server/services/provider-accounts";
 import { listProviderConnections } from "@/server/services/provider-connections";
 import { resolvePermissionDiff } from "@/server/services/provider-permissions";
@@ -41,6 +43,7 @@ export async function getReleaseReadiness() {
   const userBlocksSchema = await checkUserBlocksSchema();
   const setupProgressSchema = await checkSetupProgressSchema();
   const mediaAssetsSchema = await checkMediaAssetsSchema();
+  const postTemplatesSchema = await checkPostTemplatesSchema();
   const jobRunsSchema = await checkJobRunsSchema();
   const jobSchedulesSchema = await checkJobSchedulesSchema();
   const jobRunsRunningIndex = await checkJobRunsRunningIndex();
@@ -60,6 +63,12 @@ export async function getReleaseReadiness() {
     ? await getProviderAccount(org.id, ProviderType.GoogleBusinessProfile)
     : null;
   const metaAccount = org ? await getProviderAccount(org.id, ProviderType.Meta) : null;
+  const postTemplatesCount = org
+    ? await countPostTemplates({ organizationId: org.id })
+    : {
+        count: null,
+        reason: "組織情報を取得できないため確認できません。",
+      };
 
   const connectionStatus = {
     google: org
@@ -112,6 +121,7 @@ export async function getReleaseReadiness() {
         userBlocks: userBlocksSchema.status,
         setupProgress: setupProgressSchema.status,
         mediaAssets: mediaAssetsSchema.status,
+        postTemplates: postTemplatesSchema.status,
         jobRuns: jobRunsSchema.status,
         jobSchedules: jobSchedulesSchema.status,
         jobRunsRunningIndex: jobRunsRunningIndex.status,
@@ -134,6 +144,11 @@ export async function getReleaseReadiness() {
       connectionStatus,
       googlePermissionDiff,
       metaPermissionDiff,
+    },
+    postTemplates: {
+      schemaStatus: postTemplatesSchema.status,
+      count: postTemplatesCount.count,
+      reason: postTemplatesCount.reason,
     },
     orgName: org?.name ?? null,
   };

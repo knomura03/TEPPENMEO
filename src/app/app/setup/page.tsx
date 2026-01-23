@@ -11,6 +11,7 @@ import { GBP_BULK_REVIEW_SYNC_JOB_KEY } from "@/server/services/jobs/gbp-bulk-re
 import { getJobSchedule } from "@/server/services/jobs/job-schedules";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { getSetupStatus } from "@/server/services/setup-status";
+import { countPostTemplates } from "@/server/services/post-templates";
 import { isSupabaseAdminConfigured, isSupabaseConfigured } from "@/server/utils/env";
 
 import {
@@ -44,6 +45,18 @@ function mapSyncStatus(value: "success" | "failed" | "unknown" | null) {
   if (!value || value === "unknown") return "不明";
   if (value === "success") return "成功";
   return "失敗";
+}
+
+function mapTemplateReason(reason: string | null) {
+  if (!reason) return null;
+  if (
+    reason.includes("Supabase") ||
+    reason.includes("SUPABASE") ||
+    reason.includes("post_templates")
+  ) {
+    return "テンプレの準備状況を確認できません。管理者に確認してください。";
+  }
+  return reason;
 }
 
 function resolveAutoBadge(status: "done" | "not_done" | "unknown") {
@@ -115,6 +128,7 @@ export default async function SetupChecklistPage() {
     organizationId: org.id,
     jobKey: GBP_BULK_REVIEW_SYNC_JOB_KEY,
   });
+  const postTemplates = await countPostTemplates({ organizationId: org.id });
 
   const canManageOrg = hasRequiredRole(role, "admin");
   const canRunBulk =
@@ -503,6 +517,48 @@ export default async function SetupChecklistPage() {
                 );
               })}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card tone="light">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <p className="text-base font-semibold text-slate-900">投稿テンプレ</p>
+              <Badge
+                variant={
+                  postTemplates.count && postTemplates.count > 0
+                    ? "success"
+                    : "warning"
+                }
+              >
+                {postTemplates.count === null ? "不明" : `${postTemplates.count}件`}
+              </Badge>
+            </div>
+            <p className="text-sm text-slate-600">
+              テンプレを用意すると、投稿が短時間で作れます。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-slate-700">
+            {mapTemplateReason(postTemplates.reason) ? (
+              <p className="text-xs text-amber-700">
+                {mapTemplateReason(postTemplates.reason)}
+              </p>
+            ) : postTemplates.count === 0 ? (
+              <p className="text-xs text-amber-700">
+                まだテンプレがありません。まず1件作ると便利です。
+              </p>
+            ) : (
+              <p>テンプレの数に応じて、投稿の初期文が自動で入ります。</p>
+            )}
+            <Link href="/app/post-templates" className={actionLinkPrimary}>
+              テンプレを管理する
+            </Link>
+            <Link
+              href="/docs/runbooks/post-templates-onboarding"
+              className={actionLinkSecondary}
+            >
+              作成手順を見る
+            </Link>
           </CardContent>
         </Card>
 
