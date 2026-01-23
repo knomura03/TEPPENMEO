@@ -57,7 +57,9 @@ export default async function LocationDetailPage({
   const canEdit = hasRequiredRole(role, "admin");
   const providerStatus = listProviderStatus();
   const connections = org ? await listProviderConnections(org.id, user?.id) : [];
-  const reviews = await listReviewsForLocation(location.id);
+  const reviews = (await listReviewsForLocation(location.id)).filter(
+    (review) => review.provider === ProviderType.GoogleBusinessProfile
+  );
   const emptyPostHistoryPage: PostHistoryPage = {
     items: [],
     page: 1,
@@ -391,7 +393,9 @@ export default async function LocationDetailPage({
                 <p className="text-sm font-semibold text-slate-900">
                   {review.author ?? "匿名"}
                 </p>
-                <Badge variant="success">{review.rating}</Badge>
+                <Badge variant="success">
+                  {review.rating === null ? "-" : review.rating}
+                </Badge>
               </div>
               <p className="text-sm text-slate-400">
                 投稿日時: {review.createdAt}
