@@ -143,6 +143,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("admin-release-templates", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
     if (hasRelease) {
       await expect(page.getByText("環境と公開情報")).toBeVisible();
@@ -256,6 +260,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-setup-ui-primitives", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-setup-templates", {
       body: screenshot,
       contentType: "image/png",
     });
