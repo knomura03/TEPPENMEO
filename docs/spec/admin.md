@@ -100,6 +100,7 @@
   - 登録情報テンプレ: Redirect URI / 公開ページURL のテンプレ表示（<APP_BASE_URL>）
   - Providers: Google/Meta 接続状態と権限差分（保存済み情報ベース）
   - 実機スモーク: Runbookリンクと合格基準
+  - 証跡テンプレ: preflight/provider-health/スモークの貼り付けテンプレへのリンク
 - 導線:
   - 診断・実機ヘルス・リリースRunbook・スモークRunbook・各プロバイダ審査Runbookへのリンク
 - 権限:
