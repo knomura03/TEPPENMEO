@@ -29,7 +29,7 @@ describe("レビュー受信箱の返信", () => {
     expect(result.success).toBeTruthy();
   });
 
-  it("Google以外は返信できない", async () => {
+  it("Metaコメントはモックで返信できる", async () => {
     const formData = new FormData();
     formData.set("locationId", "loc-2");
     formData.set("reviewId", "review-2");
@@ -40,7 +40,7 @@ describe("レビュー受信箱の返信", () => {
       formData
     );
 
-    expect(result.success).toBeNull();
-    expect(result.error?.cause).toContain("Googleレビュー以外");
+    expect(result.error).toBeNull();
+    expect(result.success).toBeTruthy();
   });
 });

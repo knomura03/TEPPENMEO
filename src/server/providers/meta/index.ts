@@ -20,8 +20,8 @@ import {
 const capabilities = {
   canConnectOAuth: true,
   canListLocations: true,
-  canReadReviews: false,
-  canReplyReviews: false,
+  canReadReviews: true,
+  canReplyReviews: true,
   canCreatePosts: true,
   canReadInsights: false,
   canSearchPlaces: false,
@@ -30,8 +30,10 @@ const capabilities = {
 const metaScopes = [
   "pages_show_list",
   "pages_manage_posts",
+  "pages_manage_engagement",
   "pages_read_engagement",
   "instagram_basic",
+  "instagram_manage_comments",
   "instagram_content_publish",
 ];
 

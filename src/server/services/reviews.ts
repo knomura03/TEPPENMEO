@@ -7,7 +7,7 @@ export type Review = {
   provider: string;
   externalReviewId: string;
   locationId: string;
-  rating: number;
+  rating: number | null;
   comment?: string | null;
   author?: string | null;
   createdAt: string;
@@ -36,7 +36,12 @@ export async function listReviewsForLocation(
     provider: row.provider,
     externalReviewId: row.external_review_id,
     locationId: row.location_id,
-    rating: row.rating,
+    rating:
+      typeof row.rating === "number"
+        ? row.rating
+        : row.rating === null
+          ? null
+          : Number(row.rating),
     comment: row.comment,
     author: row.author,
     createdAt: row.created_at,
@@ -76,7 +81,12 @@ export async function getReviewById(reviewId: string): Promise<Review | null> {
     provider: data.provider,
     externalReviewId: data.external_review_id,
     locationId: data.location_id,
-    rating: data.rating,
+    rating:
+      typeof data.rating === "number"
+        ? data.rating
+        : data.rating === null
+          ? null
+          : Number(data.rating),
     comment: data.comment,
     author: data.author,
     createdAt: data.created_at,
@@ -89,7 +99,7 @@ export async function upsertReviews(
     externalReviewId: string;
     locationId: string;
     author?: string | null;
-    rating: number;
+    rating: number | null;
     comment?: string | null;
     createdAt: string;
   }>
@@ -105,7 +115,7 @@ export async function upsertReviews(
     external_review_id: review.externalReviewId,
     location_id: review.locationId,
     author: review.author ?? null,
-    rating: review.rating,
+    rating: review.rating ?? null,
     comment: review.comment ?? null,
     created_at: review.createdAt,
   }));

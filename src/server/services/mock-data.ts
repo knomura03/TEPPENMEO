@@ -88,6 +88,30 @@ export const mockLocationProviderLinks = [
       last_review_sync_at: new Date().toISOString(),
     },
   },
+  {
+    id: "link-2",
+    locationId: "loc-1",
+    provider: ProviderType.Meta,
+    externalLocationId: "meta-page-1",
+    metadata: {
+      page_name: "TEPPEN 公式ページ",
+      instagram_business_account_id: "ig-1",
+      instagram_username: "teppen_official",
+      linked_at: new Date().toISOString(),
+    },
+  },
+  {
+    id: "link-3",
+    locationId: "loc-2",
+    provider: ProviderType.Meta,
+    externalLocationId: "meta-page-2",
+    metadata: {
+      page_name: "TEPPEN 大阪店",
+      instagram_business_account_id: "ig-2",
+      instagram_username: "teppen_osaka",
+      linked_at: new Date().toISOString(),
+    },
+  },
 ];
 
 export const mockReviews: Record<
@@ -97,7 +121,7 @@ export const mockReviews: Record<
     provider: ProviderType;
     externalReviewId: string;
     locationId: string;
-    rating: number;
+    rating: number | null;
     author: string;
     comment: string;
     createdAt: string;
@@ -114,20 +138,57 @@ export const mockReviews: Record<
       comment: "対応が早くて助かりました。",
       createdAt: new Date().toISOString(),
     },
+    {
+      id: "comment-1",
+      provider: ProviderType.Meta,
+      externalReviewId: "fb:comment-1",
+      locationId: "loc-1",
+      rating: null,
+      author: "T.E.",
+      comment: "写真が分かりやすかったです。",
+      createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    },
   ],
   "loc-2": [
     {
       id: "review-2",
       provider: ProviderType.Meta,
-      externalReviewId: "review-2",
+      externalReviewId: "fb:comment-legacy",
       locationId: "loc-2",
-      rating: 4,
+      rating: null,
       author: "風",
       comment: "説明が丁寧で安心できました。",
       createdAt: new Date().toISOString(),
     },
+    {
+      id: "comment-2",
+      provider: ProviderType.Meta,
+      externalReviewId: "ig:comment-2",
+      locationId: "loc-2",
+      rating: null,
+      author: "minami",
+      comment: "雰囲気が良さそうです。",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+    },
   ],
 };
+
+export const mockMetaComments = [
+  {
+    externalReviewId: "fb:comment-1",
+    locationId: "loc-1",
+    author: "T.E.",
+    comment: "写真が分かりやすかったです。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+  },
+  {
+    externalReviewId: "ig:comment-2",
+    locationId: "loc-2",
+    author: "minami",
+    comment: "雰囲気が良さそうです。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+  },
+];
 
 export const mockPosts = [
   {

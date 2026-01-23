@@ -177,6 +177,13 @@ async function ensureMetaAccessToken(params: {
   };
 }
 
+export async function getMetaAccessToken(params: {
+  organizationId: string;
+  actorUserId?: string | null;
+}): Promise<{ accessToken: string; account: ProviderAccount | null }> {
+  return ensureMetaAccessToken(params);
+}
+
 export async function listMetaPageCandidates(params: {
   organizationId: string;
   actorUserId?: string | null;

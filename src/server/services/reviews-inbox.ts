@@ -3,6 +3,10 @@ import { getSupabaseAdmin } from "@/server/db/supabase-admin";
 import { isSupabaseConfigured } from "@/server/utils/env";
 import { mockLocations, mockReviews } from "@/server/services/mock-data";
 import { listLatestReviewReplies } from "@/server/services/review-replies";
+import {
+  parseMetaCommentExternalId,
+  type MetaCommentChannel,
+} from "@/server/services/meta-comments";
 
 export type ReviewInboxItem = {
   id: string;
@@ -10,6 +14,7 @@ export type ReviewInboxItem = {
   externalReviewId: string;
   locationId: string;
   locationName: string;
+  channel: MetaCommentChannel | null;
   rating: number | null;
   comment: string | null;
   author: string | null;
@@ -97,18 +102,22 @@ export async function listReviewsInboxPage(params: {
       const locationName =
         mockLocations.find((location) => location.id === locationId)?.name ??
         "不明";
-      return reviews.map((review) => ({
-        id: review.id,
-        provider: review.provider,
-        externalReviewId: review.externalReviewId,
-        locationId: review.locationId,
-        locationName,
-        rating: review.rating ?? null,
-        comment: review.comment ?? null,
-        author: review.author ?? null,
-        createdAt: review.createdAt,
-        reply: null,
-      }));
+    return reviews.map((review) => ({
+      id: review.id,
+      provider: review.provider,
+      externalReviewId: review.externalReviewId,
+      locationId: review.locationId,
+      locationName,
+      channel:
+        review.provider === ProviderType.Meta
+          ? parseMetaCommentExternalId(review.externalReviewId)?.channel ?? null
+          : null,
+      rating: review.rating ?? null,
+      comment: review.comment ?? null,
+      author: review.author ?? null,
+      createdAt: review.createdAt,
+      reply: null,
+    }));
     });
 
     const providerFiltered =
@@ -229,15 +238,22 @@ export async function listReviewsInboxPage(params: {
 
   const items = rows.map((row) => {
     const reply = replyMap[row.id as string] ?? null;
+    const provider = row.provider as ProviderType;
+    const externalReviewId = row.external_review_id as string;
+    const channel =
+      provider === ProviderType.Meta
+        ? parseMetaCommentExternalId(externalReviewId)?.channel ?? null
+        : null;
     return {
       id: row.id as string,
-      provider: row.provider as ProviderType,
-      externalReviewId: row.external_review_id as string,
+      provider,
+      externalReviewId,
       locationId: row.location_id as string,
       locationName: resolveLocationName(
         (row as { locations?: { name?: string | null } | Array<{ name?: string | null }> })
           .locations ?? null
       ),
+      channel,
       rating:
         typeof row.rating === "number"
           ? row.rating

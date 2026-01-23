@@ -27,8 +27,10 @@ import { writeAuditLog } from "@/server/services/audit-logs";
 const requestedMetaPermissions = [
   "pages_show_list",
   "pages_manage_posts",
+  "pages_manage_engagement",
   "pages_read_engagement",
   "instagram_basic",
+  "instagram_manage_comments",
   "instagram_content_publish",
 ];
 
