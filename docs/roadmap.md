@@ -19,6 +19,9 @@
 - [ ] Runbook: staging/prodリリース手順の一本道化
 - [ ] テスト: `pnpm preflight` を含めたCI検証を準備
 
+## 次版タスク（運用拡張）
+- [ ] SNSのDM対応（InstagramのDM / Facebookメッセージ）の受信・返信
+
 ## 完了条件
 - staging/prod のリリース手順が Runbook でクリック/入力単位まで落ちている
 - preflight が不足を検知して exit 1 を返す（値は表示しない）

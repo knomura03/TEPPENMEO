@@ -7,7 +7,7 @@
 | サインアップ | `/auth/sign-up` | 全員 | 新規登録 | アカウント作成 | - |
 | ダッシュボード | `/app` | テナント | 状態把握 | 主要導線の確認 | app-dashboard-enhanced |
 | 初期設定 | `/app/setup` | テナント | 初期導線 | 進捗/KPI/完了チェック、接続/紐付け/投稿テストのリンク集、自動同期設定 | app-setup-owner-friendly |
-| 口コミ・コメント受信箱 | `/app/reviews` | テナント | 口コミ対応 | 横断一覧/フィルタ/検索/返信（Googleのみ） | app-reviews-inbox-owner-friendly |
+| 口コミ・コメント受信箱 | `/app/reviews` | テナント | 口コミ対応 | 横断一覧/フィルタ/検索/返信（Google/FB/IGコメント） | app-reviews-inbox-with-social-comments |
 | 店舗一覧 | `/app/locations` | テナント | 店舗管理 | 作成/一覧/検索 | app-locations-ui-primitives |
 | 店舗詳細 | `/app/locations/[id]` | テナント | 連携/口コミ/投稿 | 接続/切断/紐付け/投稿（Meta/Google）/画像アップロード/投稿履歴（検索/フィルタ/ページング/再実行） | app-location-detail-ui-primitives |
 | 管理概要 | `/admin` | システム管理 | 全体状況 | 概要表示 | admin-overview-design / admin-theme-light-gray |

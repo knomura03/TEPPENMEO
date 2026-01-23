@@ -35,7 +35,9 @@
 - [ ] 以下を追加申請
   - [ ] `pages_show_list`
   - [ ] `pages_manage_posts`
+  - [ ] `pages_manage_engagement`
   - [ ] `pages_read_engagement`
+  - [ ] `instagram_manage_comments`
   - [ ] `instagram_basic`
   - [ ] `instagram_content_publish`
 
@@ -57,8 +59,8 @@
   - ローカル: `http://localhost:3000/api/providers/meta/callback`
   - 本番: `https://<本番ドメイン>/api/providers/meta/callback`
 - **Scopes（申請する権限）**
-  - `pages_show_list`, `pages_manage_posts`, `pages_read_engagement`
-  - `instagram_basic`, `instagram_content_publish`
+  - `pages_show_list`, `pages_manage_posts`, `pages_manage_engagement`, `pages_read_engagement`
+  - `instagram_basic`, `instagram_content_publish`, `instagram_manage_comments`
 - **Webhook**
   - 最小版では未使用
 
@@ -119,6 +121,13 @@
 - [ ] **Instagramに投稿** をオン
 - [ ] **投稿を送信**
 
+### コメント対応（Facebook/Instagram）
+- [ ] `/app/reviews` を開く
+- [ ] **Facebook/Instagram** のタブ（またはフィルタ）を選択
+- [ ] コメント一覧が表示されることを確認
+- [ ] 返信欄に入力し **返信を送信** をクリック
+- [ ] 返信済みの表示になることを確認
+
 ## 動作確認手順（成功/失敗の見分け方）
 - [ ] 接続後に **接続済み** 表示になる
 - [ ] ページ紐付け後に **現在の紐付け** が表示される
@@ -143,6 +152,11 @@
   - FacebookページとIGが連携済みか確認
   - 画像が指定されているか確認
 
+- コメントが取得できない/返信できない
+  - `pages_read_engagement` / `pages_manage_posts` / `pages_manage_engagement` / `instagram_manage_comments` の権限があるか確認
+  - App Reviewの承認状況を確認
+  - 再認可して権限付与状況を更新
+
 - 画像アップロードが失敗する
   - `SUPABASE_STORAGE_BUCKET` の設定を確認
   - `SUPABASE_SERVICE_ROLE_KEY` の設定を確認
@@ -162,6 +176,7 @@
 - Facebookページ紐付け: 実装済み
 - Facebook投稿: 実装済み（本文+画像）
 - Instagram投稿: 画像必須/ページ連携必須（最小実装）
+- Facebook/Instagramコメント: 取得・返信に対応
 
 ## トークンの扱い（補足）
 - OAuth直後に長期トークンへ交換を試みる
