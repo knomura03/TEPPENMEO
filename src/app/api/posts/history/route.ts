@@ -56,8 +56,8 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error: {
-          cause: "ロケーションが見つかりません。",
-          nextAction: "ロケーション一覧から選び直してください。",
+          cause: "店舗が見つかりません。",
+          nextAction: "店舗一覧から選び直してください。",
         },
       },
       { status: 404 }

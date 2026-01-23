@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useFormState } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { DetailsDisclosure } from "@/components/ui/details-disclosure";
 import { FormField } from "@/components/ui/form-field";
 import { Select } from "@/components/ui/select";
 import {
@@ -80,16 +81,16 @@ export function GoogleGbpPanel(props: {
   const linkedName =
     typeof props.link?.metadata?.location_name === "string"
       ? props.link.metadata.location_name
-      : "未設定";
+      : "未選択";
   const linkedAccount =
     typeof props.link?.metadata?.account_name === "string"
       ? props.link.metadata.account_name
       : "不明";
 
   const linkDisabledReason = !props.canEdit
-    ? "権限がありません。"
+    ? "管理者のみ操作できます。"
     : props.candidates.length === 0
-    ? "店舗候補がありません。"
+    ? "選べる店舗候補がありません。"
     : null;
 
   return (
@@ -97,15 +98,15 @@ export function GoogleGbpPanel(props: {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-sm font-semibold text-slate-900">
-            Google ビジネス プロフィール
+            Googleの店舗情報
           </p>
           <p className="text-sm text-slate-500">
-            接続状態: {props.connectionLabel}
+            連携状態: {props.connectionLabel}
           </p>
         </div>
         {props.lastSyncAt && (
           <p className="text-sm text-slate-500">
-            最終同期: {props.lastSyncAt}
+            最終取り込み: {props.lastSyncAt}
           </p>
         )}
       </div>
@@ -123,10 +124,15 @@ export function GoogleGbpPanel(props: {
         <p className="text-sm text-amber-700">{props.connectionMessage}</p>
       )}
 
-      <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-        <p className="text-sm font-semibold text-slate-700">店舗紐付け</p>
+      <div
+        id="google-link"
+        className="rounded-md border border-slate-200 bg-slate-50 p-4"
+      >
+        <p className="text-sm font-semibold text-slate-700">
+          この店舗をGoogleの店舗情報とつなぐ
+        </p>
         <p className="text-sm text-slate-500">
-          GBP側の店舗をこの店舗に紐付けます。
+          Google側の店舗を選んで、この店舗とつなぎます。
         </p>
 
         {props.candidatesError && (
@@ -138,11 +144,19 @@ export function GoogleGbpPanel(props: {
         {props.link && (
           <div className="mt-3 rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-600">
             <p className="font-semibold text-slate-900">
-              現在の紐付け: {linkedName}
+              現在のつなぎ先: {linkedName}
             </p>
-            <p className="text-sm text-slate-500">
-              アカウント: {linkedAccount}
-            </p>
+            <DetailsDisclosure
+              title="詳しく見る"
+              items={[
+                {
+                  label: "管理アカウント",
+                  value: linkedAccount,
+                  mask: false,
+                },
+              ]}
+              className="mt-2"
+            />
           </div>
         )}
 
@@ -168,7 +182,7 @@ export function GoogleGbpPanel(props: {
             name="address"
             value={selectedLocation?.address ?? ""}
           />
-          <FormField label="Google店舗（GBP）" required>
+          <FormField label="Googleの店舗" required>
             <Select
               value={selectedId}
               onChange={(event) => setSelectedId(event.target.value)}
@@ -191,22 +205,25 @@ export function GoogleGbpPanel(props: {
             className="w-full"
             disabled={!props.canEdit || props.candidates.length === 0}
           >
-            紐付けを更新
+            店舗をつなぐ
           </Button>
         </form>
       </div>
 
-      <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-        <p className="text-sm font-semibold text-slate-700">口コミ同期</p>
+      <div
+        id="google-sync"
+        className="rounded-md border border-slate-200 bg-slate-50 p-4"
+      >
+        <p className="text-sm font-semibold text-slate-700">口コミを取り込む</p>
         <p className="text-sm text-slate-500">
-          紐付け済み店舗の口コミを同期します。
+          つなぎ済みの店舗の口コミを取り込みます。
         </p>
         <form action={syncAction} className="mt-3 space-y-3">
           <input type="hidden" name="locationId" value={props.locationId} />
           {syncState.error && <ErrorBox error={syncState.error} />}
           {syncState.success && <SuccessBox message={syncState.success} />}
           <Button type="submit" className="w-full" disabled={!props.canEdit}>
-            口コミ同期
+            口コミを取り込む
           </Button>
         </form>
       </div>

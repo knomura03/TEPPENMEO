@@ -53,7 +53,7 @@ const statusOptions: Array<{ value: PostHistoryStatus; label: string }> = [
 ];
 
 const targetOptions: Array<{ value: PostHistoryTarget; label: string }> = [
-  { value: "all", label: "すべての対象" },
+  { value: "all", label: "すべての投稿先" },
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
   { value: "google", label: "Google" },
@@ -347,7 +347,7 @@ export function PostHistoryPanel(props: {
     }
     if (filters.target !== "all") {
       const label = targetLabels[filters.target] ?? filters.target;
-      chips.push(`対象: ${label}`);
+      chips.push(`投稿先: ${label}`);
     }
     return chips;
   }, [filters]);
@@ -447,7 +447,7 @@ export function PostHistoryPanel(props: {
                 ))}
               </Select>
             </FormField>
-            <FormField label="対象">
+            <FormField label="投稿先">
               <Select
                 value={targetDraft}
                 onChange={(event) =>
@@ -543,7 +543,7 @@ export function PostHistoryPanel(props: {
                       </p>
                       <div className="mt-2 space-y-2">
                         {post.targets.length === 0 ? (
-                          <p className="text-sm text-slate-500">対象なし</p>
+                          <p className="text-sm text-slate-500">投稿先なし</p>
                         ) : (
                           post.targets.map((target, index) => {
                             const targetKey = extractTargetKey(target);

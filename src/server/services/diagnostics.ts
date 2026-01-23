@@ -122,6 +122,12 @@ export type MediaAssetsSchemaCheck = {
   message: string | null;
 };
 
+export type PostTemplatesSchemaCheck = {
+  status: "ok" | "missing" | "unknown";
+  issue: "table_missing" | "unknown" | null;
+  message: string | null;
+};
+
 export type JobRunsSchemaCheck = {
   status: "ok" | "missing" | "unknown";
   issue: "table_missing" | "unknown" | null;
@@ -226,6 +232,29 @@ export function resolveMediaAssetsSchemaStatus(
     issue: "unknown",
     message:
       error.message ?? "media_assets の確認に失敗しました。設定を確認してください。",
+  };
+}
+
+export function resolvePostTemplatesSchemaStatus(
+  error: { code?: string; message?: string } | null
+): PostTemplatesSchemaCheck {
+  if (!error) {
+    return { status: "ok", issue: null, message: null };
+  }
+
+  if (error.code === "42P01") {
+    return {
+      status: "missing",
+      issue: "table_missing",
+      message: "post_templates テーブルが見つかりません。",
+    };
+  }
+
+  return {
+    status: "unknown",
+    issue: "unknown",
+    message:
+      error.message ?? "post_templates の確認に失敗しました。設定を確認してください。",
   };
 }
 
@@ -444,6 +473,29 @@ export async function checkMediaAssetsSchema(): Promise<MediaAssetsSchemaCheck> 
   const { error } = await admin.from("media_assets").select("id").limit(1);
 
   return resolveMediaAssetsSchemaStatus(error);
+}
+
+export async function checkPostTemplatesSchema(): Promise<PostTemplatesSchemaCheck> {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseのサービスキーが未設定のため判定できません。",
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return {
+      status: "unknown",
+      issue: "unknown",
+      message: "Supabaseの設定を確認してください。",
+    };
+  }
+
+  const { error } = await admin.from("post_templates").select("id").limit(1);
+
+  return resolvePostTemplatesSchemaStatus(error);
 }
 
 export async function checkJobRunsSchema(): Promise<JobRunsSchemaCheck> {

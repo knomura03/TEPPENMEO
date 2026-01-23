@@ -13,6 +13,7 @@
 - `supabase/migrations/0006_job_runs.sql`
 - `supabase/migrations/0007_job_schedules.sql`
 - `supabase/migrations/0008_job_runs_running_unique.sql`
+- `supabase/migrations/0009_post_templates.sql`
 
 ## 推奨: Supabase CLIで統一
 1) CLIをインストール  
@@ -49,6 +50,7 @@ supabase db push
 - `/admin/diagnostics` で **job_runs: 適用済み** を確認  
 - `/admin/diagnostics` で **job_schedules: 適用済み** を確認  
 - `/admin/diagnostics` で **job_runs 重複防止: 適用済み** を確認  
+- `/admin/diagnostics` で **post_templates: 適用済み** を確認  
 
 ## よくある詰まり
 - `SQLSTATE 42710: type already exists`  

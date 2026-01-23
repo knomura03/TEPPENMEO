@@ -12,6 +12,7 @@ import {
   checkAuditLogsIndexes,
   checkJobRunsRunningIndex,
   checkMediaAssetsSchema,
+  checkPostTemplatesSchema,
   checkJobSchedulesSchema,
   checkJobRunsSchema,
   checkSupabaseConnection,
@@ -65,6 +66,7 @@ export default async function AdminDiagnosticsPage() {
   const userBlocksSchema = await checkUserBlocksSchema();
   const setupProgressSchema = await checkSetupProgressSchema();
   const mediaAssetsSchema = await checkMediaAssetsSchema();
+  const postTemplatesSchema = await checkPostTemplatesSchema();
   const jobRunsSchema = await checkJobRunsSchema();
   const jobSchedulesSchema = await checkJobSchedulesSchema();
   const jobRunsRunningIndex = await checkJobRunsRunningIndex();
@@ -322,6 +324,16 @@ export default async function AdminDiagnosticsPage() {
       "media_assets の確認に失敗しました。設定を確認してください。"
     );
   }
+  if (postTemplatesSchema.status === "missing") {
+    nextSteps.push(
+      "post_templates マイグレーションを適用してください（投稿テンプレートに必要）。"
+    );
+  }
+  if (postTemplatesSchema.status === "unknown") {
+    nextSteps.push(
+      "post_templates の確認に失敗しました。設定を確認してください。"
+    );
+  }
   if (jobRunsSchema.status === "missing") {
     nextSteps.push(
       "job_runs マイグレーションを適用してください（ジョブ履歴に必要）。"
@@ -370,6 +382,7 @@ export default async function AdminDiagnosticsPage() {
     { label: "user_blocks", schema: userBlocksSchema },
     { label: "setup_progress", schema: setupProgressSchema },
     { label: "media_assets", schema: mediaAssetsSchema },
+    { label: "post_templates", schema: postTemplatesSchema },
     { label: "job_runs", schema: jobRunsSchema },
     { label: "job_schedules", schema: jobSchedulesSchema },
     { label: "job_runs 重複防止", schema: jobRunsRunningIndex },

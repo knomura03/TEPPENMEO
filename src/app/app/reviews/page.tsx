@@ -112,7 +112,7 @@ export default async function ReviewsInboxPage({
           口コミ・コメント受信箱
         </h1>
         <p className="text-sm text-slate-500">
-          所属組織が見つかりません。組織管理者に確認してください。
+          管理者情報が確認できません。管理者に確認してください。
         </p>
       </div>
     );

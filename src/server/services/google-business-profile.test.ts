@@ -28,7 +28,7 @@ describe("GBP投稿", () => {
     expect(result.status).toBe("published");
   });
 
-  it("GBPロケーション未紐付けは失敗する", async () => {
+  it("GBPロケーション未設定は失敗する", async () => {
     const result = await publishGooglePostTarget({
       organizationId: "org-1",
       locationId: "loc-2",
@@ -39,7 +39,7 @@ describe("GBP投稿", () => {
       actorUserId: "user-1",
     });
     expect(result.status).toBe("failed");
-    expect(result.error?.cause).toContain("未紐付け");
+    expect(result.error?.cause).toContain("未設定");
   });
 });
 

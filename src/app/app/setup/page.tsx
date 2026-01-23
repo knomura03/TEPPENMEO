@@ -92,7 +92,7 @@ export default async function SetupChecklistPage() {
           初期設定
         </h1>
         <p className="text-sm text-slate-500">
-          所属組織が見つかりません。組織管理者に確認してください。
+          管理者情報が確認できません。管理者に確認してください。
         </p>
       </div>
     );
@@ -123,7 +123,7 @@ export default async function SetupChecklistPage() {
     isSupabaseAdminConfigured() &&
     jobRunsSchema.status === "ok";
   const bulkDisabledReason = !canManageOrg
-    ? "組織管理者のみ実行できます。"
+    ? "管理者のみ実行できます。"
     : !isSupabaseConfigured()
       ? "Supabaseが未設定のため実行できません。"
       : !isSupabaseAdminConfigured()
@@ -137,7 +137,7 @@ export default async function SetupChecklistPage() {
     isSupabaseAdminConfigured() &&
     jobSchedulesSchema.status === "ok";
   const scheduleDisabledReason = !canManageOrg
-    ? "組織管理者のみ保存できます。"
+    ? "管理者のみ保存できます。"
     : !isSupabaseConfigured()
       ? "Supabaseが未設定のため保存できません。"
       : !isSupabaseAdminConfigured()

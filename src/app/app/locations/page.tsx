@@ -61,10 +61,9 @@ export default async function LocationsPage({
   } else if (!user) {
     createDisabledReason = "ログインが必要です。";
   } else if (!org) {
-    createDisabledReason = "所属組織が見つかりません。組織管理者に確認してください。";
+    createDisabledReason = "管理者情報が確認できません。管理者に確認してください。";
   } else if (!canCreate) {
-    createDisabledReason =
-      "権限がありません。組織管理者に権限付与を依頼してください。";
+    createDisabledReason = "管理者のみ操作できます。管理者に確認してください。";
   }
 
   return (

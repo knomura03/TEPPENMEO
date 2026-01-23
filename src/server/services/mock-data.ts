@@ -200,6 +200,33 @@ export const mockPosts = [
   },
 ];
 
+export const mockPostTemplates = [
+  {
+    id: "tpl-1",
+    organizationId: mockOrganization.id,
+    name: "営業案内",
+    body: "本日も元気に営業中です。ご来店をお待ちしています。",
+    defaultTargets: { facebook: true, instagram: false, google: true },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    archivedAt: null,
+    createdBy: "user-1",
+    updatedBy: "user-1",
+  },
+  {
+    id: "tpl-2",
+    organizationId: mockOrganization.id,
+    name: "キャンペーン告知",
+    body: "期間限定キャンペーンを開始しました。詳細は店舗までお問い合わせください。",
+    defaultTargets: { facebook: true, instagram: true, google: false },
+    createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+    archivedAt: null,
+    createdBy: "user-1",
+    updatedBy: "user-1",
+  },
+];
+
 export const mockPostHistory = [
   {
     id: "post-1",

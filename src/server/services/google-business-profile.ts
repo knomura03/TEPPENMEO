@@ -266,7 +266,7 @@ export async function syncGoogleReviews(params: {
     throw new ProviderError(
       ProviderType.GoogleBusinessProfile,
       "validation_error",
-      "GBPロケーションが未紐付けです。"
+      "Googleの店舗情報が未設定です。"
     );
   }
 
@@ -342,7 +342,7 @@ export async function replyGoogleReviewForLocation(params: {
     throw new ProviderError(
       ProviderType.GoogleBusinessProfile,
       "validation_error",
-      "GBPロケーションが未紐付けです。"
+      "Googleの店舗情報が未設定です。"
     );
   }
 
@@ -495,7 +495,7 @@ export async function publishGooglePostTarget(params: {
     const providerError = new ProviderError(
       ProviderType.GoogleBusinessProfile,
       "validation_error",
-      "GBPロケーションが未紐付けです。"
+      "Googleの店舗情報が未設定です。"
     );
     const record = await createPostTargetRecord({
       postId: params.postId,
@@ -678,8 +678,8 @@ export async function retryGooglePostTarget(params: {
     return {
       status: "failed",
       error: {
-        cause: "GBPロケーションが未紐付けです。",
-        nextAction: "GBPロケーションを紐付けてから再実行してください。",
+        cause: "Googleの店舗情報が未設定です。",
+        nextAction: "Googleの店舗情報を選んでから再実行してください。",
       },
     };
   }

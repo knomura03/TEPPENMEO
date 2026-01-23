@@ -42,7 +42,7 @@ const locationSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "ロケーション名は必須です"),
+    .min(1, "店舗名は必須です"),
   address: z.string().trim().optional(),
   latitude: optionalNumber(-90, 90, "緯度"),
   longitude: optionalNumber(-180, 180, "経度"),
@@ -65,12 +65,12 @@ export async function createLocationAction(
 
   const org = await getPrimaryOrganization(user.id);
   if (!org) {
-    return { error: "所属組織が見つかりません。組織管理者に確認してください。" };
+    return { error: "管理者情報が確認できません。管理者に確認してください。" };
   }
 
   const role = await getMembershipRole(user.id, org.id);
   if (!hasRequiredRole(role, "admin")) {
-    return { error: "権限がありません。組織管理者に権限付与を依頼してください。" };
+    return { error: "管理者のみ操作できます。管理者に確認してください。" };
   }
 
   const parsed = locationSchema.safeParse({
@@ -93,7 +93,7 @@ export async function createLocationAction(
   });
 
   if (!created) {
-    return { error: "ロケーション作成に失敗しました。再度お試しください。" };
+    return { error: "店舗の追加に失敗しました。再度お試しください。" };
   }
 
   redirect(`/app/locations/${created.id}`);
