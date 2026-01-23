@@ -43,6 +43,7 @@ export default async function ReleaseDashboardPage() {
     readiness.postTemplates.count === null
       ? "不明"
       : `${readiness.postTemplates.count}件`;
+  const appBasePlaceholder = "<APP_BASE_URL>";
 
   return (
     <div className="space-y-8">
@@ -117,6 +118,46 @@ export default async function ReleaseDashboardPage() {
               </div>
             </Callout>
           )}
+        </CardContent>
+      </Card>
+
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">登録情報テンプレ</p>
+          <p className="text-sm text-slate-600">
+            staging/prod で使う登録情報のテンプレです。値は表示しません。
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-slate-700">
+          <div className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs text-slate-500">Redirect URI</p>
+            <p className="font-mono text-xs text-slate-700">
+              Google: {appBasePlaceholder}/api/providers/google/callback
+            </p>
+            <p className="font-mono text-xs text-slate-700">
+              Meta: {appBasePlaceholder}/api/providers/meta/callback
+            </p>
+          </div>
+          <div className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs text-slate-500">公開ページ</p>
+            <p className="font-mono text-xs text-slate-700">
+              {appBasePlaceholder}/privacy
+            </p>
+            <p className="font-mono text-xs text-slate-700">
+              {appBasePlaceholder}/terms
+            </p>
+            <p className="font-mono text-xs text-slate-700">
+              {appBasePlaceholder}/data-deletion
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a className={linkClass} href="/docs/runbooks/staging-prod-env-setup">
+              staging/prod準備手順
+            </a>
+            <a className={linkClass} href="/docs/runbooks/release-production">
+              本番リリース手順
+            </a>
+          </div>
         </CardContent>
       </Card>
 
