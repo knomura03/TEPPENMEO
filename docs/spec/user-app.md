@@ -73,6 +73,9 @@
   - Google: 口コミ返信（既存）
   - Facebook/Instagram: 投稿コメントの返信に対応
   - DM（InstagramのDM / Facebookメッセージ）は対象外（次版）
+- 実機確認:
+  - diagnostics → provider-health → 受信箱の順で状態を確認する
+  - 目安: Google口コミの取得/返信ができる、SNSコメントの取得/返信ができる
 
 ### 投稿
 - 店舗詳細で投稿履歴を表示
@@ -129,3 +132,4 @@
 - Google投稿の再実行ができる（モック/実モードで分岐）
 - /app/setup で進捗/KPI/完了チェックが確認できる（不明は不明と表示）
 - 受信箱で未返信/店舗/期間/検索が使え、Google口コミとSNSコメントに返信できる
+- diagnostics/provider-healthに受信箱の実機確認導線があり、店舗オーナー向けの案内で迷わず進められる

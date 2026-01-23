@@ -115,6 +115,10 @@ test(
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("admin-diagnostics-inbox-real-mode", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   expect(hasDiagnostics || hasSignIn).toBeTruthy();
 });
@@ -166,6 +170,10 @@ test(
     contentType: "image/png",
   });
   await testInfo.attach("admin-provider-health-design", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+  await testInfo.attach("admin-provider-health-inbox-meta", {
     body: screenshot,
     contentType: "image/png",
   });
@@ -363,6 +371,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-reviews-inbox-with-social-comments", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-reviews-inbox-real-mode-guidance", {
       body: screenshot,
       contentType: "image/png",
     });
