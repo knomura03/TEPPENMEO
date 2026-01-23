@@ -89,7 +89,7 @@ export function GoogleGbpPanel(props: {
   const linkDisabledReason = !props.canEdit
     ? "権限がありません。"
     : props.candidates.length === 0
-    ? "ロケーション候補がありません。"
+    ? "店舗候補がありません。"
     : null;
 
   return (
@@ -124,9 +124,9 @@ export function GoogleGbpPanel(props: {
       )}
 
       <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-        <p className="text-sm font-semibold text-slate-700">ロケーション紐付け</p>
+        <p className="text-sm font-semibold text-slate-700">店舗紐付け</p>
         <p className="text-sm text-slate-500">
-          GBP側のロケーションをこのロケーションに紐付けます。
+          GBP側の店舗をこの店舗に紐付けます。
         </p>
 
         {props.candidatesError && (
@@ -168,7 +168,7 @@ export function GoogleGbpPanel(props: {
             name="address"
             value={selectedLocation?.address ?? ""}
           />
-          <FormField label="GBPロケーション" required>
+          <FormField label="Google店舗（GBP）" required>
             <Select
               value={selectedId}
               onChange={(event) => setSelectedId(event.target.value)}
@@ -197,16 +197,16 @@ export function GoogleGbpPanel(props: {
       </div>
 
       <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-        <p className="text-sm font-semibold text-slate-700">レビュー同期</p>
+        <p className="text-sm font-semibold text-slate-700">口コミ同期</p>
         <p className="text-sm text-slate-500">
-          紐付け済みロケーションのレビューを同期します。
+          紐付け済み店舗の口コミを同期します。
         </p>
         <form action={syncAction} className="mt-3 space-y-3">
           <input type="hidden" name="locationId" value={props.locationId} />
           {syncState.error && <ErrorBox error={syncState.error} />}
           {syncState.success && <SuccessBox message={syncState.success} />}
           <Button type="submit" className="w-full" disabled={!props.canEdit}>
-            レビュー同期
+            口コミ同期
           </Button>
         </form>
       </div>

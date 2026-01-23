@@ -7,9 +7,9 @@ import { signOutAction } from "@/server/auth/actions";
 
 const navItems = [
   { href: "/app", label: "ダッシュボード" },
-  { href: "/app/setup", label: "セットアップ" },
-  { href: "/app/reviews", label: "レビュー受信箱" },
-  { href: "/app/locations", label: "ロケーション" },
+  { href: "/app/setup", label: "初期設定" },
+  { href: "/app/reviews", label: "口コミ・コメント受信箱" },
+  { href: "/app/locations", label: "店舗" },
 ];
 
 type AppShellProps = {
@@ -36,7 +36,9 @@ export function AppShell({ children, userEmail, active }: AppShellProps) {
               <p className="text-sm font-semibold text-[color:var(--primary)]">
                 TEPPEN MEO
               </p>
-              <p className="text-xs text-slate-500">プロバイダ統合ワークスペース</p>
+              <p className="text-xs text-slate-500">
+                連携サービス統合ワークスペース
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">

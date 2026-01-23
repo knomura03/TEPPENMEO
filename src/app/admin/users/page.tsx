@@ -61,7 +61,7 @@ export default async function AdminUsersPage({
   const secondaryLink = buttonStyles({
     variant: "secondary",
     size: "md",
-    className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
+    className: "border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-50",
   });
   const columns = createAdminUserColumns({
     userBlocksReady,
@@ -75,7 +75,7 @@ export default async function AdminUsersPage({
       <PageHeader
         title="ユーザー管理"
         description="システム管理者がユーザーの招待、無効化、削除を行います。システム管理者の変更は全組織に影響します。"
-        tone="dark"
+        tone="light"
       />
 
       {!supabaseReady && (
@@ -90,7 +90,7 @@ export default async function AdminUsersPage({
           <p>原因: user_blocks の設定が未適用です。</p>
           <p>次にやること: マイグレーションを適用してください。</p>
           {userBlocksSchema.message && (
-            <p className="text-amber-100/80">{userBlocksSchema.message}</p>
+            <p className="text-amber-700">{userBlocksSchema.message}</p>
           )}
           <div>
             <a href="/docs/runbooks/supabase-migrations" className={secondaryLink}>
@@ -100,10 +100,10 @@ export default async function AdminUsersPage({
         </Callout>
       )}
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">ユーザー作成</p>
-          <p className="text-sm text-slate-300">
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">ユーザー作成</p>
+          <p className="text-sm text-slate-600">
             招待メール、招待リンク、仮パスワード方式で作成します。
           </p>
         </CardHeader>
@@ -112,10 +112,10 @@ export default async function AdminUsersPage({
         </CardContent>
       </Card>
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">招待テンプレ</p>
-          <p className="text-sm text-slate-300">
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">招待テンプレ</p>
+          <p className="text-sm text-slate-600">
             招待リンクを差し込んだ件名/本文を生成してコピーします。
           </p>
         </CardHeader>
@@ -144,18 +144,18 @@ export default async function AdminUsersPage({
       >
         <form id={filterFormId} className="contents" action="/admin/users">
           <div className="md:col-span-2">
-            <FormField label="検索" tone="dark">
+            <FormField label="検索" tone="light">
               <Input
                 name="q"
                 defaultValue={query}
                 placeholder="メールで検索"
-                tone="dark"
+                tone="light"
               />
             </FormField>
           </div>
           <div>
-            <FormField label="状態" tone="dark">
-              <Select name="status" defaultValue={status} tone="dark">
+            <FormField label="状態" tone="light">
+              <Select name="status" defaultValue={status} tone="light">
                 <option value="all">すべて</option>
                 <option value="active">有効</option>
                 <option value="invited">招待中</option>
@@ -164,8 +164,8 @@ export default async function AdminUsersPage({
             </FormField>
           </div>
           <div className="md:col-span-2">
-            <FormField label="組織" tone="dark">
-              <Select name="org" defaultValue={organizationId} tone="dark">
+            <FormField label="組織" tone="light">
+              <Select name="org" defaultValue={organizationId} tone="light">
                 <option value="all">すべて</option>
                 {organizations.map((org) => (
                   <option key={org.id} value={org.id}>
@@ -178,13 +178,13 @@ export default async function AdminUsersPage({
         </form>
       </FilterBar>
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
           <div className="flex items-center justify-between">
-            <p className="text-base font-semibold text-slate-100">一覧</p>
+            <p className="text-base font-semibold text-slate-900">一覧</p>
             <Badge variant="muted">{users.length}件</Badge>
           </div>
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-slate-600">
             有効/招待中/無効を一覧で確認します。
           </p>
         </CardHeader>
@@ -200,7 +200,7 @@ export default async function AdminUsersPage({
               }
             />
           ) : (
-            <Table tone="dark">
+            <Table tone="light">
               <TableHeader>
                 <TableRow>
                   {columns.map((column) => (

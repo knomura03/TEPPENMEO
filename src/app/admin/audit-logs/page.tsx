@@ -116,7 +116,7 @@ export default async function AdminAuditLogsPage({
   const secondaryLink = buttonStyles({
     variant: "secondary",
     size: "md",
-    className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
+    className: "border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-50",
   });
   const columns = createAuditLogColumns({ organizationMap });
 
@@ -125,7 +125,7 @@ export default async function AdminAuditLogsPage({
       <PageHeader
         title="監査ログ"
         description="プロバイダ連携や同期の履歴を確認します。"
-        tone="dark"
+        tone="light"
       />
 
       <FilterBar
@@ -150,18 +150,18 @@ export default async function AdminAuditLogsPage({
       >
         <form id={filterFormId} className="contents" action="/admin/audit-logs">
           <div className="md:col-span-2">
-            <FormField label="期間（開始）" tone="dark">
-              <Input type="date" name="from" defaultValue={filters.from} tone="dark" />
+            <FormField label="期間（開始）" tone="light">
+              <Input type="date" name="from" defaultValue={filters.from} tone="light" />
             </FormField>
           </div>
           <div className="md:col-span-2">
-            <FormField label="期間（終了）" tone="dark">
-              <Input type="date" name="to" defaultValue={filters.to} tone="dark" />
+            <FormField label="期間（終了）" tone="light">
+              <Input type="date" name="to" defaultValue={filters.to} tone="light" />
             </FormField>
           </div>
           <div className="md:col-span-2">
-            <FormField label="操作" tone="dark">
-              <Select name="action" defaultValue={filters.action} tone="dark">
+            <FormField label="操作" tone="light">
+              <Select name="action" defaultValue={filters.action} tone="light">
                 <option value="">すべて</option>
                 {Object.entries(actionLabels).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -172,8 +172,8 @@ export default async function AdminAuditLogsPage({
             </FormField>
           </div>
           <div className="md:col-span-2">
-            <FormField label="組織" tone="dark">
-              <Select name="org" defaultValue={filters.organizationId} tone="dark">
+            <FormField label="組織" tone="light">
+              <Select name="org" defaultValue={filters.organizationId} tone="light">
                 <option value="">すべて</option>
                 {organizations.map((org) => (
                   <option key={org.id} value={org.id}>
@@ -184,18 +184,18 @@ export default async function AdminAuditLogsPage({
             </FormField>
           </div>
           <div className="md:col-span-2">
-            <FormField label="操作者（メール）" tone="dark">
+            <FormField label="操作者（メール）" tone="light">
               <Input
                 name="actor"
                 defaultValue={filters.actor}
                 placeholder="admin@example.com"
-                tone="dark"
+                tone="light"
               />
             </FormField>
           </div>
           <div className="md:col-span-2">
-            <FormField label="プロバイダ" tone="dark">
-              <Select name="provider" defaultValue={filters.providerType} tone="dark">
+            <FormField label="プロバイダ" tone="light">
+              <Select name="provider" defaultValue={filters.providerType} tone="light">
                 <option value="all">すべて</option>
                 {Object.entries(providerLabels).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -206,12 +206,12 @@ export default async function AdminAuditLogsPage({
             </FormField>
           </div>
           <div className="md:col-span-4">
-            <FormField label="自由検索" tone="dark">
+            <FormField label="自由検索" tone="light">
               <Input
                 name="text"
                 defaultValue={filters.text}
                 placeholder="action/target/metadata を検索"
-                tone="dark"
+                tone="light"
               />
             </FormField>
           </div>
@@ -237,24 +237,24 @@ export default async function AdminAuditLogsPage({
           }
         />
       ) : (
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-slate-100">
+                <h2 className="text-lg font-semibold text-slate-900">
                   監査ログ一覧
                 </h2>
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-slate-600">
                   1ページ {pageSize} 件、最新順で表示します。
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-300">
+              <div className="flex items-center gap-2 text-sm text-slate-600">
                 <span>ページ {page}</span>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Table tone="dark">
+            <Table tone="light">
               <TableHeader>
                 <TableRow>
                   {columns.map((column) => (
@@ -283,7 +283,7 @@ export default async function AdminAuditLogsPage({
               </TableBody>
             </Table>
             <Pagination
-              tone="dark"
+              tone="light"
               summary={`ページ ${page}（${pageSize}件/ページ）`}
               prevHref={prevHref}
               nextHref={nextHref}

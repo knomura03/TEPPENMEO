@@ -34,7 +34,7 @@ type SearchParams = {
 const providerOptions = [
   { value: "all", label: "すべて" },
   { value: ProviderType.GoogleBusinessProfile, label: "Google" },
-  { value: ProviderType.Meta, label: "Meta" },
+  { value: ProviderType.Meta, label: "Facebook/Instagram" },
 ];
 
 const periodOptions = [
@@ -82,10 +82,10 @@ export default async function ReviewsInboxPage({
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold text-slate-900">
-          レビュー受信箱
+          口コミ・コメント受信箱
         </h1>
         <p className="text-sm text-slate-500">
-          ログイン後にレビュー対応を開始できます。
+          ログイン後に口コミ対応を開始できます。
         </p>
         <Link
           href="/auth/sign-in"
@@ -102,7 +102,7 @@ export default async function ReviewsInboxPage({
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold text-slate-900">
-          レビュー受信箱
+          口コミ・コメント受信箱
         </h1>
         <p className="text-sm text-slate-500">
           所属組織が見つかりません。組織管理者に確認してください。
@@ -162,10 +162,10 @@ export default async function ReviewsInboxPage({
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">
-          レビュー受信箱
+          口コミ・コメント受信箱
         </h1>
         <p className="text-base text-slate-600 leading-relaxed">
-          ロケーションを横断してレビューを確認し、返信対応を進めます。
+          店舗を横断して口コミ・コメントを確認し、返信対応を進めます。
         </p>
       </div>
 
@@ -182,15 +182,15 @@ export default async function ReviewsInboxPage({
               <FormField label="検索">
                 <Input
                   name="q"
-                  placeholder="投稿者・本文・ロケーション名で検索"
+                  placeholder="投稿者・本文・店舗名で検索"
                   defaultValue={resolvedSearchParams.q ?? ""}
                 />
               </FormField>
             </div>
             <div className="md:col-span-2">
-              <FormField label="ロケーション">
+              <FormField label="店舗">
                 <Select name="locationId" defaultValue={locationId ?? "all"}>
-                  <option value="all">全ロケーション</option>
+                  <option value="all">全店舗</option>
                   {locations.map((location) => (
                     <option key={location.id} value={location.id}>
                       {location.name}
@@ -200,7 +200,7 @@ export default async function ReviewsInboxPage({
               </FormField>
             </div>
             <div className="md:col-span-1">
-              <FormField label="プロバイダ">
+              <FormField label="連携サービス">
                 <Select name="provider" defaultValue={provider}>
                   {providerOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -249,18 +249,18 @@ export default async function ReviewsInboxPage({
       <Card tone="light">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">レビュー一覧</h2>
+            <h2 className="text-lg font-semibold text-slate-900">口コミ一覧</h2>
             <Badge variant="default">{inboxPage.total}件</Badge>
           </div>
         </CardHeader>
         <CardContent>
           {inboxPage.items.length === 0 ? (
             <EmptyState
-              title="条件に一致するレビューがありません。"
-              description="レビュー同期を実行するか、条件を調整してください。"
+              title="条件に一致する口コミがありません。"
+              description="口コミ同期を実行するか、条件を調整してください。"
               actions={
                 <Link href="/app/locations" className={actionLinkSecondary}>
-                  ロケーションへ
+                  店舗へ
                 </Link>
               }
             />

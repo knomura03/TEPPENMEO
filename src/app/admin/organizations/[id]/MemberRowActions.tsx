@@ -30,7 +30,7 @@ export function MemberRoleForm({
       <select
         name="role"
         defaultValue={role}
-        className="min-h-[44px] rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]"
+        className="min-h-[44px] rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]"
       >
         <option value="owner">オーナー</option>
         <option value="admin">組織管理者</option>
@@ -40,7 +40,7 @@ export function MemberRoleForm({
       <Button
         type="submit"
         variant="secondary"
-        className="min-h-[44px] bg-slate-700 px-4 text-sm text-slate-100 hover:bg-slate-600"
+        className="min-h-[44px] bg-slate-700 px-4 text-sm text-slate-900 hover:bg-slate-600"
       >
         変更
       </Button>
@@ -48,7 +48,7 @@ export function MemberRoleForm({
         <span className="text-sm text-rose-300">{state.error}</span>
       )}
       {state.success && (
-        <span className="text-sm text-emerald-300">{state.success}</span>
+        <span className="text-sm text-emerald-600">{state.success}</span>
       )}
     </form>
   );
@@ -78,7 +78,7 @@ export function MemberRemoveForm({
         <p className="text-sm text-rose-300">{state.error}</p>
       )}
       {state.success && (
-        <p className="text-sm text-emerald-300">{state.success}</p>
+        <p className="text-sm text-emerald-600">{state.success}</p>
       )}
     </form>
   );

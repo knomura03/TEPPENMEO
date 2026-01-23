@@ -70,19 +70,19 @@ export default async function LocationsPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">ロケーション</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">店舗</h1>
         <p className="text-sm text-slate-500">
-          店舗ロケーションとプロバイダ連携を管理します。
+          店舗情報と連携サービスを管理します。
         </p>
       </div>
 
       <Card>
         <CardHeader>
           <h2 className="text-lg font-semibold text-slate-900">
-            ロケーション新規作成
+            店舗を追加
           </h2>
           <p className="text-sm text-slate-500">
-            ロケーションを追加してプロバイダ連携の対象を増やします。
+            店舗を追加して連携サービスの対象を増やします。
           </p>
         </CardHeader>
         <CardContent>
@@ -95,7 +95,7 @@ export default async function LocationsPage({
           <CardHeader>
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900">
-                ロケーション一覧
+                店舗一覧
               </h2>
               <Badge variant="default">{locations.length}</Badge>
             </div>
@@ -117,7 +117,7 @@ export default async function LocationsPage({
             ))}
             {locations.length === 0 && (
               <p className="text-sm text-slate-500">
-                まだロケーションがありません。
+                まだ店舗がありません。
               </p>
             )}
           </CardContent>
@@ -129,12 +129,12 @@ export default async function LocationsPage({
               地図検索
             </h2>
             <p className="text-sm text-slate-500">
-              住所候補を検索してロケーション登録を補助します。
+              住所候補を検索して店舗登録を補助します。
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <form className="space-y-3" method="get">
-              <FormField label="検索プロバイダ">
+              <FormField label="検索サービス">
                 <Select name="provider" defaultValue={providerValue}>
                   {searchProviders.map((provider) => (
                     <option key={provider.value} value={provider.value}>

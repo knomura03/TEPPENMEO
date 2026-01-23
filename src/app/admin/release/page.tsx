@@ -20,7 +20,7 @@ export default async function ReleaseDashboardPage() {
         <PageHeader
           title="リリース準備"
           description="システム管理者のみが閲覧できます。"
-          tone="dark"
+          tone="light"
         />
         <Callout tone="warning" title="権限がありません">
           <p>システム管理者権限が必要です。</p>
@@ -45,17 +45,17 @@ export default async function ReleaseDashboardPage() {
       <PageHeader
         title="リリース準備"
         description="実機リリースに必要な項目を一画面で確認します。値は表示せず、設定済み/未設定だけを示します。"
-        tone="dark"
+        tone="light"
       />
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">環境と公開情報</p>
-          <p className="text-sm text-slate-300">
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">環境と公開情報</p>
+          <p className="text-sm text-slate-600">
             モック/実機、APP_BASE_URL、公開情報の設定状況を確認します。
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-200">
+        <CardContent className="space-y-3 text-sm text-slate-700">
           <div className="flex items-center justify-between">
             <span>モックモード</span>
             <Badge variant={readiness.env.providerMockMode ? "warning" : "success"}>
@@ -74,7 +74,7 @@ export default async function ReleaseDashboardPage() {
               {readiness.env.publicInfoSet ? "設定済み" : "未設定"}
             </Badge>
           </div>
-          <div className="space-y-1 text-xs text-slate-400">
+          <div className="space-y-1 text-xs text-slate-500">
             <p>不足時の手順:</p>
             <p>- preflight: `pnpm preflight --mode mock|real`</p>
             <p>
@@ -117,25 +117,25 @@ export default async function ReleaseDashboardPage() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">Supabase</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">Supabase</p>
+            <p className="text-sm text-slate-600">
               接続可否とマイグレーション適用状況を確認します。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-200">
+          <CardContent className="space-y-3 text-sm text-slate-700">
             <div className="flex items-center justify-between">
               <span>接続</span>
               <Badge variant={readiness.supabase.connection ? "success" : "warning"}>
                 {readiness.supabase.connection ? "正常" : "異常"}
               </Badge>
             </div>
-            <div className="space-y-2 rounded-md border border-slate-800 bg-slate-950/50 p-3">
-              <p className="text-xs text-slate-400">マイグレーション</p>
+            <div className="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">マイグレーション</p>
               {Object.entries(readiness.supabase.migrations).map(([key, status]) => (
                 <div key={key} className="flex items-center justify-between">
-                  <span className="text-sm text-slate-300">{key}</span>
+                  <span className="text-sm text-slate-600">{key}</span>
                   <Badge variant={status === "ok" ? "success" : "warning"}>
                     {status === "ok" ? "適用済み" : status === "missing" ? "未適用" : "未判定"}
                   </Badge>
@@ -166,14 +166,14 @@ export default async function ReleaseDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">Storage / Cron / Jobs</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">Storage / Cron / Jobs</p>
+            <p className="text-sm text-slate-600">
               画像アップロードとジョブスケジュールの準備状況です。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-200">
+          <CardContent className="space-y-3 text-sm text-slate-700">
             <div className="flex items-center justify-between">
               <span>バケット</span>
               <Badge variant={readiness.storage.bucket ? "success" : "warning"}>
@@ -224,14 +224,14 @@ export default async function ReleaseDashboardPage() {
         </Card>
       </div>
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">プロバイダ</p>
-          <p className="text-sm text-slate-300">
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">プロバイダ</p>
+          <p className="text-sm text-slate-600">
             接続状況と権限差分を保存済み情報から確認します（値は表示しません）。
           </p>
         </CardHeader>
-        <CardContent className="space-y-4 text-sm text-slate-200">
+        <CardContent className="space-y-4 text-sm text-slate-700">
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1">
               <p className="font-semibold">Google</p>
@@ -248,7 +248,7 @@ export default async function ReleaseDashboardPage() {
                     ? "再認可"
                     : "未接続/不明"}
               </Badge>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 スコープ差分: {readiness.providers.googlePermissionDiff.state}
               </p>
             </div>
@@ -267,7 +267,7 @@ export default async function ReleaseDashboardPage() {
                     ? "再認可"
                     : "未接続/不明"}
               </Badge>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 権限差分: {readiness.providers.metaPermissionDiff.state}
               </p>
             </div>
@@ -289,14 +289,14 @@ export default async function ReleaseDashboardPage() {
         </CardContent>
       </Card>
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">実機スモーク</p>
-          <p className="text-sm text-slate-300">
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">実機スモーク</p>
+          <p className="text-sm text-slate-600">
             real-mode の最短動作確認と合格基準です。Runbookで手順を確認してください。
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-200">
+        <CardContent className="space-y-3 text-sm text-slate-700">
           <ul className="list-disc space-y-1 pl-4">
             <li>Google: 接続→紐付け→投稿→レビュー同期→返信が成功</li>
             <li>Meta: 接続→ページ紐付け→投稿（画像含む）が成功</li>
@@ -317,12 +317,12 @@ export default async function ReleaseDashboardPage() {
         </CardContent>
       </Card>
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">次にやること</p>
-          <p className="text-sm text-slate-300">画面遷移とRunbookをまとめています。</p>
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">次にやること</p>
+          <p className="text-sm text-slate-600">画面遷移とRunbookをまとめています。</p>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-3 text-sm text-slate-200">
+        <CardContent className="flex flex-wrap gap-3 text-sm text-slate-700">
           <Link className={linkClass} href="/admin/diagnostics">
             診断を確認
           </Link>

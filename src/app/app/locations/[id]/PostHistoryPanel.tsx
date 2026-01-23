@@ -539,7 +539,7 @@ export function PostHistoryPanel(props: {
                   <div className="grid gap-3 md:grid-cols-2">
                     <div>
                       <p className="text-sm font-semibold text-slate-700">
-                        対象プロバイダ
+                        連携サービス
                       </p>
                       <div className="mt-2 space-y-2">
                         {post.targets.length === 0 ? (
@@ -552,10 +552,10 @@ export function PostHistoryPanel(props: {
                               : null;
                             const providerLabel =
                               target.provider === ProviderType.Meta
-                                ? "Meta"
+                                ? "Facebook/Instagram"
                                 : target.provider ===
                                   ProviderType.GoogleBusinessProfile
-                                ? "Google Business Profile"
+                                ? "Google ビジネス プロフィール"
                                 : target.provider;
                             const targetStatus =
                               statusLabels[target.status] ?? statusLabels.draft;
@@ -587,7 +587,7 @@ export function PostHistoryPanel(props: {
                                 : null
                               : isGoogleTarget
                               ? !props.googleLinked
-                                ? "GBPロケーションが未紐付けです"
+                                ? "Google店舗（GBP）が未紐付けです"
                                 : props.googleConnectionStatus === "reauth_required"
                                 ? "再認可が必要です"
                                 : props.googleConnectionStatus !== "connected"

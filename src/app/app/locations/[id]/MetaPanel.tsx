@@ -146,7 +146,7 @@ export function MetaPanel(props: {
     : props.googleConnectionStatus !== "connected"
     ? "Googleが未接続です。"
     : !props.googleLink
-    ? "GBPロケーションが未紐付けです。"
+    ? "Google店舗（GBP）が未紐付けです。"
     : null;
 
   const uploadImage = async () => {
@@ -227,7 +227,7 @@ export function MetaPanel(props: {
           Facebookページ紐付け
         </p>
         <p className="text-sm text-slate-500">
-          管理するFacebookページをこのロケーションに紐付けます。
+          管理するFacebookページをこの店舗に紐付けます。
         </p>
 
         {props.candidatesError && (

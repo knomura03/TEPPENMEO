@@ -22,7 +22,7 @@ export function LocationCreateForm({ disabledReason }: LocationCreateFormProps) 
 
   return (
     <form action={action} className="space-y-3">
-      <FormField label="ロケーション名" required>
+      <FormField label="店舗名" required>
         <Input
           name="name"
           placeholder="例: TEPPEN 渋谷"

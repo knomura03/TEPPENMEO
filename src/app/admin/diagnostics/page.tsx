@@ -389,7 +389,7 @@ export default async function AdminDiagnosticsPage() {
       <PageHeader
         title="診断"
         description="実画面テストに必要な設定を簡易チェックします。"
-        tone="dark"
+        tone="light"
       />
       <Card>
         <CardHeader>
@@ -467,16 +467,16 @@ export default async function AdminDiagnosticsPage() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">環境変数</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">環境変数</p>
+            <p className="text-sm text-slate-600">
               モード別に必須項目を整理します。値は表示しません。
             </p>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-slate-300">
+              <div className="flex items-center justify-between text-sm text-slate-600">
                 <span className="font-semibold">モック運用でも必須</span>
                 <Badge
                   variant={
@@ -491,7 +491,7 @@ export default async function AdminDiagnosticsPage() {
                   key={check.key}
                   className="flex items-center justify-between"
                 >
-                  <span className="text-sm text-slate-300">{check.key}</span>
+                  <span className="text-sm text-slate-600">{check.key}</span>
                   <Badge variant={check.present ? "success" : "warning"}>
                     {check.present ? "設定済み" : "未設定"}
                   </Badge>
@@ -499,7 +499,7 @@ export default async function AdminDiagnosticsPage() {
               ))}
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-slate-300">
+              <div className="flex items-center justify-between text-sm text-slate-600">
                 <span className="font-semibold">実機運用で必須</span>
                 <Badge
                   variant={
@@ -522,7 +522,7 @@ export default async function AdminDiagnosticsPage() {
                   key={check.key}
                   className="flex items-center justify-between"
                 >
-                  <span className="text-sm text-slate-300">{check.key}</span>
+                  <span className="text-sm text-slate-600">{check.key}</span>
                   <Badge
                     variant={
                       check.present
@@ -541,14 +541,14 @@ export default async function AdminDiagnosticsPage() {
                 </div>
               ))}
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span className="font-semibold">CRON_SECRET</span>
               <Badge variant={cronSecretConfigured ? "success" : "warning"}>
                 {cronSecretConfigured ? "設定済み" : "未設定"}
               </Badge>
             </div>
-            <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
-              <p className="text-sm text-slate-400">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <p className="text-sm text-slate-500">
                 空の .env.local スニペット
               </p>
               <EnvSnippet
@@ -595,21 +595,21 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">自動同期（GBP）</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">自動同期（GBP）</p>
+            <p className="text-sm text-slate-600">
               Cron設定と自動同期の有効数を確認します。
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>CRON_SECRET</span>
               <Badge variant={cronSecretConfigured ? "success" : "warning"}>
                 {cronSecretConfigured ? "設定済み" : "未設定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>自動同期ON</span>
               <Badge
                 variant={autoSyncCount.count === null ? "muted" : "success"}
@@ -644,13 +644,13 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">Supabase接続</p>
-            <p className="text-sm text-slate-300">簡易接続テストの結果です。</p>
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">Supabase接続</p>
+            <p className="text-sm text-slate-600">簡易接続テストの結果です。</p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>接続状態</span>
               <Badge variant={supabase.ok ? "success" : "warning"}>
                 {supabase.ok ? "正常" : "異常"}
@@ -665,15 +665,15 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">マイグレーション</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">マイグレーション</p>
+            <p className="text-sm text-slate-600">
               user_blocks とジョブ系テーブル、監査ログインデックスの適用状況を確認します。
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>user_blocks</span>
               <Badge
                 variant={userBlocksSchema.status === "ok" ? "success" : "warning"}
@@ -685,7 +685,7 @@ export default async function AdminDiagnosticsPage() {
                     : "未判定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>setup_progress</span>
               <Badge
                 variant={
@@ -699,7 +699,7 @@ export default async function AdminDiagnosticsPage() {
                     : "未判定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>media_assets</span>
               <Badge
                 variant={
@@ -713,7 +713,7 @@ export default async function AdminDiagnosticsPage() {
                     : "未判定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>job_runs</span>
               <Badge
                 variant={jobRunsSchema.status === "ok" ? "success" : "warning"}
@@ -725,7 +725,7 @@ export default async function AdminDiagnosticsPage() {
                     : "未判定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>job_schedules</span>
               <Badge
                 variant={
@@ -739,7 +739,7 @@ export default async function AdminDiagnosticsPage() {
                     : "未判定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>job_runs 重複防止</span>
               <Badge
                 variant={
@@ -753,7 +753,7 @@ export default async function AdminDiagnosticsPage() {
                     : "未判定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>audit_logs インデックス</span>
               <Badge
                 variant={
@@ -804,27 +804,27 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">プロバイダ状態</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">プロバイダ状態</p>
+            <p className="text-sm text-slate-600">
               実接続と再認可の状態を確認します。
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>モックモード</span>
               <Badge variant={providerMockMode ? "warning" : "success"}>
                 {providerMockMode ? "ON" : "OFF"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>外部API呼び出し</span>
               <Badge variant={externalApiEnabled ? "success" : "warning"}>
                 {externalApiEnabled ? "有効" : "無効"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>Google接続</span>
               <Badge
                 variant={googleStatus === "connected" ? "success" : "warning"}
@@ -832,14 +832,14 @@ export default async function AdminDiagnosticsPage() {
                 {googleStatusLabel}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>Meta接続</span>
               <Badge variant={metaStatus === "connected" ? "success" : "warning"}>
                 {metaStatusLabel}
               </Badge>
             </div>
-            <div className="rounded-md border border-slate-800 bg-slate-950/60 p-3 text-sm text-slate-200">
-              <p className="text-base font-semibold text-slate-100">Google 権限/スコープ</p>
+            <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+              <p className="text-base font-semibold text-slate-900">Google 権限/スコープ</p>
               <p className="mt-1">必須: {googlePermissionDiff.required.join(", ")}</p>
               <div className="mt-2 flex items-center justify-between">
                 <span>取得状況</span>
@@ -863,9 +863,9 @@ export default async function AdminDiagnosticsPage() {
                         : "不明"}
                 </Badge>
               </div>
-              <p className="mt-1 text-slate-400">取得済み: {googleScopeLabel}</p>
-              <p className="mt-1 text-slate-400">要求済み: {googleRequestedLabel}</p>
-              <p className="mt-1 text-slate-400">
+              <p className="mt-1 text-slate-500">取得済み: {googleScopeLabel}</p>
+              <p className="mt-1 text-slate-500">要求済み: {googleRequestedLabel}</p>
+              <p className="mt-1 text-slate-500">
                 不足:{" "}
                 {googlePermissionDiff.state === "missing"
                   ? googlePermissionDiff.missing.join(", ")
@@ -875,10 +875,10 @@ export default async function AdminDiagnosticsPage() {
                       ? "未判定（要求済みのみ）"
                       : "判定不可"}
               </p>
-              <p className="mt-1 text-slate-400">API承認: {googleApiAccessStatus}</p>
+              <p className="mt-1 text-slate-500">API承認: {googleApiAccessStatus}</p>
             </div>
-            <div className="rounded-md border border-slate-800 bg-slate-950/60 p-3 text-sm text-slate-200">
-              <p className="text-base font-semibold text-slate-100">Meta 権限</p>
+            <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+              <p className="text-base font-semibold text-slate-900">Meta 権限</p>
               <p className="mt-1">必須: {metaPermissionDiff.required.join(", ")}</p>
               <div className="mt-2 flex items-center justify-between">
                 <span>取得状況</span>
@@ -902,9 +902,9 @@ export default async function AdminDiagnosticsPage() {
                         : "不明"}
                 </Badge>
               </div>
-              <p className="mt-1 text-slate-400">取得済み: {metaScopeLabel}</p>
-              <p className="mt-1 text-slate-400">要求済み: {metaRequestedLabel}</p>
-              <p className="mt-1 text-slate-400">
+              <p className="mt-1 text-slate-500">取得済み: {metaScopeLabel}</p>
+              <p className="mt-1 text-slate-500">要求済み: {metaRequestedLabel}</p>
+              <p className="mt-1 text-slate-500">
                 不足:{" "}
                 {metaPermissionDiff.state === "missing"
                   ? metaPermissionDiff.missing.join(", ")
@@ -915,9 +915,9 @@ export default async function AdminDiagnosticsPage() {
                       : "判定不可"}
               </p>
               {metaDeclinedLabel && (
-                <p className="mt-1 text-slate-400">拒否: {metaDeclinedLabel}</p>
+                <p className="mt-1 text-slate-500">拒否: {metaDeclinedLabel}</p>
               )}
-              <p className="mt-1 text-slate-400">
+              <p className="mt-1 text-slate-500">
                 取得状況が不明な場合はApp Reviewと権限設定を確認してください（推定）。
               </p>
             </div>
@@ -1018,27 +1018,27 @@ export default async function AdminDiagnosticsPage() {
                 Meta審査Runbook
               </a>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-500">
               対象組織: {org?.name ?? "未設定"}
             </p>
           </CardContent>
         </Card>
 
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">画像アップロード</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">画像アップロード</p>
+            <p className="text-sm text-slate-600">
               Supabase Storageの設定状況を確認します。
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>バケット</span>
               <Badge variant={mediaConfig.bucket ? "success" : "warning"}>
                 {mediaConfig.bucket ? "設定済み" : "未設定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>サービスキー</span>
               <Badge
                 variant={
@@ -1048,17 +1048,17 @@ export default async function AdminDiagnosticsPage() {
                 {process.env.SUPABASE_SERVICE_ROLE_KEY ? "設定済み" : "未設定"}
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>署名URL期限</span>
               <Badge variant="muted">
                 {mediaConfig.signedUrlTtlSeconds}秒
               </Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>最大アップロード</span>
               <Badge variant="muted">{mediaConfig.maxUploadMb}MB</Badge>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-300">
+            <div className="flex items-center justify-between text-sm text-slate-600">
               <span>利用可否</span>
               <Badge variant={storageReady ? "success" : "warning"}>
                 {storageReady ? "利用可能" : "未準備"}
@@ -1072,10 +1072,10 @@ export default async function AdminDiagnosticsPage() {
           </CardContent>
         </Card>
 
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">次にやること</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">次にやること</p>
+            <p className="text-sm text-slate-600">
               未完了の項目がある場合に確認してください。
             </p>
           </CardHeader>

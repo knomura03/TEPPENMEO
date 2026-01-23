@@ -5,12 +5,12 @@
 | --- | --- | --- | --- | --- | --- |
 | サインイン | `/auth/sign-in` | 全員 | ログイン | サインイン | - |
 | サインアップ | `/auth/sign-up` | 全員 | 新規登録 | アカウント作成 | - |
-| ダッシュボード | `/app` | テナント | 状態把握 | 主要導線の確認 | - |
-| セットアップ | `/app/setup` | テナント | 初期導線 | 進捗/KPI/完了チェック、接続/紐付け/投稿テストのリンク集、自動同期設定 | app-setup-branding |
-| レビュー受信箱 | `/app/reviews` | テナント | レビュー対応 | 横断一覧/フィルタ/検索/返信（Googleのみ） | app-reviews-table / app-reviews-table-details |
-| ロケーション一覧 | `/app/locations` | テナント | ロケーション管理 | 作成/一覧/検索 | app-locations-ui-primitives |
-| ロケーション詳細 | `/app/locations/[id]` | テナント | 連携/レビュー/投稿 | 接続/切断/紐付け/投稿（Meta/Google）/画像アップロード/投稿履歴（検索/フィルタ/ページング/再実行） | app-location-detail-ui-primitives |
-| 管理概要 | `/admin` | システム管理 | 全体状況 | 概要表示 | admin-overview-design |
+| ダッシュボード | `/app` | テナント | 状態把握 | 主要導線の確認 | app-dashboard-enhanced |
+| 初期設定 | `/app/setup` | テナント | 初期導線 | 進捗/KPI/完了チェック、接続/紐付け/投稿テストのリンク集、自動同期設定 | app-setup-owner-friendly |
+| 口コミ・コメント受信箱 | `/app/reviews` | テナント | 口コミ対応 | 横断一覧/フィルタ/検索/返信（Googleのみ） | app-reviews-inbox-owner-friendly |
+| 店舗一覧 | `/app/locations` | テナント | 店舗管理 | 作成/一覧/検索 | app-locations-ui-primitives |
+| 店舗詳細 | `/app/locations/[id]` | テナント | 連携/口コミ/投稿 | 接続/切断/紐付け/投稿（Meta/Google）/画像アップロード/投稿履歴（検索/フィルタ/ページング/再実行） | app-location-detail-ui-primitives |
+| 管理概要 | `/admin` | システム管理 | 全体状況 | 概要表示 | admin-overview-design / admin-theme-light-gray |
 | 管理プロバイダ | `/admin/providers` | システム管理 | 連携状態 | フラグ確認 | - |
 | 監査ログ | `/admin/audit-logs` | システム管理 | 操作履歴 | 期間/actor/action/組織/provider_type/自由検索/CSV出力 | admin-audit-logs-design / admin-audit-logs-table / admin-audit-logs-table-details |
 | ジョブ履歴 | `/admin/jobs` | システム管理 | ジョブ確認 | 一括同期などの履歴確認 | admin-jobs-design / admin-jobs-table / admin-jobs-table-details |

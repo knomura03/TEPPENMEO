@@ -25,8 +25,8 @@ type AdminShellProps = {
 
 export function AdminShell({ children, userEmail, active }: AdminShellProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-slate-100">
-      <header className="border-b border-slate-700/60 bg-slate-900/80 backdrop-blur">
+    <div className="min-h-screen bg-[color:var(--admin-bg)] text-[color:var(--text-default)]">
+      <header className="border-b border-slate-200/80 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <Image
@@ -41,15 +41,15 @@ export function AdminShell({ children, userEmail, active }: AdminShellProps) {
               <p className="text-sm font-semibold text-[color:var(--primary)]">
                 システム管理
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[color:var(--text-muted)]">
                 TEPPEN MEO 統合管理
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden text-right text-xs text-slate-400 sm:block">
+            <div className="hidden text-right text-xs text-[color:var(--text-muted)] sm:block">
               <p>システム管理者</p>
-              <p className="font-medium text-slate-200">
+              <p className="font-medium text-[color:var(--text-default)]">
                 {userEmail ?? "モック管理者"}
               </p>
             </div>
@@ -57,7 +57,7 @@ export function AdminShell({ children, userEmail, active }: AdminShellProps) {
               <Button
                 variant="secondary"
                 type="submit"
-                className="bg-slate-700 text-slate-100 hover:bg-slate-600"
+                className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
               >
                 サインアウト
               </Button>
@@ -70,9 +70,9 @@ export function AdminShell({ children, userEmail, active }: AdminShellProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800",
+                "rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/70 hover:text-slate-900",
                 active === item.label &&
-                  "bg-[color:var(--primary)]/25 text-white"
+                  "bg-[color:var(--primary)]/10 text-[color:var(--primary)]"
               )}
             >
               {item.label}

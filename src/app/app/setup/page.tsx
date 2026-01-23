@@ -69,10 +69,10 @@ export default async function SetupChecklistPage() {
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold text-slate-900">
-          セットアップチェック
+          初期設定
         </h1>
         <p className="text-sm text-slate-500">
-          ログイン後にセットアップ状況を確認できます。
+          ログイン後に初期設定を進められます。
         </p>
         <Link
           href="/auth/sign-in"
@@ -89,7 +89,7 @@ export default async function SetupChecklistPage() {
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold text-slate-900">
-          セットアップチェック
+          初期設定
         </h1>
         <p className="text-sm text-slate-500">
           所属組織が見つかりません。組織管理者に確認してください。
@@ -180,7 +180,7 @@ export default async function SetupChecklistPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">
-          セットアップチェック
+          初期設定
         </h1>
         <p className="text-base text-slate-600 leading-relaxed">
           状況を集計して、次にやることを案内します。
@@ -214,51 +214,53 @@ export default async function SetupChecklistPage() {
         </CardContent>
       </Card>
 
-      <Card tone="light">
-        <CardHeader>
-          <p className="text-base font-semibold text-slate-900">
-            実機スモークテスト
-          </p>
-          <p className="text-sm text-slate-600">
-            PROVIDER_MOCK_MODE=false での最短確認手順です。実機検証が必要なときに参照してください。
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-700">
-          <p>
-            Google接続→紐付け→投稿→レビュー同期→返信、Meta接続→ページ紐付け→投稿（画像含む）、
-            ジョブ実行/スケジュール、監査ログ確認までをクリック単位でまとめています。
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/docs/runbooks/real-mode-smoke-test"
-              className={actionLinkSecondary}
-            >
-              実機スモークテスト手順を見る
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      {isAdmin && (
+        <Card tone="light">
+          <CardHeader>
+            <p className="text-base font-semibold text-slate-900">
+              連携の動作確認（管理者向け）
+            </p>
+            <p className="text-sm text-slate-600">
+              実運用前の最短確認手順です。管理者のみ参照してください。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-slate-700">
+            <p>
+              Google接続→店舗紐付け→投稿→口コミ同期→返信、Meta接続→ページ紐付け→投稿（画像含む）、
+              ジョブ実行/スケジュール、監査ログ確認までをクリック単位でまとめています。
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/docs/runbooks/real-mode-smoke-test"
+                className={actionLinkSecondary}
+              >
+                連携の動作確認手順を見る
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-slate-900">ロケーション</p>
+              <p className="text-base font-semibold text-slate-900">店舗</p>
               <Badge variant={status.locationsCount > 0 ? "success" : "warning"}>
                 {status.locationsCount}件
               </Badge>
             </div>
             <p className="text-sm text-slate-600">
-              連携の対象となる拠点を管理します。
+              連携の対象となる店舗を管理します。
             </p>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-700">
-            <p>権限: {role ?? "未判定"}</p>
+            <p>役割: {role ?? "未判定"}</p>
             <Link
               href="/app/locations"
               className={actionLinkPrimary}
             >
-              ロケーション一覧を開く
+              店舗一覧を開く
             </Link>
           </CardContent>
         </Card>
@@ -272,7 +274,7 @@ export default async function SetupChecklistPage() {
               </Badge>
             </div>
             <p className="text-sm text-slate-600">
-              接続→GBP紐付け→投稿テストを順に進めます。
+              接続→Google店舗（GBP）紐付け→投稿テストを順に進めます。
             </p>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-slate-700">
@@ -289,7 +291,7 @@ export default async function SetupChecklistPage() {
               )}
             </div>
             <div className="space-y-1">
-              <p>レビュー件数: {formatCount(status.reviewsSummary.gbp.total)}件</p>
+              <p>口コミ件数: {formatCount(status.reviewsSummary.gbp.total)}件</p>
               <p>最終同期: {formatDate(status.reviewsSummary.gbp.lastSyncAt)}</p>
               <p>
                 直近結果:{" "}
@@ -305,7 +307,7 @@ export default async function SetupChecklistPage() {
                 href="/app/locations"
                 className={actionLinkPrimary}
               >
-                レビュー同期を実行する
+                口コミ同期を実行する
               </Link>
             </div>
             <div className="space-y-2">

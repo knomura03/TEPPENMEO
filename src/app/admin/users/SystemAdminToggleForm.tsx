@@ -36,11 +36,11 @@ export function SystemAdminToggleForm({
   );
 
   if (!canManage) {
-    return <p className="text-xs text-slate-400">システム管理者のみ操作できます。</p>;
+    return <p className="text-xs text-slate-500">システム管理者のみ操作できます。</p>;
   }
 
   if (!email) {
-    return <p className="text-xs text-slate-400">メール不明のため操作できません。</p>;
+    return <p className="text-xs text-slate-500">メール不明のため操作できません。</p>;
   }
 
   const isSelf = currentUserId === userId;
@@ -48,41 +48,41 @@ export function SystemAdminToggleForm({
   const summaryLabel = isSystemAdmin ? "システム管理者を解除" : "システム管理者を付与";
 
   return (
-    <details className="text-sm text-slate-300">
+    <details className="text-sm text-slate-600">
       <summary className="cursor-pointer text-[color:var(--primary)] hover:text-[color:var(--primary-hover)]">
         {summaryLabel}
       </summary>
       <form action={action} className="mt-2 space-y-3">
         <input type="hidden" name="userId" value={userId} />
         <input type="hidden" name="mode" value={mode} />
-        <FormField label="確認用メール" required tone="dark">
+        <FormField label="確認用メール" required tone="light">
           <Input
             name="confirmEmail"
             type="email"
             placeholder="対象メールを再入力"
-            tone="dark"
+            tone="light"
             required
             disabled={isSelf}
           />
         </FormField>
-        <FormField label="確認入力（CONFIRM）" required tone="dark">
+        <FormField label="確認入力（CONFIRM）" required tone="light">
           <Input
             name="confirmToken"
             type="text"
             placeholder="CONFIRM"
-            tone="dark"
+            tone="light"
             required
             disabled={isSelf}
           />
         </FormField>
         {isSelf && (
-          <p className="text-xs text-amber-300">
+          <p className="text-xs text-amber-700">
             自分自身のシステム管理者権限は解除できません。
           </p>
         )}
-        {state.error && <p className="text-sm text-rose-300">{state.error}</p>}
+        {state.error && <p className="text-sm text-rose-600">{state.error}</p>}
         {state.success && (
-          <p className="text-sm text-emerald-300">{state.success}</p>
+          <p className="text-sm text-emerald-600">{state.success}</p>
         )}
         <Button
           type="submit"

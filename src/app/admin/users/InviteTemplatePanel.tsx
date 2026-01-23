@@ -81,27 +81,27 @@ export function InviteTemplatePanel({
   return (
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-2">
-        <FormField label="組織名" tone="dark">
+        <FormField label="組織名" tone="light">
           <Input
             value={organizationName}
             onChange={(event) => setOrganizationName(event.target.value)}
             placeholder="組織名を入力"
-            tone="dark"
+            tone="light"
           />
         </FormField>
-        <FormField label="招待リンク" tone="dark">
+        <FormField label="招待リンク" tone="light">
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
               <Input
                 value={inviteLink}
                 onChange={(event) => setInviteLink(event.target.value)}
                 placeholder="招待リンクを貼り付け"
-                tone="dark"
+                tone="light"
               />
               <Button
                 type="button"
                 variant="secondary"
-                className="min-h-[44px] whitespace-nowrap bg-slate-800 px-4 text-sm text-slate-100 hover:bg-slate-700"
+                className="min-h-[44px] whitespace-nowrap bg-slate-100 px-4 text-sm text-slate-800 hover:bg-slate-200"
                 onClick={handleApplyStoredInviteLink}
                 disabled={!storedInviteLink}
               >
@@ -109,7 +109,7 @@ export function InviteTemplatePanel({
               </Button>
             </div>
             {storedInviteLink && (
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-500">
                 直近の招待リンクを読み込み済みです。
               </p>
             )}
@@ -117,11 +117,11 @@ export function InviteTemplatePanel({
         </FormField>
       </div>
       {organizations.length > 0 && (
-        <FormField label="組織を選択" tone="dark">
+        <FormField label="組織を選択" tone="light">
           <Select
             value={selectedOrgId}
             onChange={(event) => handleSelectOrganization(event.target.value)}
-            tone="dark"
+            tone="light"
           >
             {organizations.map((org) => (
               <option key={org.id} value={org.id}>
@@ -132,20 +132,20 @@ export function InviteTemplatePanel({
         </FormField>
       )}
       <div>
-        <FormField label="任意メッセージ（1行）" tone="dark">
+        <FormField label="任意メッセージ（1行）" tone="light">
           <Input
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             placeholder="例: 初回ログイン後にロールの確認をお願いします。"
-            tone="dark"
+            tone="light"
           />
         </FormField>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-md border border-slate-800 bg-slate-950 p-3">
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-200">件名</p>
+            <p className="text-sm font-semibold text-slate-700">件名</p>
             <Button
               type="button"
               variant="secondary"
@@ -159,12 +159,12 @@ export function InviteTemplatePanel({
           <input
             readOnly
             value={template.subject}
-            className="mt-2 w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+            className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900"
           />
         </div>
-        <div className="rounded-md border border-slate-800 bg-slate-950 p-3">
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-200">本文</p>
+            <p className="text-sm font-semibold text-slate-700">本文</p>
             <Button
               type="button"
               variant="secondary"
@@ -179,13 +179,13 @@ export function InviteTemplatePanel({
             readOnly
             rows={8}
             value={template.body}
-            className="mt-2 w-full resize-none rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+            className="mt-2 w-full resize-none rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900"
           />
         </div>
       </div>
-      {copyStatus && <p className="text-sm text-emerald-300">{copyStatus}</p>}
+      {copyStatus && <p className="text-sm text-emerald-600">{copyStatus}</p>}
       {!inviteLink && (
-        <p className="text-sm text-amber-200">
+        <p className="text-sm text-amber-700">
           招待リンクを入力するとコピーできます。
         </p>
       )}

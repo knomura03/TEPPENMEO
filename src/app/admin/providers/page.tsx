@@ -25,23 +25,23 @@ export default function AdminProvidersPage() {
       <PageHeader
         title="プロバイダ"
         description="機能フラグ、資格情報、対応機能を確認します。"
-        tone="dark"
+        tone="light"
       />
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <h2 className="text-base font-semibold text-slate-100">機能フラグ</h2>
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <h2 className="text-base font-semibold text-slate-900">機能フラグ</h2>
         </CardHeader>
-        <CardContent className="text-sm text-slate-300">
+        <CardContent className="text-sm text-slate-600">
           <p>`.env.local` を更新して再起動してください。</p>
           <ul className="mt-3 grid gap-2 text-sm">
             <li>
-              <span className="font-semibold text-slate-200">
+              <span className="font-semibold text-slate-700">
                 YAHOO_PLACE_ENABLED
               </span>
             </li>
             <li>
-              <span className="font-semibold text-slate-200">
+              <span className="font-semibold text-slate-700">
                 APPLE_BUSINESS_CONNECT_ENABLED
               </span>
             </li>
@@ -51,14 +51,14 @@ export default function AdminProvidersPage() {
 
       <div className="grid gap-6">
         {providers.map((provider) => (
-          <Card key={provider.type} tone="dark">
-            <CardHeader className="border-slate-800">
+          <Card key={provider.type} tone="light">
+            <CardHeader className="border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-base font-semibold text-slate-100">
+                  <p className="text-base font-semibold text-slate-900">
                     {provider.name}
                   </p>
-                  <p className="text-sm text-slate-300">
+                  <p className="text-sm text-slate-600">
                     {provider.featureFlag
                       ? `機能フラグ: ${provider.featureFlag}`
                       : "常時有効"}
@@ -69,7 +69,7 @@ export default function AdminProvidersPage() {
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-slate-300">
+            <CardContent className="space-y-3 text-sm text-slate-600">
               <div className="flex flex-wrap gap-2">
                 {provider.capabilities.canConnectOAuth && (
                   <Badge variant="default">OAuth</Badge>
@@ -88,18 +88,18 @@ export default function AdminProvidersPage() {
                 )}
               </div>
               <div>
-                <p className="text-sm text-slate-300">必須環境変数</p>
+                <p className="text-sm text-slate-600">必須環境変数</p>
                 {provider.requiredEnv.length === 0 ? (
-                  <p className="text-sm text-slate-400">なし</p>
+                  <p className="text-sm text-slate-500">なし</p>
                 ) : (
                   <ul className="mt-2 grid gap-2 text-sm">
                     {provider.requiredEnv.map((envVar) => (
                       <li key={envVar}>
-                        <span className="font-semibold text-slate-200">
+                        <span className="font-semibold text-slate-700">
                           {envVar}
                         </span>
                         {provider.missingEnv.includes(envVar) && (
-                          <span className="ml-2 text-amber-300">未設定</span>
+                          <span className="ml-2 text-amber-700">未設定</span>
                         )}
                       </li>
                     ))}
