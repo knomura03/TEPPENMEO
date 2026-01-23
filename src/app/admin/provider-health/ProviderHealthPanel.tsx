@@ -57,23 +57,23 @@ function HealthCard({
   const hasNextActions = nextActions.length > 0;
 
   return (
-    <Card tone="dark">
-      <CardHeader className="border-slate-800">
+    <Card tone="light">
+      <CardHeader className="border-slate-200">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-base font-semibold text-slate-100">{title}</p>
-            <p className="text-sm text-slate-300">{description}</p>
+            <p className="text-base font-semibold text-slate-900">{title}</p>
+            <p className="text-sm text-slate-600">{description}</p>
           </div>
           <StatusBadge status={status} />
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 text-sm text-slate-200">
-        <div className="flex items-center justify-between text-sm text-slate-400">
+      <CardContent className="space-y-4 text-sm text-slate-700">
+        <div className="flex items-center justify-between text-sm text-slate-500">
           <span>最終実行</span>
           <span>{formatUpdatedAt(state.updatedAt)}</span>
         </div>
         {typeof apiCallEnabled === "boolean" && (
-          <div className="flex items-center justify-between text-sm text-slate-400">
+          <div className="flex items-center justify-between text-sm text-slate-500">
             <span>外部API呼び出し</span>
             <Badge variant={apiCallEnabled ? "success" : "warning"}>
               {apiCallEnabled ? "有効" : "無効"}
@@ -92,11 +92,11 @@ function HealthCard({
             {state.result.checks.map((check) => (
               <div
                 key={check.name}
-                className="flex items-start justify-between gap-3 rounded-md border border-slate-800 bg-slate-950/60 px-3 py-2"
+                className="flex items-start justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
               >
                 <div>
-                  <p className="text-sm text-slate-400">{check.name}</p>
-                  <p className="text-sm text-slate-200">{check.summary}</p>
+                  <p className="text-sm text-slate-500">{check.name}</p>
+                  <p className="text-sm text-slate-700">{check.summary}</p>
                 </div>
                 <Badge variant={check.ok ? "success" : "warning"}>
                   {check.ok ? "OK" : "NG"}
@@ -107,7 +107,7 @@ function HealthCard({
         )}
 
         {state.result?.debug?.httpStatus && (
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500">
             HTTPステータス: {state.result.debug.httpStatus}
           </p>
         )}

@@ -43,12 +43,12 @@ export function createJobColumns(): ColumnDef<JobRun>[] {
     {
       header: "ジョブ",
       cell: (job) => job.jobKey,
-      cellClassName: "min-w-[180px] text-slate-100",
+      cellClassName: "min-w-[180px] text-slate-900",
     },
     {
       header: "組織",
       cell: (job) => job.organizationName ?? job.organizationId,
-      cellClassName: "text-slate-300",
+      cellClassName: "text-slate-600",
     },
     {
       header: "状態",
@@ -63,37 +63,37 @@ export function createJobColumns(): ColumnDef<JobRun>[] {
     {
       header: "開始",
       cell: (job) => formatDate(job.startedAt),
-      cellClassName: "whitespace-nowrap font-mono text-xs text-slate-300",
+      cellClassName: "whitespace-nowrap font-mono text-xs text-slate-600",
       headerClassName: "whitespace-nowrap",
     },
     {
       header: "終了",
       cell: (job) => formatDate(job.finishedAt),
-      cellClassName: "whitespace-nowrap font-mono text-xs text-slate-300",
+      cellClassName: "whitespace-nowrap font-mono text-xs text-slate-600",
       headerClassName: "whitespace-nowrap",
     },
     {
       header: "対象数",
       cell: (job) => `${formatCount(job.summary.totalLocations)}件`,
-      cellClassName: "whitespace-nowrap text-slate-300",
+      cellClassName: "whitespace-nowrap text-slate-600",
       headerClassName: "whitespace-nowrap",
     },
     {
       header: "成功",
       cell: (job) => `${formatCount(job.summary.successCount)}件`,
-      cellClassName: "whitespace-nowrap text-slate-300",
+      cellClassName: "whitespace-nowrap text-slate-600",
       headerClassName: "whitespace-nowrap",
     },
     {
       header: "失敗",
       cell: (job) => `${formatCount(job.summary.failedCount)}件`,
-      cellClassName: "whitespace-nowrap text-slate-300",
+      cellClassName: "whitespace-nowrap text-slate-600",
       headerClassName: "whitespace-nowrap",
     },
     {
       header: "レビュー件数",
       cell: (job) => `${formatCount(job.summary.reviewCount)}件`,
-      cellClassName: "whitespace-nowrap text-slate-300",
+      cellClassName: "whitespace-nowrap text-slate-600",
       headerClassName: "whitespace-nowrap",
     },
     {
@@ -112,7 +112,7 @@ export function createJobColumns(): ColumnDef<JobRun>[] {
         );
         return (
           <DetailsDisclosure
-            tone="dark"
+            tone="light"
             items={[
               { label: "実行ID", value: job.id, mono: true },
               {

@@ -67,17 +67,17 @@ export function CreateUserForm() {
   return (
     <form action={action} className="space-y-3">
       <div className="grid gap-3 md:grid-cols-2">
-        <FormField label="メールアドレス" required tone="dark">
+        <FormField label="メールアドレス" required tone="light">
           <Input
             name="email"
             type="email"
             placeholder="admin@example.com"
-            tone="dark"
+            tone="light"
             required
           />
         </FormField>
-        <FormField label="作成方式" tone="dark">
-          <Select name="mode" defaultValue="invite" tone="dark">
+        <FormField label="作成方式" tone="light">
+          <Select name="mode" defaultValue="invite" tone="light">
             <option value="invite">招待メール</option>
             <option value="invite_link">招待リンク</option>
             <option value="temp">仮パスワード</option>

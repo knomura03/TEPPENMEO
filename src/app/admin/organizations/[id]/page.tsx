@@ -33,7 +33,7 @@ export default async function AdminOrganizationDetailPage({
       <PageHeader
         title="組織メンバー管理"
         description={`${organization.name} のメンバーを管理します。`}
-        tone="dark"
+        tone="light"
       />
 
       {!supabaseReady && (
@@ -43,10 +43,10 @@ export default async function AdminOrganizationDetailPage({
         </Callout>
       )}
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">メンバー追加</p>
-          <p className="text-sm text-slate-300">
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">メンバー追加</p>
+          <p className="text-sm text-slate-600">
             既存ユーザーをメールで指定して追加します。
           </p>
         </CardHeader>
@@ -55,9 +55,9 @@ export default async function AdminOrganizationDetailPage({
         </CardContent>
       </Card>
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">メンバー一覧</p>
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">メンバー一覧</p>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {members.length === 0 ? (
@@ -67,7 +67,7 @@ export default async function AdminOrganizationDetailPage({
             />
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-700 text-sm text-slate-400">
+              <thead className="border-b border-slate-200 text-sm text-slate-500">
                 <tr>
                   <th className="py-3 pr-4">メール</th>
                   <th className="py-3 pr-4">ロール</th>
@@ -75,13 +75,13 @@ export default async function AdminOrganizationDetailPage({
                   <th className="py-3">操作</th>
                 </tr>
               </thead>
-              <tbody className="text-slate-200">
+              <tbody className="text-slate-700">
                 {members.map((member) => (
-                  <tr key={member.userId} className="border-b border-slate-800">
+                  <tr key={member.userId} className="border-b border-slate-200">
                     <td className="py-3 pr-4 text-sm">
                       {member.email ?? "不明"}
                     </td>
-                    <td className="py-3 pr-4 text-sm text-slate-300">
+                    <td className="py-3 pr-4 text-sm text-slate-600">
                       {roleLabels[member.role] ?? member.role}
                     </td>
                     <td className="py-3 pr-4">

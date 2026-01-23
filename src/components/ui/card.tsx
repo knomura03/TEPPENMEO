@@ -5,9 +5,9 @@ import { cn } from "@/lib/cn";
 type CardTone = "light" | "dark" | "amber";
 
 const toneStyles: Record<CardTone, string> = {
-  light: "border-slate-200 bg-white/80 text-slate-900",
-  dark: "border-slate-700 bg-slate-900 text-slate-100",
-  amber: "border-amber-400/40 bg-amber-900/20 text-amber-100",
+  light: "border-slate-200 bg-white/90 text-slate-900",
+  dark: "border-slate-200 bg-white text-slate-900",
+  amber: "border-amber-200 bg-amber-50 text-amber-900",
 };
 
 type CardProps = React.HTMLAttributes<HTMLDivElement> & {

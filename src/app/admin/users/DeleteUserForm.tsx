@@ -25,32 +25,32 @@ export function DeleteUserForm({
   const disabled = !email;
 
   return (
-    <details className="text-sm text-slate-300">
-      <summary className="cursor-pointer text-rose-300 hover:text-rose-200">
+    <details className="text-sm text-slate-600">
+      <summary className="cursor-pointer text-rose-600 hover:text-rose-700">
         削除
       </summary>
       <form action={action} className="mt-2 space-y-3">
         <input type="hidden" name="userId" value={userId} />
-        <FormField label="確認用メール" required tone="dark">
+        <FormField label="確認用メール" required tone="light">
           <Input
             name="confirmEmail"
             type="email"
             placeholder="確認用メールを入力"
-            tone="dark"
+            tone="light"
             required
             disabled={disabled}
           />
         </FormField>
         {state.error && (
-          <p className="text-sm text-rose-300">{state.error}</p>
+          <p className="text-sm text-rose-600">{state.error}</p>
         )}
         {state.success && (
-          <p className="text-sm text-emerald-300">{state.success}</p>
+          <p className="text-sm text-emerald-600">{state.success}</p>
         )}
         <Button
           type="submit"
           variant="secondary"
-          className="w-full min-h-[44px] bg-rose-900/40 text-rose-200 hover:bg-rose-900/60"
+          className="w-full min-h-[44px] bg-rose-100 text-rose-800 hover:bg-rose-200"
           disabled={disabled}
         >
           完全削除

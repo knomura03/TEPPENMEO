@@ -8,6 +8,9 @@
   --muted: #94a3b8;
   --primary: #001976;
   --primary-hover: #0a2aa6;
+  --admin-bg: #f6f7f9;
+  --text-default: #111827;
+  --text-muted: #6b7280;
 }
 
 @theme inline {

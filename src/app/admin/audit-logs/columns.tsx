@@ -96,13 +96,13 @@ export function createAuditLogColumns(params: {
     {
       header: "日時",
       cell: (log) => formatDate(log.createdAt),
-      cellClassName: "whitespace-nowrap font-mono text-xs text-slate-300",
+      cellClassName: "whitespace-nowrap font-mono text-xs text-slate-600",
       headerClassName: "whitespace-nowrap",
     },
     {
       header: "操作",
       cell: (log) => actionLabels[log.action] ?? log.action,
-      cellClassName: "min-w-[160px] text-slate-100",
+      cellClassName: "min-w-[160px] text-slate-900",
     },
     {
       header: "組織",
@@ -114,12 +114,12 @@ export function createAuditLogColumns(params: {
             : "全体")
         );
       },
-      cellClassName: "text-slate-300",
+      cellClassName: "text-slate-600",
     },
     {
       header: "操作者",
       cell: (log) => log.actorEmail ?? log.actorUserId ?? "不明",
-      cellClassName: "text-slate-300",
+      cellClassName: "text-slate-600",
     },
     {
       header: "対象",
@@ -127,12 +127,12 @@ export function createAuditLogColumns(params: {
         log.targetType && log.targetId
           ? `${log.targetType} / ${log.targetId}`
           : log.targetType || log.targetId || "なし",
-      cellClassName: "text-slate-300",
+      cellClassName: "text-slate-600",
     },
     {
       header: "プロバイダ",
       cell: (log) => resolveProviderLabel(log.metadata ?? {}),
-      cellClassName: "text-slate-300",
+      cellClassName: "text-slate-600",
     },
     {
       header: "状態",
@@ -146,7 +146,7 @@ export function createAuditLogColumns(params: {
     {
       header: "追加情報",
       cell: (log) => formatMetadataPreview(log.metadata ?? {}),
-      cellClassName: "text-slate-300",
+      cellClassName: "text-slate-600",
     },
     {
       header: "詳細",
@@ -155,7 +155,7 @@ export function createAuditLogColumns(params: {
         const metadataText = JSON.stringify(metadata, null, 2);
         return (
           <DetailsDisclosure
-            tone="dark"
+            tone="light"
             items={[
               { label: "ログID", value: log.id, mono: true },
               {

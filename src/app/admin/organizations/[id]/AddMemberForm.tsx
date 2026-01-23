@@ -48,7 +48,7 @@ export function AddMemberForm({ organizationId }: { organizationId: string }) {
         <p className="text-sm text-rose-300">{state.error}</p>
       )}
       {state.success && (
-        <p className="text-sm text-emerald-300">{state.success}</p>
+        <p className="text-sm text-emerald-600">{state.success}</p>
       )}
       <Button
         type="submit"

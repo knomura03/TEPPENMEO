@@ -20,7 +20,7 @@ export default async function AdminJobsPage() {
   const setupLinkClass = buttonStyles({
     variant: "secondary",
     size: "md",
-    className: "border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
+    className: "border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-50",
   });
   const columns = createJobColumns();
 
@@ -29,14 +29,14 @@ export default async function AdminJobsPage() {
       <PageHeader
         title="ジョブ履歴"
         description="一括同期などの実行履歴を確認します。"
-        tone="dark"
+        tone="light"
       />
 
       <FilterBar
         title="表示条件"
         description="現在は最新20件を固定で表示しています。"
       >
-        <div className="md:col-span-6 text-sm text-slate-300">
+        <div className="md:col-span-6 text-sm text-slate-600">
           フィルタ機能は次の改善で追加予定です。
         </div>
       </FilterBar>
@@ -47,20 +47,20 @@ export default async function AdminJobsPage() {
           description="一括同期を実行するとここに履歴が表示されます。"
           actions={
             <a href="/app/setup" className={setupLinkClass}>
-              セットアップで実行する
+              初期設定で実行する
             </a>
           }
         />
       ) : (
-        <Card tone="dark">
-          <CardHeader className="border-slate-800">
-            <p className="text-base font-semibold text-slate-100">最新20件</p>
-            <p className="text-sm text-slate-300">
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">最新20件</p>
+            <p className="text-sm text-slate-600">
               失敗がある場合はsummary/errorを確認してください。
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Table tone="dark">
+            <Table tone="light">
               <TableHeader>
                 <TableRow>
                   {columns.map((column) => (

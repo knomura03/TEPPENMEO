@@ -42,18 +42,18 @@ export function createAdminUserColumns(params: {
     {
       header: "メール",
       cell: (user) => user.email ?? "不明",
-      cellClassName: "min-w-[200px] text-slate-100",
+      cellClassName: "min-w-[200px] text-slate-900",
     },
     {
       header: "作成日",
       cell: (user) => formatDate(user.createdAt),
-      cellClassName: "whitespace-nowrap text-slate-400",
+      cellClassName: "whitespace-nowrap text-slate-500",
       headerClassName: "whitespace-nowrap",
     },
     {
       header: "所属組織数",
       cell: (user) => user.membershipCount,
-      cellClassName: "whitespace-nowrap text-slate-300",
+      cellClassName: "whitespace-nowrap text-slate-600",
       headerClassName: "whitespace-nowrap",
     },
     {
@@ -102,7 +102,7 @@ export function createAdminUserColumns(params: {
       header: "詳細",
       cell: (user) => (
         <DetailsDisclosure
-          tone="dark"
+          tone="light"
           items={[
             { label: "ユーザーID", value: user.id, mono: true },
             { label: "作成日", value: formatDate(user.createdAt), mask: false },

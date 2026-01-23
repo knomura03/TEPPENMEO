@@ -13,12 +13,12 @@ export default async function AdminOrganizationsPage() {
       <PageHeader
         title="組織管理"
         description="組織一覧とメンバー管理の入り口です。"
-        tone="dark"
+        tone="light"
       />
 
-      <Card tone="dark">
-        <CardHeader className="border-slate-800">
-          <p className="text-base font-semibold text-slate-100">組織一覧</p>
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">組織一覧</p>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {organizations.length === 0 ? (
@@ -28,24 +28,24 @@ export default async function AdminOrganizationsPage() {
             />
           ) : (
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-700 text-sm text-slate-400">
+              <thead className="border-b border-slate-200 text-sm text-slate-500">
                 <tr>
                   <th className="py-3 pr-4">組織名</th>
                   <th className="py-3 pr-4">メンバー数</th>
                   <th className="py-3">操作</th>
                 </tr>
               </thead>
-              <tbody className="text-slate-200">
+              <tbody className="text-slate-700">
                 {organizations.map((org) => (
-                  <tr key={org.id} className="border-b border-slate-800">
+                  <tr key={org.id} className="border-b border-slate-200">
                     <td className="py-3 pr-4">{org.name}</td>
-                    <td className="py-3 pr-4 text-sm text-slate-400">
+                    <td className="py-3 pr-4 text-sm text-slate-500">
                       {org.memberCount}
                     </td>
                     <td className="py-3">
                       <Link
                         href={`/admin/organizations/${org.id}`}
-                        className="inline-flex min-h-[44px] items-center text-sm font-semibold text-amber-300 hover:text-amber-200"
+                        className="inline-flex min-h-[44px] items-center text-sm font-semibold text-amber-700 hover:text-amber-700"
                       >
                         詳細へ
                       </Link>
