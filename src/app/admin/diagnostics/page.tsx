@@ -401,26 +401,26 @@ export default async function AdminDiagnosticsPage() {
         <CardContent className="space-y-2 text-sm text-slate-800">
           <p>
             - stagingリリース手順:{" "}
-            <a className="text-blue-700 underline" href="/docs/runbooks/release-staging">
+            <a className="text-[color:var(--primary)] underline" href="/docs/runbooks/release-staging">
               docs/runbooks/release-staging.md
             </a>
           </p>
           <p>
             - 本番リリース手順:{" "}
-            <a className="text-blue-700 underline" href="/docs/runbooks/release-production">
+            <a className="text-[color:var(--primary)] underline" href="/docs/runbooks/release-production">
               docs/runbooks/release-production.md
             </a>
           </p>
           <p>- preflight: `pnpm preflight --mode mock|real` を実行</p>
           <p>
             - 実機スモークテスト:{" "}
-            <a className="text-blue-700 underline" href="/docs/runbooks/real-mode-smoke-test">
+            <a className="text-[color:var(--primary)] underline" href="/docs/runbooks/real-mode-smoke-test">
               docs/runbooks/real-mode-smoke-test.md
             </a>
           </p>
           <p>
             - リリース準備ダッシュボード:{" "}
-            <a className="text-blue-700 underline" href="/admin/release">
+            <a className="text-[color:var(--primary)] underline" href="/admin/release">
               /admin/release
             </a>
           </p>
@@ -449,16 +449,16 @@ export default async function AdminDiagnosticsPage() {
           <div className="space-y-1">
             <p className="font-semibold">公開ページ</p>
             <div className="flex flex-col gap-1">
-              <Link className="text-blue-700 underline" href="/">
+              <Link className="text-[color:var(--primary)] underline" href="/">
                 公開トップ
               </Link>
-              <Link className="text-blue-700 underline" href="/privacy">
+              <Link className="text-[color:var(--primary)] underline" href="/privacy">
                 プライバシーポリシー
               </Link>
-              <Link className="text-blue-700 underline" href="/terms">
+              <Link className="text-[color:var(--primary)] underline" href="/terms">
                 利用規約
               </Link>
-              <Link className="text-blue-700 underline" href="/data-deletion">
+              <Link className="text-[color:var(--primary)] underline" href="/data-deletion">
                 データ削除
               </Link>
             </div>
@@ -628,7 +628,7 @@ export default async function AdminDiagnosticsPage() {
                     href="/docs/runbooks/gbp-bulk-review-sync"
                     className={adminActionSecondaryClass}
                   >
-                    自動同期の手順書を確認する
+                    GBP自動同期手順を見る
                   </a>
                 </div>
               </Callout>
@@ -638,7 +638,7 @@ export default async function AdminDiagnosticsPage() {
                 href="/docs/runbooks/gbp-bulk-review-sync"
                 className={adminActionSecondaryClass}
               >
-                自動同期の手順書を確認する
+                GBP自動同期手順を見る
               </a>
             )}
           </CardContent>
@@ -934,13 +934,13 @@ export default async function AdminDiagnosticsPage() {
                     href="/docs/providers/google-business-profile"
                     className={adminActionSecondaryClass}
                   >
-                    Google手順書を確認する
+                    Google審査手順を見る
                   </a>
                   <a
                     href="/docs/runbooks/google-gbp-approval-and-oauth-setup"
                     className={adminActionSecondaryClass}
                   >
-                    審査・設定Runbookを見る
+                    Google審査Runbookを見る
                   </a>
                 </div>
               </Callout>
@@ -958,13 +958,13 @@ export default async function AdminDiagnosticsPage() {
                     href="/docs/providers/meta-facebook-instagram"
                     className={adminActionSecondaryClass}
                   >
-                    Meta手順書を確認する
+                    Meta審査手順を見る
                   </a>
                   <a
                     href="/docs/runbooks/meta-app-review-and-oauth-setup"
                     className={adminActionSecondaryClass}
                   >
-                    審査・設定Runbookを見る
+                    Meta審査Runbookを見る
                   </a>
                 </div>
               </Callout>

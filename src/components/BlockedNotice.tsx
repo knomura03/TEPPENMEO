@@ -3,7 +3,7 @@ import { signOutAction } from "@/server/auth/actions";
 
 export function BlockedNotice({
   title = "利用停止中",
-  message = "このアカウントは管理者により無効化されています。管理者に連絡してください。",
+  message = "このアカウントは組織管理者により無効化されています。組織管理者に連絡してください。",
   reason,
 }: {
   title?: string;

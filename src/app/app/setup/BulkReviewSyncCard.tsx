@@ -205,9 +205,9 @@ export function BulkReviewSyncCard({
           </Button>
           <a
             href="/docs/runbooks/gbp-bulk-review-sync"
-            className="inline-flex items-center text-amber-600 underline"
+            className="inline-flex items-center text-[color:var(--primary)] underline"
           >
-            手順書を開く
+            Googleレビュー一括同期手順を見る
           </a>
         </div>
       </CardContent>

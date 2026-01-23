@@ -33,7 +33,7 @@ export async function saveGbpBulkReviewSchedule(params: {
 
   const role = await getMembershipRole(user.id, organization.id);
   if (!hasRequiredRole(role, "admin")) {
-    return { ok: false, message: "管理者のみ保存できます。" };
+    return { ok: false, message: "組織管理者のみ保存できます。" };
   }
 
   const scheduleSchema = await checkJobSchedulesSchema();

@@ -59,7 +59,7 @@ export async function GET(request: Request) {
       {
         error: {
           cause: "権限がありません。",
-          nextAction: "管理者に権限付与を依頼してください。",
+          nextAction: "組織管理者に権限付与を依頼してください。",
         },
       },
       { status: 403 }
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       {
         error: {
           cause: "画像へのアクセスが許可されていません。",
-          nextAction: "管理者に確認してください。",
+          nextAction: "組織管理者に確認してください。",
         },
       },
       { status: 403 }

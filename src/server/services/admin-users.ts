@@ -320,6 +320,26 @@ export async function deleteAdminUser(userId: string): Promise<boolean> {
   return !response.error;
 }
 
+export async function addSystemAdmin(userId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const admin = getSupabaseAdmin();
+  if (!admin) return false;
+
+  const { error } = await admin
+    .from("system_admins")
+    .upsert({ user_id: userId }, { onConflict: "user_id" });
+  return !error;
+}
+
+export async function removeSystemAdmin(userId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const admin = getSupabaseAdmin();
+  if (!admin) return false;
+
+  const { error } = await admin.from("system_admins").delete().eq("user_id", userId);
+  return !error;
+}
+
 export async function getUserEmailById(userId: string): Promise<string | null> {
   if (!isSupabaseConfigured()) {
     return mockAdminUsers.find((user) => user.id === userId)?.email ?? null;

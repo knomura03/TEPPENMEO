@@ -28,7 +28,7 @@ export async function runGbpBulkReviewSyncAction(): Promise<BulkReviewSyncAction
 
   const role = await getMembershipRole(user.id, organization.id);
   if (!hasRequiredRole(role, "admin")) {
-    return { ok: false, message: "管理者のみ実行できます。" };
+    return { ok: false, message: "組織管理者のみ実行できます。" };
   }
 
   const result = await runGbpBulkReviewSync({

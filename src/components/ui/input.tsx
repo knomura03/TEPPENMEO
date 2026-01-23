@@ -8,7 +8,7 @@ const toneStyles: Record<InputTone, string> = {
   light:
     "border-slate-200 bg-white text-slate-900 placeholder:text-slate-500 focus-visible:outline-slate-400",
   dark:
-    "border-slate-700 bg-slate-950 text-slate-100 placeholder:text-slate-500 focus-visible:outline-amber-300",
+    "border-slate-700 bg-slate-950 text-slate-100 placeholder:text-slate-500 focus-visible:outline-[color:var(--primary)]",
 };
 
 const invalidStyles = "border-rose-400 focus-visible:outline-rose-300";

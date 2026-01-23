@@ -8,7 +8,10 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { getPublicSiteMetadata } from "@/server/public-site/metadata";
 
 const NavLink = ({ href, label }: { href: string; label: string }) => (
-  <Link href={href} className="text-sm font-semibold text-slate-700 hover:text-slate-900">
+  <Link
+    href={href}
+    className="text-sm font-semibold text-[color:var(--primary)] hover:text-[color:var(--primary-hover)]"
+  >
     {label}
   </Link>
 );
@@ -23,7 +26,7 @@ export default function Home() {
             <Badge variant="warning" className="rounded">
               公開情報
             </Badge>
-            <span className="text-lg font-semibold">TEPPEN MEO</span>
+            <img src="/logo.svg" alt="TEPPEN MEO" className="h-8 w-auto" />
           </div>
           <nav className="flex items-center gap-4">
             <NavLink href="/privacy" label="プライバシー" />
@@ -100,13 +103,13 @@ export default function Home() {
             プライバシー/利用規約/データ削除案内は公開済みです。審査で要求される場合はこれらのURLを登録してください。
           </p>
           <div className="flex flex-wrap gap-2 pt-2 text-sm">
-            <Link className="text-blue-700 underline" href="/privacy">
+            <Link className="text-[color:var(--primary)] underline" href="/privacy">
               プライバシーポリシー
             </Link>
-            <Link className="text-blue-700 underline" href="/terms">
+            <Link className="text-[color:var(--primary)] underline" href="/terms">
               利用規約
             </Link>
-            <Link className="text-blue-700 underline" href="/data-deletion">
+            <Link className="text-[color:var(--primary)] underline" href="/data-deletion">
               データ削除
             </Link>
           </div>
@@ -124,7 +127,7 @@ export default function Home() {
           {metadata.contactUrl ? (
             <p className="text-sm text-slate-700">
               問い合わせURL:{" "}
-              <Link className="text-blue-700 underline" href={metadata.contactUrl}>
+              <Link className="text-[color:var(--primary)] underline" href={metadata.contactUrl}>
                 問い合わせフォーム
               </Link>
             </p>
@@ -139,13 +142,13 @@ export default function Home() {
       <footer className="border-t border-amber-100 bg-white/70 py-6">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 text-sm text-slate-600">
           <div className="flex items-center gap-3">
-            <Link className="underline" href="/privacy">
+            <Link className="text-[color:var(--primary)] underline" href="/privacy">
               プライバシーポリシー
             </Link>
-            <Link className="underline" href="/terms">
+            <Link className="text-[color:var(--primary)] underline" href="/terms">
               利用規約
             </Link>
-            <Link className="underline" href="/data-deletion">
+            <Link className="text-[color:var(--primary)] underline" href="/data-deletion">
               データ削除
             </Link>
           </div>

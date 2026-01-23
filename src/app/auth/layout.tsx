@@ -2,12 +2,10 @@ import type { ReactNode } from "react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-amber-800">
+    <div className="min-h-screen bg-gradient-to-br from-[color:var(--primary)] via-slate-900 to-slate-800">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center gap-10 px-6 py-12 md:flex-row">
         <div className="max-w-md text-slate-100">
-          <p className="text-sm uppercase tracking-[0.3em] text-amber-200">
-            TEPPEN MEO
-          </p>
+          <img src="/logo.svg" alt="TEPPEN MEO" className="h-10 w-auto" />
           <h1 className="mt-4 text-4xl font-semibold">
             ローカル運用を一つにまとめる。
           </h1>

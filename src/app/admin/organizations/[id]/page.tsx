@@ -23,7 +23,7 @@ export default async function AdminOrganizationDetailPage({
   const supabaseReady = isSupabaseConfigured();
   const roleLabels: Record<string, string> = {
     owner: "オーナー",
-    admin: "管理者",
+    admin: "組織管理者",
     member: "メンバー",
     viewer: "閲覧",
   };

@@ -38,7 +38,7 @@ export default function DataDeletionPage() {
                   {metadata.contactUrl && (
                     <p className="text-sm text-slate-700">
                       問い合わせURL:{" "}
-                      <Link className="text-blue-700 underline" href={metadata.contactUrl}>
+                      <Link className="text-[color:var(--primary)] underline" href={metadata.contactUrl}>
                         お問い合わせフォーム
                       </Link>
                     </p>
@@ -51,13 +51,13 @@ export default function DataDeletionPage() {
                   </p>
                 </Callout>
               )}
-              <p>暫定措置: 管理者から削除依頼を受けた場合、手動で処理します。</p>
+              <p>暫定措置: システム管理者が削除依頼を受けた場合、手動で処理します。</p>
             </section>
 
             <section className="space-y-2">
               <h2 className="text-base font-semibold text-slate-900">3. 手動削除フロー（暫定）</h2>
               <ol className="list-decimal space-y-1 pl-5">
-                <li>管理者が対象ユーザーの確認を行う</li>
+                <li>システム管理者が対象ユーザーの確認を行う</li>
                 <li>Supabase Auth でユーザー無効化/削除（誤操作に注意）</li>
                 <li>関連する provider_accounts / posts / reviews 等を削除</li>
                 <li>監査ログに削除実施を記録（機密は記載しない）</li>
@@ -72,10 +72,10 @@ export default function DataDeletionPage() {
         </Card>
 
         <div className="flex flex-wrap gap-3 text-sm text-slate-700">
-          <Link className="underline" href="/privacy">
+          <Link className="text-[color:var(--primary)] underline" href="/privacy">
             プライバシーポリシー
           </Link>
-          <Link className="underline" href="/terms">
+          <Link className="text-[color:var(--primary)] underline" href="/terms">
             利用規約
           </Link>
         </div>

@@ -74,7 +74,10 @@ export default async function SetupChecklistPage() {
         <p className="text-sm text-slate-500">
           ログイン後にセットアップ状況を確認できます。
         </p>
-        <Link href="/auth/sign-in" className="text-amber-600 underline">
+        <Link
+          href="/auth/sign-in"
+          className="text-[color:var(--primary)] underline"
+        >
           サインインへ
         </Link>
       </div>
@@ -89,7 +92,7 @@ export default async function SetupChecklistPage() {
           セットアップチェック
         </h1>
         <p className="text-sm text-slate-500">
-          所属組織が見つかりません。管理者に確認してください。
+          所属組織が見つかりません。組織管理者に確認してください。
         </p>
       </div>
     );
@@ -120,7 +123,7 @@ export default async function SetupChecklistPage() {
     isSupabaseAdminConfigured() &&
     jobRunsSchema.status === "ok";
   const bulkDisabledReason = !canManageOrg
-    ? "管理者のみ実行できます。"
+    ? "組織管理者のみ実行できます。"
     : !isSupabaseConfigured()
       ? "Supabaseが未設定のため実行できません。"
       : !isSupabaseAdminConfigured()
@@ -134,7 +137,7 @@ export default async function SetupChecklistPage() {
     isSupabaseAdminConfigured() &&
     jobSchedulesSchema.status === "ok";
   const scheduleDisabledReason = !canManageOrg
-    ? "管理者のみ保存できます。"
+    ? "組織管理者のみ保存できます。"
     : !isSupabaseConfigured()
       ? "Supabaseが未設定のため保存できません。"
       : !isSupabaseAdminConfigured()
@@ -504,7 +507,7 @@ export default async function SetupChecklistPage() {
         {isAdmin && (
           <Card tone="light">
             <CardHeader>
-              <p className="text-base font-semibold text-slate-900">管理者向け</p>
+              <p className="text-base font-semibold text-slate-900">システム管理者向け</p>
               <p className="text-sm text-slate-600">
                 設定状況と実機チェックをまとめて確認できます。
               </p>

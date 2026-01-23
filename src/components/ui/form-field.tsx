@@ -64,7 +64,9 @@ export function FormField({
     <div className={cn("space-y-1", className)}>
       <label htmlFor={fieldId} className={cn("text-sm font-semibold", toneStyle.label)}>
         {label}
-        {required ? <span className="ml-1 text-amber-400">*</span> : null}
+        {required ? (
+          <span className="ml-1 text-[color:var(--primary)]">*</span>
+        ) : null}
       </label>
       {control}
       {hint && (

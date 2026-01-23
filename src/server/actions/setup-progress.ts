@@ -33,7 +33,7 @@ export async function setSetupStepDone(params: {
 
   const role = await getMembershipRole(user.id, organization.id);
   if (!role || (role !== "owner" && role !== "admin")) {
-    return { ok: false, message: "管理者のみ保存できます。" };
+    return { ok: false, message: "組織管理者のみ保存できます。" };
   }
 
   if (!isValidSetupStepKey(params.stepKey)) {

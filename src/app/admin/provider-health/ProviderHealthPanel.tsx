@@ -139,10 +139,7 @@ function HealthCard({
         ) : null}
 
         <form action={action}>
-          <Button
-            type="submit"
-            className="w-full min-h-[44px] bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
-          >
+          <Button type="submit" className="w-full min-h-[44px]" variant="primary">
             チェック実行
           </Button>
         </form>

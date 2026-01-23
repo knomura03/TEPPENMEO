@@ -65,12 +65,12 @@ export async function createLocationAction(
 
   const org = await getPrimaryOrganization(user.id);
   if (!org) {
-    return { error: "所属組織が見つかりません。管理者に確認してください。" };
+    return { error: "所属組織が見つかりません。組織管理者に確認してください。" };
   }
 
   const role = await getMembershipRole(user.id, org.id);
   if (!hasRequiredRole(role, "admin")) {
-    return { error: "権限がありません。管理者に権限付与を依頼してください。" };
+    return { error: "権限がありません。組織管理者に権限付与を依頼してください。" };
   }
 
   const parsed = locationSchema.safeParse({

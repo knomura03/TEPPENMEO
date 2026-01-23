@@ -10,7 +10,7 @@ const baseStyles =
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-slate-900 text-white hover:bg-slate-800 focus-visible:outline-slate-900",
+    "bg-[color:var(--primary)] text-white hover:bg-[color:var(--primary-hover)] focus-visible:outline-[color:var(--primary)]",
   secondary:
     "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus-visible:outline-slate-400",
   danger:
@@ -18,7 +18,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   ghost:
     "bg-transparent text-slate-700 hover:bg-slate-100 focus-visible:outline-slate-300",
   link:
-    "bg-transparent text-amber-700 underline underline-offset-4 hover:text-amber-800 focus-visible:outline-amber-300",
+    "bg-transparent text-[color:var(--primary)] underline underline-offset-4 hover:text-[color:var(--primary-hover)] focus-visible:outline-[color:var(--primary)]",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

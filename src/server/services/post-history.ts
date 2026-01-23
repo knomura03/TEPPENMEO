@@ -288,7 +288,7 @@ export async function retryPostTarget(params: {
       status: "failed",
       error: {
         cause: "権限がありません。",
-        nextAction: "管理者に確認してください。",
+        nextAction: "組織管理者に確認してください。",
       },
     };
   }

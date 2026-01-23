@@ -30,10 +30,10 @@ export function MemberRoleForm({
       <select
         name="role"
         defaultValue={role}
-        className="min-h-[44px] rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+        className="min-h-[44px] rounded-md border border-slate-700 bg-slate-950 px-3 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]"
       >
         <option value="owner">オーナー</option>
-        <option value="admin">管理者</option>
+        <option value="admin">組織管理者</option>
         <option value="member">メンバー</option>
         <option value="viewer">閲覧</option>
       </select>

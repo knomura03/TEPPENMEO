@@ -64,7 +64,7 @@ export default function TermsPage() {
                   {metadata.contactUrl && (
                     <p className="text-sm text-slate-700">
                       問い合わせURL:{" "}
-                      <Link className="text-blue-700 underline" href={metadata.contactUrl}>
+                      <Link className="text-[color:var(--primary)] underline" href={metadata.contactUrl}>
                         お問い合わせフォーム
                       </Link>
                     </p>
@@ -89,10 +89,10 @@ export default function TermsPage() {
         </Card>
 
         <div className="flex flex-wrap gap-3 text-sm text-slate-700">
-          <Link className="underline" href="/privacy">
+          <Link className="text-[color:var(--primary)] underline" href="/privacy">
             プライバシーポリシー
           </Link>
-          <Link className="underline" href="/data-deletion">
+          <Link className="text-[color:var(--primary)] underline" href="/data-deletion">
             データ削除
           </Link>
         </div>

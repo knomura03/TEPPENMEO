@@ -56,13 +56,13 @@ openssl rand -hex 32
 ### 基本方針
 - すべてのテーブルでRLSを有効化
 - テナントアクセスは `memberships` による組織所属で制御
-- 管理者（`system_admins`）は全権
+- システム管理者（`system_admins`）は全権
 
 ### 最低限のポリシー案
 - `organizations`: 所属メンバーのみ閲覧/編集
-- `memberships`: 当人または同組織メンバーが閲覧、挿入は管理者のみ
+- `memberships`: 当人または同組織メンバーが閲覧、挿入は組織管理者のみ
 - `locations`: 所属組織のみ閲覧/追加
 - `provider_accounts`: 所属組織のみ閲覧/追加
 - `posts`, `post_targets`: 所属組織のみ閲覧/追加
 - `reviews`, `review_replies`: 所属ロケーションのみ閲覧/追加
-- `audit_logs`: 管理者のみ閲覧/追加
+- `audit_logs`: システム管理者のみ閲覧/追加

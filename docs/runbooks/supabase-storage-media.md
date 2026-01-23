@@ -7,7 +7,7 @@
 ## 前提
 - Supabaseプロジェクトを作成済み
 - `SUPABASE_SERVICE_ROLE_KEY` が `.env.local` に設定済み
-- system admin で `/admin/diagnostics` にアクセスできる
+- システム管理者で `/admin/diagnostics` にアクセスできる
 
 ## バケット作成（クリック手順）
 1) Supabaseダッシュボードを開く

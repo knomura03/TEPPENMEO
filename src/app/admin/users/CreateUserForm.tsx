@@ -117,10 +117,7 @@ export function CreateUserForm() {
           <p className="mt-1 break-all">{state.tempPassword}</p>
         </div>
       )}
-      <Button
-        type="submit"
-        className="w-full bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300"
-      >
+      <Button type="submit" className="w-full" variant="primary">
         ユーザーを作成
       </Button>
     </form>

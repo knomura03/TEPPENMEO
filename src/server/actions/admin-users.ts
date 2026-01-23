@@ -8,11 +8,13 @@ import { isSystemAdmin } from "@/server/auth/rbac";
 import {
   createInviteUser,
   createTempPasswordUser,
+  addSystemAdmin,
   deleteAdminUser,
   disableAdminUser,
   enableAdminUser,
   generateInviteLink,
   getUserEmailById,
+  removeSystemAdmin,
 } from "@/server/services/admin-users";
 import { writeAuditLog } from "@/server/services/audit-logs";
 import { checkUserBlocksSchema } from "@/server/services/diagnostics";
@@ -46,6 +48,13 @@ const toggleSchema = z.object({
     .optional(),
 });
 
+const systemAdminSchema = z.object({
+  userId: z.string().min(1),
+  mode: z.enum(["grant", "revoke"]),
+  confirmEmail: z.string().email("正しいメールアドレスを入力してください。"),
+  confirmToken: z.string().min(1),
+});
+
 async function requireSystemAdmin() {
   const user = await getSessionUser();
   if (!user) {
@@ -53,7 +62,7 @@ async function requireSystemAdmin() {
   }
   if (user.isBlocked) {
     return {
-      error: "このアカウントは無効化されています。管理者に連絡してください。",
+      error: "このアカウントは無効化されています。システム管理者に連絡してください。",
       userId: null,
     };
   }
@@ -272,6 +281,87 @@ export async function deleteAdminUserAction(
     success: "ユーザーを削除しました。",
     tempPassword: null,
     inviteLink: null,
+  };
+}
+
+export async function toggleSystemAdminAction(
+  _prev: AdminUserActionState,
+  formData: FormData
+): Promise<AdminUserActionState> {
+  const parsed = systemAdminSchema.safeParse({
+    userId: formData.get("userId"),
+    mode: formData.get("mode"),
+    confirmEmail: formData.get("confirmEmail"),
+    confirmToken: formData.get("confirmToken"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "入力内容が不正です。", success: null };
+  }
+
+  if (!isSupabaseAdminConfigured()) {
+    return { error: "Supabaseが未設定のため操作できません。", success: null };
+  }
+
+  const access = await requireSystemAdmin();
+  if (access.error) {
+    return { error: access.error, success: null };
+  }
+
+  const { userId, mode, confirmEmail, confirmToken } = parsed.data;
+  if (confirmToken !== "CONFIRM") {
+    return { error: "確認入力に「CONFIRM」を入力してください。", success: null };
+  }
+
+  const targetEmail = await getUserEmailById(userId);
+  if (!targetEmail || targetEmail.toLowerCase() !== confirmEmail.trim().toLowerCase()) {
+    return { error: "確認用メールアドレスが一致しません。", success: null };
+  }
+
+  if (mode === "revoke" && userId === access.userId) {
+    return { error: "自分自身のシステム管理者権限は解除できません。", success: null };
+  }
+
+  const success =
+    mode === "grant"
+      ? await addSystemAdmin(userId)
+      : await removeSystemAdmin(userId);
+
+  if (!success) {
+    await writeAuditLog({
+      actorUserId: access.userId,
+      organizationId: null,
+      action: "admin.user.system_admin_failed",
+      targetType: "user",
+      targetId: userId,
+      metadata: { email: targetEmail, mode },
+    });
+    return {
+      error: "システム管理者の更新に失敗しました。設定と権限を確認してください。",
+      success: null,
+    };
+  }
+
+  await writeAuditLog({
+    actorUserId: access.userId,
+    organizationId: null,
+    action:
+      mode === "grant"
+        ? "admin.user.system_admin_grant"
+        : "admin.user.system_admin_revoke",
+    targetType: "user",
+    targetId: userId,
+    metadata: { email: targetEmail, mode },
+  });
+
+  revalidatePath("/admin/users");
+
+  return {
+    error: null,
+    success:
+      mode === "grant"
+        ? "システム管理者を付与しました。"
+        : "システム管理者を解除しました。",
   };
 }
 

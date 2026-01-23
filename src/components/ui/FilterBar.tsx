@@ -3,17 +3,18 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 
 export const adminFieldClass =
-  "h-11 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-base text-slate-100 placeholder:text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300";
+  "h-11 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-base text-slate-100 placeholder:text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]";
 
 export const adminSelectClass =
-  "h-11 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-base text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300";
+  "h-11 w-full rounded-md border border-slate-700 bg-slate-950 px-3 text-base text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]";
 
 export const adminLabelClass = "mb-1 block text-sm font-semibold text-slate-200";
 
 export const adminActionPrimaryClass = buttonStyles({
   variant: "primary",
   size: "md",
-  className: "bg-amber-400 text-slate-900 hover:bg-amber-300 focus-visible:outline-amber-300",
+  className:
+    "bg-[color:var(--primary)] text-white hover:bg-[color:var(--primary-hover)] focus-visible:outline-[color:var(--primary)]",
 });
 
 export const adminActionSecondaryClass = buttonStyles({
