@@ -168,7 +168,7 @@ export function ProviderHealthPanel() {
       />
       <HealthCard
         title="Meta（Facebook/Instagram）"
-        description="ページ一覧の読み取りで権限状態を確認します。"
+        description="ページ一覧の読み取りとコメント取得の準備状況を確認します。"
         state={metaState}
         action={metaAction}
       />

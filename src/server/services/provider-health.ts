@@ -2,6 +2,9 @@ import { ProviderError, toProviderError } from "@/server/providers/errors";
 import { ProviderType } from "@/server/providers/types";
 import { listGoogleLocationCandidates } from "@/server/services/google-business-profile";
 import { listMetaPageCandidates } from "@/server/services/meta";
+import { listLocations } from "@/server/services/locations";
+import { listLocationProviderLinks } from "@/server/services/location-provider-links";
+import { resolvePermissionDiff } from "@/server/services/provider-permissions";
 import { writeAuditLog } from "@/server/services/audit-logs";
 import { getProviderAccount } from "@/server/services/provider-accounts";
 import { getEnv, type Env } from "@/server/utils/env";
@@ -72,6 +75,13 @@ const metaEnvKeys: readonly (keyof Env)[] = [
   "META_REDIRECT_URI",
 ] as const;
 
+const metaCommentPermissions = [
+  "pages_read_engagement",
+  "pages_manage_engagement",
+  "instagram_basic",
+  "instagram_manage_comments",
+];
+
 const providerLabels: Record<ProviderType, string> = {
   [ProviderType.GoogleBusinessProfile]: "Google",
   [ProviderType.Meta]: "Meta",
@@ -103,6 +113,16 @@ function resolveEnvCheck(requiredKeys: readonly (keyof Env)[]): EnvCheck {
       missingKeys: [...requiredKeys],
     };
   }
+}
+
+function normalizeStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string");
+  }
+  if (typeof value === "string") {
+    return value.split(/[\s,]+/).filter(Boolean);
+  }
+  return [];
 }
 
 function mergeNextActions(base: string[], extra: string[]) {
@@ -247,6 +267,137 @@ function buildSuccessResult(params: {
       blockedReason: null,
     },
     reason: status === "ok" ? "ok" : "env_missing",
+  };
+}
+
+type MetaCommentReadiness = {
+  ok: boolean;
+  summary: string;
+  nextActions: string[];
+  cause?: string;
+};
+
+async function resolveMetaCommentReadiness(params: {
+  organizationId: string;
+  accountMetadata?: Record<string, unknown> | null;
+}): Promise<MetaCommentReadiness> {
+  const locations = await listLocations(params.organizationId);
+  if (locations.length === 0) {
+    return {
+      ok: false,
+      summary: "未準備（店舗が未登録）",
+      cause: "店舗が未登録のためコメントを取得できません。",
+      nextActions: ["店舗を追加してください。"],
+    };
+  }
+
+  const locationIds = locations.map((location) => location.id);
+  const links = await listLocationProviderLinks({
+    locationIds,
+    provider: ProviderType.Meta,
+  });
+
+  if (links.length === 0) {
+    return {
+      ok: false,
+      summary: "未準備（Facebookページ未紐付け）",
+      cause: "店舗とFacebookページの紐付けが必要です。",
+      nextActions: ["店舗詳細でFacebookページを紐付けてください。"],
+    };
+  }
+
+  const granted = normalizeStringArray(
+    params.accountMetadata?.permissions_granted
+  );
+  const requested = normalizeStringArray(
+    params.accountMetadata?.requested_permissions
+  );
+  const diff = resolvePermissionDiff({
+    required: metaCommentPermissions,
+    requested,
+    granted,
+  });
+
+  if (diff.state === "missing") {
+    return {
+      ok: false,
+      summary: `権限不足: ${diff.missing.join(", ")}`,
+      cause: `コメント取得に必要な権限が不足しています: ${diff.missing.join(", ")}`,
+      nextActions: [
+        "Metaで必要な権限を追加し、連携サービスを再接続してください。",
+      ],
+    };
+  }
+  if (diff.state === "requested") {
+    return {
+      ok: false,
+      summary: "権限の付与状況が未確認",
+      cause: "権限は要求済みですが、付与状況が不明です。",
+      nextActions: [
+        "Metaで権限の付与状況を確認し、必要なら再接続してください。",
+      ],
+    };
+  }
+  if (diff.state === "unknown") {
+    return {
+      ok: false,
+      summary: "権限の保存情報が不足",
+      cause: "権限の取得状況を保存していません。",
+      nextActions: ["再接続して権限情報を取得してください。"],
+    };
+  }
+
+  const instagramLinked = links.some((link) =>
+    Boolean(
+      link.metadata?.instagram_business_account_id ??
+        link.metadata?.instagram_id
+    )
+  );
+  if (!instagramLinked) {
+    return {
+      ok: false,
+      summary: "Instagramコメントは未準備",
+      cause: "Instagramコメントの取得にはInstagram連携が必要です。",
+      nextActions: ["店舗詳細でInstagram連携を確認してください。"],
+    };
+  }
+
+  return {
+    ok: true,
+    summary: "準備完了",
+    nextActions: [],
+  };
+}
+
+function applyMetaCommentReadiness(
+  result: ProviderHealthResult,
+  readiness: MetaCommentReadiness
+): ProviderHealthResult {
+  const apiCheckFailed = result.checks.some(
+    (check) => check.name === "読み取りAPI" && !check.ok
+  );
+  const checks = [
+    ...result.checks,
+    {
+      name: "コメント取得準備",
+      ok: readiness.ok,
+      summary: readiness.summary,
+    },
+  ];
+  const nextActions = mergeNextActions(result.nextActions, readiness.nextActions);
+  const status =
+    readiness.ok || result.status !== "ok" ? result.status : "warning";
+  const blockedReason =
+    !readiness.ok && !result.blockedReason && !apiCheckFailed && readiness.cause
+      ? { cause: readiness.cause, nextActions: readiness.nextActions }
+      : result.blockedReason;
+
+  return {
+    ...result,
+    status,
+    checks,
+    nextActions,
+    blockedReason,
   };
 }
 
@@ -509,7 +660,7 @@ export async function checkMetaHealth(params: {
   organizationId: string;
   actorUserId?: string | null;
 }): Promise<ProviderHealthResult> {
-  return runProviderHealth({
+  const result = await runProviderHealth({
     provider: ProviderType.Meta,
     envKeys: metaEnvKeys,
     listLabel: "ページ",
@@ -517,4 +668,16 @@ export async function checkMetaHealth(params: {
     organizationId: params.organizationId,
     actorUserId: params.actorUserId ?? null,
   });
+  if (result.status === "not_configured" || result.status === "not_connected") {
+    return result;
+  }
+  const account = await getProviderAccount(
+    params.organizationId,
+    ProviderType.Meta
+  );
+  const readiness = await resolveMetaCommentReadiness({
+    organizationId: params.organizationId,
+    accountMetadata: account?.metadata ?? null,
+  });
+  return applyMetaCommentReadiness(result, readiness);
 }
