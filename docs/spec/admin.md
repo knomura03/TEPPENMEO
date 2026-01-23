@@ -97,6 +97,7 @@
   - 環境: mock/real、APP_BASE_URL、PUBLIC_*（運営者/連絡先）
   - Supabase: 接続可否、マイグレーション適用状況
   - Storage/Cron/Jobs: バケット設定、サービスキー、CRON_SECRET、自動同期ON数
+  - 登録情報テンプレ: Redirect URI / 公開ページURL のテンプレ表示（<APP_BASE_URL>）
   - Providers: Google/Meta 接続状態と権限差分（保存済み情報ベース）
   - 実機スモーク: Runbookリンクと合格基準
 - 導線:

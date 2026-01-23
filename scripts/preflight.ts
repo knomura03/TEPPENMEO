@@ -12,20 +12,22 @@ import {
 import { getMediaConfig, isStorageConfigured } from "@/server/services/media";
 import { isProviderMockMode } from "@/server/utils/feature-flags";
 import { getPublicSiteMetadata } from "@/server/public-site/metadata";
-
-type Mode = "mock" | "real";
-
-function parseMode(): Mode {
-  const arg = process.argv.find((item) => item.startsWith("--mode="));
-  if (arg) {
-    const value = arg.replace("--mode=", "");
-    return value === "mock" ? "mock" : "real";
-  }
-  return isProviderMockMode() ? "mock" : "real";
-}
+import {
+  parsePreflightEnv,
+  parsePreflightMode,
+  validateAppBaseUrlForEnv,
+  type PreflightEnvContext,
+} from "@/lib/preflight-env";
 
 async function main() {
-  const mode = parseMode();
+  const mode = parsePreflightMode(
+    process.argv,
+    isProviderMockMode() ? "mock" : "real"
+  );
+  const envContext: PreflightEnvContext = parsePreflightEnv(
+    process.argv,
+    "local"
+  );
   const issues: string[] = [];
   const { mockRequired, realRequired, envError } = getEnvCheckGroups();
 
@@ -83,6 +85,16 @@ async function main() {
     }
   }
 
+  if (mode === "real" && envContext !== "local") {
+    const baseUrlCheck = validateAppBaseUrlForEnv(
+      process.env.APP_BASE_URL,
+      envContext
+    );
+    if (!baseUrlCheck.ok && baseUrlCheck.reason) {
+      issues.push(baseUrlCheck.reason);
+    }
+  }
+
   const schemaChecks = await Promise.all([
     checkUserBlocksSchema(),
     checkSetupProgressSchema(),
@@ -123,7 +135,7 @@ async function main() {
   });
 
   if (issues.length === 0) {
-    console.log(`preflight OK (${mode}モード). 未設定はありません。`);
+    console.log(`preflight OK (${mode}モード/${envContext}環境). 未設定はありません。`);
     process.exit(0);
   }
 
