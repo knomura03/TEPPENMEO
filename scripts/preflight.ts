@@ -5,6 +5,7 @@ import {
   checkJobRunsSchema,
   checkJobSchedulesSchema,
   checkMediaAssetsSchema,
+  checkPostTemplatesSchema,
   checkSetupProgressSchema,
   checkUserBlocksSchema,
 } from "@/server/services/diagnostics";
@@ -86,6 +87,7 @@ async function main() {
     checkUserBlocksSchema(),
     checkSetupProgressSchema(),
     checkMediaAssetsSchema(),
+    checkPostTemplatesSchema(),
     checkJobRunsSchema(),
     checkJobSchedulesSchema(),
     checkJobRunsRunningIndex(),
@@ -96,16 +98,21 @@ async function main() {
     { label: "user_blocks", status: schemaChecks[0].status, message: schemaChecks[0].message },
     { label: "setup_progress", status: schemaChecks[1].status, message: schemaChecks[1].message },
     { label: "media_assets", status: schemaChecks[2].status, message: schemaChecks[2].message },
-    { label: "job_runs", status: schemaChecks[3].status, message: schemaChecks[3].message },
-    { label: "job_schedules", status: schemaChecks[4].status, message: schemaChecks[4].message },
-    { label: "job_runs 重複防止", status: schemaChecks[5].status, message: schemaChecks[5].message },
+    {
+      label: "post_templates",
+      status: schemaChecks[3].status,
+      message: schemaChecks[3].message,
+    },
+    { label: "job_runs", status: schemaChecks[4].status, message: schemaChecks[4].message },
+    { label: "job_schedules", status: schemaChecks[5].status, message: schemaChecks[5].message },
+    { label: "job_runs 重複防止", status: schemaChecks[6].status, message: schemaChecks[6].message },
     {
       label: "audit_logs インデックス",
-      status: schemaChecks[6].status,
+      status: schemaChecks[7].status,
       message:
-        schemaChecks[6].status === "missing"
-          ? `不足: ${schemaChecks[6].missingIndexes.join(", ")}`
-          : schemaChecks[6].message,
+        schemaChecks[7].status === "missing"
+          ? `不足: ${schemaChecks[7].missingIndexes.join(", ")}`
+          : schemaChecks[7].message,
     },
   ];
 

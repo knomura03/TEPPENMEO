@@ -39,6 +39,10 @@ export default async function ReleaseDashboardPage() {
   const migrationMissing = Object.entries(readiness.supabase.migrations).filter(
     ([, status]) => status !== "ok"
   );
+  const postTemplateCountLabel =
+    readiness.postTemplates.count === null
+      ? "不明"
+      : `${readiness.postTemplates.count}件`;
 
   return (
     <div className="space-y-8">
@@ -220,6 +224,75 @@ export default async function ReleaseDashboardPage() {
                 スケジュール設定
               </a>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">投稿テンプレ</p>
+            <p className="text-sm text-slate-600">
+              投稿テンプレの準備状況を確認します。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-slate-700">
+            <div className="flex items-center justify-between">
+              <span>マイグレーション (post_templates)</span>
+              <Badge
+                variant={
+                  readiness.postTemplates.schemaStatus === "ok"
+                    ? "success"
+                    : "warning"
+                }
+              >
+                {readiness.postTemplates.schemaStatus === "ok"
+                  ? "適用済み"
+                  : readiness.postTemplates.schemaStatus === "missing"
+                    ? "未適用"
+                    : "未判定"}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>テンプレ件数</span>
+              <Badge
+                variant={
+                  readiness.postTemplates.count && readiness.postTemplates.count > 0
+                    ? "success"
+                    : "warning"
+                }
+              >
+                {postTemplateCountLabel}
+              </Badge>
+            </div>
+            {readiness.postTemplates.reason && (
+              <Callout tone="warning" title="確認できない理由">
+                <p>{readiness.postTemplates.reason}</p>
+              </Callout>
+            )}
+            {(readiness.postTemplates.schemaStatus !== "ok" ||
+              (readiness.postTemplates.count ?? 0) === 0) && (
+              <Callout tone="warning" title="次にやること">
+                {readiness.postTemplates.schemaStatus !== "ok" && (
+                  <p>post_templates のマイグレーションを適用してください。</p>
+                )}
+                {(readiness.postTemplates.count ?? 0) === 0 && (
+                  <p>テンプレを1つ作成すると投稿が楽になります。</p>
+                )}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <a className={linkClass} href="/app/post-templates">
+                    テンプレを管理する
+                  </a>
+                  <a
+                    className={linkClass}
+                    href="/docs/runbooks/post-templates-onboarding"
+                  >
+                    テンプレ準備の手順
+                  </a>
+                  <a className={linkClass} href="/docs/runbooks/supabase-migrations">
+                    マイグレーション適用
+                  </a>
+                </div>
+              </Callout>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -99,6 +99,48 @@ export async function listPostTemplates(params: {
   };
 }
 
+export async function countPostTemplates(params: {
+  organizationId: string;
+}): Promise<{ count: number | null; reason: string | null }> {
+  if (!isSupabaseConfigured()) {
+    return { count: null, reason: "Supabaseが未設定のため確認できません。" };
+  }
+
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      count: null,
+      reason: "SUPABASE_SERVICE_ROLE_KEY が未設定のため確認できません。",
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return { count: null, reason: "Supabaseの設定を確認してください。" };
+  }
+
+  const { count, error } = await admin
+    .from("post_templates")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", params.organizationId)
+    .is("archived_at", null);
+
+  if (error) {
+    if (error.code === "42P01") {
+      return {
+        count: null,
+        reason:
+          "post_templates マイグレーションが未適用のため確認できません。",
+      };
+    }
+    return {
+      count: null,
+      reason: error.message ?? "テンプレートの確認に失敗しました。",
+    };
+  }
+
+  return { count: count ?? 0, reason: null };
+}
+
 export async function createPostTemplate(params: {
   organizationId: string;
   name: string;
