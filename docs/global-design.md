@@ -61,6 +61,7 @@ Do:
 - フォームは FormField を基本にし、Input/Select/Textarea は共通コンポーネントを使う
 - Button は variant/size を統一し、Link には buttonStyles を使う
 - ロゴは `/logo.svg` を使用し、ヘッダーに表示する
+- 画像は原則 `next/image` を使う（例外がある場合は理由をコメント）
 
 Don't:
 - 同一要素に背景/文字色の矛盾クラスを混在させない
