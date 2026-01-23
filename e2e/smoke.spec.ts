@@ -5,12 +5,12 @@ test("認証画面が表示される", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "サインイン" })).toBeVisible();
 });
 
-test("ロケーション画面はサインインまたはロケーションが表示される", async ({
+test("店舗画面はサインインまたは店舗が表示される", async ({
   page,
 }, testInfo) => {
   await page.goto("/app/locations", { waitUntil: "domcontentloaded" });
   const hasLocations = await page
-    .getByRole("heading", { name: "ロケーション", exact: true })
+    .getByRole("heading", { name: "店舗", exact: true })
     .isVisible();
   const hasSignIn = await page
     .getByRole("heading", { name: "サインイン", exact: true })
@@ -23,6 +23,32 @@ test("ロケーション画面はサインインまたはロケーションが�
   });
 
   expect(hasLocations || hasSignIn).toBeTruthy();
+});
+
+test("ダッシュボードはサインインまたはダッシュボードが表示される", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/app", { waitUntil: "domcontentloaded" });
+  const hasDashboard = await page
+    .getByRole("heading", { name: "ダッシュボード", exact: true })
+    .isVisible();
+  const hasSignIn = await page
+    .getByRole("heading", { name: "サインイン", exact: true })
+    .isVisible();
+
+  const screenshot = await page.screenshot({ fullPage: true });
+  await testInfo.attach("app-dashboard-enhanced", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+
+  if (hasDashboard) {
+    await expect(
+      page.getByRole("heading", { name: "ダッシュボード", exact: true })
+    ).toBeVisible();
+  } else {
+    expect(hasSignIn).toBeTruthy();
+  }
 });
 
 test("公開ページが表示される（トップ/ポリシー/規約/削除）", async ({ page }, testInfo) => {
@@ -174,6 +200,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("admin-theme-light-gray", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
     if (hasOverview) {
       await expect(
@@ -186,11 +216,11 @@ test(
 );
 
 test(
-  "セットアップはサインインまたはセットアップが表示される",
+  "初期設定はサインインまたは初期設定が表示される",
   async ({ page }, testInfo) => {
     await page.goto("/app/setup", { waitUntil: "domcontentloaded" });
     const hasSetup = await page
-      .getByRole("heading", { name: "セットアップチェック" })
+      .getByRole("heading", { name: "初期設定", exact: true })
       .isVisible();
     const hasSignIn = await page
       .getByRole("heading", { name: "サインイン", exact: true })
@@ -206,6 +236,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-setup-design", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-setup-owner-friendly", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -237,7 +271,7 @@ test(
     if (hasSetup) {
       await expect(page.getByText("進捗", { exact: true })).toBeVisible();
       await expect(page.getByText("最終アップロード")).toBeVisible();
-      await expect(page.getByText("Googleレビューを一括同期")).toBeVisible();
+      await expect(page.getByText("Google口コミを一括同期")).toBeVisible();
       await expect(page.getByText("自動同期", { exact: true })).toBeVisible();
     }
     expect(hasSetup || hasSignIn).toBeTruthy();
@@ -301,11 +335,11 @@ test("監査ログはサインインまたは監査ログが表示される", as
 });
 
 test(
-  "レビュー受信箱はサインインまたはレビュー受信箱が表示される",
+  "口コミ・コメント受信箱はサインインまたは受信箱が表示される",
   async ({ page }, testInfo) => {
     await page.goto("/app/reviews", { waitUntil: "domcontentloaded" });
     const hasInbox = await page
-      .getByRole("heading", { name: "レビュー受信箱", exact: true })
+      .getByRole("heading", { name: "口コミ・コメント受信箱", exact: true })
       .isVisible();
     const hasSignIn = await page
       .getByRole("heading", { name: "サインイン", exact: true })
@@ -321,6 +355,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-reviews-design", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-reviews-inbox-owner-friendly", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -344,7 +382,7 @@ test(
 
     if (hasInbox) {
       await expect(
-        page.getByRole("heading", { name: "レビュー一覧", exact: true })
+        page.getByRole("heading", { name: "口コミ一覧", exact: true })
       ).toBeVisible();
       await expect(page.locator("input[name='q']")).toBeVisible();
       await expect(page.locator("select[name='locationId']")).toBeVisible();
@@ -524,7 +562,7 @@ test("ロケーション詳細でGoogleセクションが表示される", async
     .isVisible();
 
   if (hasGoogleSection) {
-    const syncButton = page.getByRole("button", { name: "レビュー同期" });
+    const syncButton = page.getByRole("button", { name: "口コミ同期" });
     await syncButton.click();
     await expect(
       page.getByRole("heading", { name: "Google Business Profile", exact: true })

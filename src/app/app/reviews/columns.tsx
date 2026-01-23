@@ -33,7 +33,7 @@ function formatRating(value: number | null) {
 
 function providerLabel(provider: ProviderType) {
   if (provider === ProviderType.GoogleBusinessProfile) return "Google";
-  if (provider === ProviderType.Meta) return "Meta";
+  if (provider === ProviderType.Meta) return "Facebook/Instagram";
   return "未対応";
 }
 
@@ -48,12 +48,12 @@ export function createReviewColumns(params: {
       headerClassName: "whitespace-nowrap",
     },
     {
-      header: "ロケーション",
+      header: "店舗",
       cell: (review) => review.locationName,
       cellClassName: "min-w-[160px]",
     },
     {
-      header: "プロバイダ",
+      header: "連携サービス",
       cell: (review) => (
         <Badge variant="muted">{providerLabel(review.provider)}</Badge>
       ),
@@ -93,7 +93,7 @@ export function createReviewColumns(params: {
           href={`/app/locations/${review.locationId}`}
           className={locationLinkClass}
         >
-          ロケーション詳細へ
+          店舗詳細へ
         </Link>
       ),
       cellClassName: "whitespace-nowrap",
@@ -107,7 +107,7 @@ export function createReviewColumns(params: {
           <DetailsDisclosure
             items={[
               {
-                label: "レビューID",
+                label: "口コミID",
                 value: review.externalReviewId,
                 mono: true,
               },
@@ -146,9 +146,9 @@ export function createReviewColumns(params: {
             ) : (
               <Card tone="amber">
                 <CardContent className="text-sm text-amber-100">
-                  <p className="font-semibold">Metaの返信は未対応</p>
+                  <p className="font-semibold">Metaのコメント返信は準備中</p>
                   <p className="mt-1 text-amber-100/80">
-                    現時点ではGoogleレビューのみ返信できます。
+                    現時点ではGoogleの口コミのみ返信できます。
                   </p>
                 </CardContent>
               </Card>
