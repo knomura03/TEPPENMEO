@@ -10,6 +10,7 @@ import { ProviderType } from "@/server/providers/types";
 import { writeAuditLog } from "@/server/services/audit-logs";
 import { replyGoogleReviewForLocation, toUiError } from "@/server/services/google-business-profile";
 import { getLocationById } from "@/server/services/locations";
+import { replyMetaCommentForLocation, toMetaCommentUiError } from "@/server/services/meta-comments";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { markProviderError } from "@/server/services/provider-accounts";
 import { getReviewById } from "@/server/services/reviews";
@@ -22,7 +23,11 @@ export type InboxReplyState = {
 const replySchema = z.object({
   locationId: z.string().min(1),
   reviewId: z.string().min(1),
-  replyText: z.string().trim().min(1, "返信内容は必須です。"),
+  replyText: z
+    .string()
+    .trim()
+    .min(1, "返信内容は必須です。")
+    .max(500, "返信内容は500文字以内で入力してください。"),
 });
 
 type SessionUser = NonNullable<
@@ -74,8 +79,8 @@ async function requireReplyAccess(params: {
   if (!location || location.organizationId !== org.id) {
     return {
       error: {
-        cause: "ロケーションが見つかりません。",
-        nextAction: "ロケーション一覧から選び直してください。",
+        cause: "店舗が見つかりません。",
+        nextAction: "店舗一覧から選び直してください。",
       },
     };
   }
@@ -84,17 +89,20 @@ async function requireReplyAccess(params: {
   if (!review || review.locationId !== params.locationId) {
     return {
       error: {
-        cause: "レビューが見つかりません。",
-        nextAction: "レビュー一覧を更新して再試行してください。",
+        cause: "口コミ・コメントが見つかりません。",
+        nextAction: "受信箱を更新して再試行してください。",
       },
     };
   }
 
-  if (review.provider !== ProviderType.GoogleBusinessProfile) {
+  if (
+    review.provider !== ProviderType.GoogleBusinessProfile &&
+    review.provider !== ProviderType.Meta
+  ) {
     return {
       error: {
-        cause: "Googleレビュー以外は返信できません。",
-        nextAction: "対応可能なレビューを選択してください。",
+        cause: "この口コミ・コメントは現在返信できません。",
+        nextAction: "対応可能な項目を選択してください。",
       },
     };
   }
@@ -131,41 +139,64 @@ export async function replyReviewFromInboxAction(
   }
 
   try {
-    await replyGoogleReviewForLocation({
-      organizationId: access.org.id,
-      locationId: access.location.id,
-      actorUserId: access.user.id,
-      reviewId: access.review.id,
-      replyText: parsed.data.replyText,
-    });
+    if (access.review.provider === ProviderType.GoogleBusinessProfile) {
+      await replyGoogleReviewForLocation({
+        organizationId: access.org.id,
+        locationId: access.location.id,
+        actorUserId: access.user.id,
+        reviewId: access.review.id,
+        replyText: parsed.data.replyText,
+      });
+    } else if (access.review.provider === ProviderType.Meta) {
+      await replyMetaCommentForLocation({
+        organizationId: access.org.id,
+        locationId: access.location.id,
+        actorUserId: access.user.id,
+        reviewId: access.review.id,
+        externalReviewId: access.review.externalReviewId,
+        replyText: parsed.data.replyText,
+      });
+    } else {
+      return {
+        error: {
+          cause: "この口コミ・コメントは現在返信できません。",
+          nextAction: "対応可能な項目を選択してください。",
+        },
+        success: null,
+      };
+    }
 
     revalidatePath("/app/reviews");
     revalidatePath(`/app/locations/${access.location.id}`);
     return {
       error: null,
-      success: "レビュー返信を送信しました。",
+      success: "返信を送信しました。",
     };
   } catch (error) {
-    const providerError = toProviderError(
-      ProviderType.GoogleBusinessProfile,
-      error
-    );
+    const providerError = toProviderError(access.review.provider as ProviderType, error);
     await writeAuditLog({
       actorUserId: access.user.id,
       organizationId: access.org.id,
       action: "reviews.reply_failed",
       targetType: "review",
       targetId: access.review.id,
-      metadata: { reason: providerError.message },
+      metadata: {
+        provider: access.review.provider,
+        reason: providerError.message,
+      },
     });
     if (providerError.code === "auth_required") {
       await markProviderError(
         access.org.id,
-        ProviderType.GoogleBusinessProfile,
+        access.review.provider as ProviderType,
         providerError.message,
         providerError.status === 401
       );
     }
-    return { error: toUiError(providerError), success: null };
+    const uiError =
+      access.review.provider === ProviderType.Meta
+        ? toMetaCommentUiError(providerError)
+        : toUiError(providerError);
+    return { error: uiError, success: null };
   }
 }

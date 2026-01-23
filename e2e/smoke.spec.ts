@@ -362,6 +362,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-reviews-inbox-with-social-comments", {
+      body: screenshot,
+      contentType: "image/png",
+    });
     await testInfo.attach("app-reviews-ui-primitives", {
       body: screenshot,
       contentType: "image/png",
@@ -382,7 +386,7 @@ test(
 
     if (hasInbox) {
       await expect(
-        page.getByRole("heading", { name: "口コミ一覧", exact: true })
+        page.getByRole("heading", { name: "口コミ・コメント一覧", exact: true })
       ).toBeVisible();
       await expect(page.locator("input[name='q']")).toBeVisible();
       await expect(page.locator("select[name='locationId']")).toBeVisible();

@@ -1,8 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  listFacebookComments,
+  listInstagramComments,
   publishFacebookPost,
   publishInstagramPost,
+  replyFacebookComment,
+  replyInstagramComment,
 } from "@/server/providers/meta/api";
 
 const graphBase = "https://graph.facebook.com/v20.0";
@@ -125,5 +129,159 @@ describe("Meta API contract", () => {
 
     expect(result.id).toBe("ig-post-1");
     expect(call).toBe(2);
+  });
+
+  it("Facebookコメント取得は /posts にGETする", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+        expect(url).toContain(`${graphBase}/page-1/posts`);
+        expect(url).toContain("comments");
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            data: [
+              {
+                id: "post-1",
+                comments: {
+                  data: [
+                    {
+                      id: "comment-1",
+                      message: "投稿へのコメント",
+                      from: { name: "お客様" },
+                      created_time: "2024-01-01T00:00:00Z",
+                    },
+                  ],
+                },
+              },
+            ],
+          }),
+          text: async () => JSON.stringify({ ok: true }),
+        } as Response;
+      })
+    );
+
+    const comments = await listFacebookComments({
+      pageId: "page-1",
+      pageAccessToken: "page-token",
+    });
+
+    expect(comments.length).toBe(1);
+    expect(comments[0].id).toBe("comment-1");
+  });
+
+  it("Facebookコメント返信は /comments にPOSTする", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === "string" ? input : input.toString();
+        expect(url).toBe(`${graphBase}/comment-1/comments`);
+        expect(init?.method).toBe("POST");
+        const body = parseFormBody(init?.body ?? null);
+        expect(body.get("message")).toBe("返信内容");
+        expect(body.get("access_token")).toBe("page-token");
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ id: "reply-1" }),
+          text: async () => JSON.stringify({ ok: true }),
+        } as Response;
+      })
+    );
+
+    const result = await replyFacebookComment({
+      commentId: "comment-1",
+      pageAccessToken: "page-token",
+      message: "返信内容",
+    });
+
+    expect(result.id).toBe("reply-1");
+  });
+
+  it("Instagramコメント取得は media → comments の順で呼ばれる", async () => {
+    const calledUrls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+        calledUrls.push(url);
+        if (calledUrls.length === 1) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({ data: [{ id: "media-1" }] }),
+            text: async () => JSON.stringify({ ok: true }),
+          } as Response;
+        }
+        if (calledUrls.length === 2) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              data: [
+                { id: "ig-comment-1", text: "コメント", username: "user" },
+              ],
+            }),
+            text: async () => JSON.stringify({ ok: true }),
+          } as Response;
+        }
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ data: [] }),
+          text: async () => JSON.stringify({ ok: true }),
+        } as Response;
+      })
+    );
+
+    const comments = await listInstagramComments({
+      instagramAccountId: "ig-1",
+      pageAccessToken: "page-token",
+    });
+
+    expect(comments.length).toBe(1);
+    expect(comments[0].id).toBe("ig-comment-1");
+    expect(calledUrls[0]).toBe(
+      `${graphBase}/ig-1/media?fields=id&limit=10&access_token=page-token`
+    );
+    const commentsUrl = new URL(calledUrls[1]);
+    expect(commentsUrl.origin + commentsUrl.pathname).toBe(
+      `${graphBase}/media-1/comments`
+    );
+    expect(commentsUrl.searchParams.get("fields")).toBe(
+      "id,text,username,timestamp"
+    );
+    expect(commentsUrl.searchParams.get("limit")).toBe("20");
+    expect(commentsUrl.searchParams.get("access_token")).toBe("page-token");
+  });
+
+  it("Instagramコメント返信は /replies にPOSTする", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === "string" ? input : input.toString();
+        expect(url).toBe(`${graphBase}/ig-comment-1/replies`);
+        expect(init?.method).toBe("POST");
+        const body = parseFormBody(init?.body ?? null);
+        expect(body.get("message")).toBe("返信内容");
+        expect(body.get("access_token")).toBe("page-token");
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ id: "ig-reply-1" }),
+          text: async () => JSON.stringify({ ok: true }),
+        } as Response;
+      })
+    );
+
+    const result = await replyInstagramComment({
+      commentId: "ig-comment-1",
+      pageAccessToken: "page-token",
+      message: "返信内容",
+    });
+
+    expect(result.id).toBe("ig-reply-1");
   });
 });

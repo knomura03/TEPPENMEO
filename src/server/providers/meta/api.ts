@@ -25,6 +25,20 @@ export type MetaPageDetails = {
   } | null;
 };
 
+export type FacebookComment = {
+  id: string;
+  message?: string | null;
+  author?: string | null;
+  createdAt: string;
+};
+
+export type InstagramComment = {
+  id: string;
+  message?: string | null;
+  author?: string | null;
+  createdAt: string;
+};
+
 type MetaPageListResponse = {
   data?: MetaPage[];
   paging?: { next?: string };
@@ -51,6 +65,41 @@ type MetaErrorBody = {
     code?: number;
     error_subcode?: number;
   };
+};
+
+type FacebookFeedComment = {
+  id: string;
+  message?: string | null;
+  from?: { name?: string | null } | null;
+  created_time?: string | null;
+};
+
+type FacebookFeedPost = {
+  id: string;
+  message?: string | null;
+  created_time?: string | null;
+  comments?: { data?: FacebookFeedComment[] } | null;
+};
+
+type FacebookFeedResponse = {
+  data?: FacebookFeedPost[];
+};
+
+type InstagramMediaItem = {
+  id: string;
+};
+
+type InstagramMediaResponse = {
+  data?: InstagramMediaItem[];
+};
+
+type InstagramCommentsResponse = {
+  data?: Array<{
+    id: string;
+    text?: string | null;
+    username?: string | null;
+    timestamp?: string | null;
+  }>;
 };
 
 const graphBase = "https://graph.facebook.com/v20.0";
@@ -264,5 +313,119 @@ export async function publishInstagramPost(params: {
     });
   } catch (error) {
     throw mapMetaApiError(error, "Instagram投稿に失敗しました。");
+  }
+}
+
+export async function listFacebookComments(params: {
+  pageId: string;
+  pageAccessToken: string;
+  postLimit?: number;
+  commentLimit?: number;
+}): Promise<FacebookComment[]> {
+  try {
+    const url = new URL(`${graphBase}/${params.pageId}/posts`);
+    url.searchParams.set(
+      "fields",
+      `id,message,created_time,comments.limit(${params.commentLimit ?? 20}){id,message,from,created_time}`
+    );
+    url.searchParams.set("limit", `${params.postLimit ?? 10}`);
+    url.searchParams.set("access_token", params.pageAccessToken);
+
+    const response = await httpRequestJson<FacebookFeedResponse>(url.toString());
+    const comments: FacebookComment[] = [];
+    (response.data ?? []).forEach((post) => {
+      (post.comments?.data ?? []).forEach((comment) => {
+        comments.push({
+          id: comment.id,
+          message: comment.message ?? null,
+          author: comment.from?.name ?? null,
+          createdAt: comment.created_time ?? new Date().toISOString(),
+        });
+      });
+    });
+    return comments;
+  } catch (error) {
+    throw mapMetaApiError(error, "Facebookコメントの取得に失敗しました。");
+  }
+}
+
+export async function replyFacebookComment(params: {
+  commentId: string;
+  pageAccessToken: string;
+  message: string;
+}): Promise<{ id: string }> {
+  try {
+    const endpoint = `${graphBase}/${params.commentId}/comments`;
+    const body = new URLSearchParams();
+    body.set("access_token", params.pageAccessToken);
+    body.set("message", params.message);
+
+    return await httpRequestJson<{ id: string }>(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+  } catch (error) {
+    throw mapMetaApiError(error, "Facebookコメントへの返信に失敗しました。");
+  }
+}
+
+export async function listInstagramComments(params: {
+  instagramAccountId: string;
+  pageAccessToken: string;
+  mediaLimit?: number;
+  commentLimit?: number;
+}): Promise<InstagramComment[]> {
+  try {
+    const mediaUrl = new URL(`${graphBase}/${params.instagramAccountId}/media`);
+    mediaUrl.searchParams.set("fields", "id");
+    mediaUrl.searchParams.set("limit", `${params.mediaLimit ?? 10}`);
+    mediaUrl.searchParams.set("access_token", params.pageAccessToken);
+
+    const mediaResponse =
+      await httpRequestJson<InstagramMediaResponse>(mediaUrl.toString());
+
+    const comments: InstagramComment[] = [];
+    for (const media of mediaResponse.data ?? []) {
+      const commentsUrl = new URL(`${graphBase}/${media.id}/comments`);
+      commentsUrl.searchParams.set("fields", "id,text,username,timestamp");
+      commentsUrl.searchParams.set("limit", `${params.commentLimit ?? 20}`);
+      commentsUrl.searchParams.set("access_token", params.pageAccessToken);
+
+      const commentResponse =
+        await httpRequestJson<InstagramCommentsResponse>(commentsUrl.toString());
+      (commentResponse.data ?? []).forEach((comment) => {
+        comments.push({
+          id: comment.id,
+          message: comment.text ?? null,
+          author: comment.username ?? null,
+          createdAt: comment.timestamp ?? new Date().toISOString(),
+        });
+      });
+    }
+    return comments;
+  } catch (error) {
+    throw mapMetaApiError(error, "Instagramコメントの取得に失敗しました。");
+  }
+}
+
+export async function replyInstagramComment(params: {
+  commentId: string;
+  pageAccessToken: string;
+  message: string;
+}): Promise<{ id: string }> {
+  try {
+    const endpoint = `${graphBase}/${params.commentId}/replies`;
+    const body = new URLSearchParams();
+    body.set("access_token", params.pageAccessToken);
+    body.set("message", params.message);
+
+    return await httpRequestJson<{ id: string }>(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+  } catch (error) {
+    throw mapMetaApiError(error, "Instagramコメントへの返信に失敗しました。");
   }
 }

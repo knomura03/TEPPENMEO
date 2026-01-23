@@ -13,12 +13,19 @@ import { buildHrefWithParams } from "@/lib/pagination";
 import { getMembershipRole, hasRequiredRole } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
 import { ProviderType } from "@/server/providers/types";
+import { toProviderError } from "@/server/providers/errors";
 import { listLocations } from "@/server/services/locations";
+import { countLocationProviderLinks } from "@/server/services/location-provider-links";
 import { getPrimaryOrganization } from "@/server/services/organizations";
+import { listProviderConnections } from "@/server/services/provider-connections";
 import {
   listReviewsInboxPage,
   type ReviewsInboxFilters,
 } from "@/server/services/reviews-inbox";
+import {
+  syncMetaCommentsForOrganization,
+  toMetaCommentUiError,
+} from "@/server/services/meta-comments";
 
 import { createReviewColumns } from "./columns";
 
@@ -33,8 +40,8 @@ type SearchParams = {
 
 const providerOptions = [
   { value: "all", label: "すべて" },
-  { value: ProviderType.GoogleBusinessProfile, label: "Google" },
-  { value: ProviderType.Meta, label: "Facebook/Instagram" },
+  { value: ProviderType.GoogleBusinessProfile, label: "Google口コミ" },
+  { value: ProviderType.Meta, label: "SNSコメント（Facebook/Instagram）" },
 ];
 
 const periodOptions = [
@@ -124,6 +131,50 @@ export default async function ReviewsInboxPage({
     resolvedSearchParams.locationId && resolvedSearchParams.locationId !== "all"
       ? resolvedSearchParams.locationId
       : null;
+  const targetLocationIds =
+    locationId !== null
+      ? [locationId]
+      : locations.map((location) => location.id);
+
+  const connections = await listProviderConnections(org.id, user.id);
+  const metaConnection = connections.find(
+    (item) => item.provider === ProviderType.Meta
+  );
+  const metaLinkCount = await countLocationProviderLinks({
+    locationIds: targetLocationIds,
+    provider: ProviderType.Meta,
+  });
+
+  let socialNotice: { cause: string; nextAction: string } | null = null;
+  if (provider === ProviderType.Meta || provider === "all") {
+    if (!metaConnection || metaConnection.status === "not_connected") {
+      socialNotice = {
+        cause: "SNSコメントを表示するには連携サービスの接続が必要です。",
+        nextAction: "初期設定からFacebook/Instagramの接続を行ってください。",
+      };
+    } else if (metaConnection.status === "reauth_required") {
+      socialNotice = {
+        cause: "連携サービスの再接続が必要です。",
+        nextAction: "初期設定から再接続を行ってください。",
+      };
+    } else if (metaLinkCount === 0) {
+      socialNotice = {
+        cause: "店舗とFacebookページの紐付けが必要です。",
+        nextAction: "店舗詳細から紐付けを設定してください。",
+      };
+    } else {
+      try {
+        await syncMetaCommentsForOrganization({
+          organizationId: org.id,
+          locationIds: targetLocationIds,
+          actorUserId: user.id,
+        });
+      } catch (error) {
+        const providerError = toProviderError(ProviderType.Meta, error);
+        socialNotice = toMetaCommentUiError(providerError);
+      }
+    }
+  }
 
   const inboxPage = await listReviewsInboxPage({
     organizationId: org.id,
@@ -177,6 +228,16 @@ export default async function ReviewsInboxPage({
           </p>
         </CardHeader>
         <CardContent>
+          {socialNotice && (
+            <div className="mb-4">
+              <Card tone="amber">
+                <CardContent className="text-sm text-amber-900">
+                  <p className="font-semibold">{socialNotice.cause}</p>
+                  <p className="mt-1">{socialNotice.nextAction}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
           <form method="get" className="grid gap-4 md:grid-cols-6">
             <div className="md:col-span-2">
               <FormField label="検索">
@@ -249,7 +310,9 @@ export default async function ReviewsInboxPage({
       <Card tone="light">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">口コミ一覧</h2>
+            <h2 className="text-lg font-semibold text-slate-900">
+              口コミ・コメント一覧
+            </h2>
             <Badge variant="default">{inboxPage.total}件</Badge>
           </div>
         </CardHeader>
@@ -257,7 +320,7 @@ export default async function ReviewsInboxPage({
           {inboxPage.items.length === 0 ? (
             <EmptyState
               title="条件に一致する口コミがありません。"
-              description="口コミ同期を実行するか、条件を調整してください。"
+              description="口コミ・コメントの取得状況を確認し、条件を調整してください。"
               actions={
                 <Link href="/app/locations" className={actionLinkSecondary}>
                   店舗へ

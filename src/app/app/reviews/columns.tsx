@@ -25,15 +25,20 @@ function formatDate(value: string) {
   return date.toLocaleString("ja-JP");
 }
 
-function formatRating(value: number | null) {
+function formatRating(provider: ProviderType, value: number | null) {
+  if (provider === ProviderType.Meta) return "コメント";
   if (value === null || Number.isNaN(value)) return "-";
   if (Number.isInteger(value)) return value.toString();
   return value.toFixed(1);
 }
 
-function providerLabel(provider: ProviderType) {
-  if (provider === ProviderType.GoogleBusinessProfile) return "Google";
-  if (provider === ProviderType.Meta) return "Facebook/Instagram";
+function providerLabel(review: ReviewInboxItem) {
+  if (review.provider === ProviderType.GoogleBusinessProfile) return "Google口コミ";
+  if (review.provider === ProviderType.Meta) {
+    if (review.channel === "facebook") return "Facebookコメント";
+    if (review.channel === "instagram") return "Instagramコメント";
+    return "SNSコメント";
+  }
   return "未対応";
 }
 
@@ -55,14 +60,17 @@ export function createReviewColumns(params: {
     {
       header: "連携サービス",
       cell: (review) => (
-        <Badge variant="muted">{providerLabel(review.provider)}</Badge>
+        <Badge variant="muted">{providerLabel(review)}</Badge>
       ),
       cellClassName: "whitespace-nowrap",
       headerClassName: "whitespace-nowrap",
     },
     {
       header: "評価",
-      cell: (review) => `★ ${formatRating(review.rating)}`,
+      cell: (review) =>
+        review.provider === ProviderType.Meta
+          ? "コメント"
+          : `★ ${formatRating(review.provider, review.rating)}`,
       cellClassName: "whitespace-nowrap",
       headerClassName: "whitespace-nowrap",
     },
@@ -102,12 +110,16 @@ export function createReviewColumns(params: {
     {
       header: "詳細",
       cell: (review) => {
-        const isGoogle = review.provider === ProviderType.GoogleBusinessProfile;
+        const canReplyProvider =
+          review.provider === ProviderType.GoogleBusinessProfile ||
+          review.provider === ProviderType.Meta;
+        const unknownChannel =
+          review.provider === ProviderType.Meta && !review.channel;
         return (
           <DetailsDisclosure
             items={[
               {
-                label: "口コミID",
+                label: "口コミ・コメントID",
                 value: review.externalReviewId,
                 mono: true,
               },
@@ -129,30 +141,41 @@ export function createReviewColumns(params: {
               },
             ]}
           >
-            {isGoogle ? (
-              <div className="space-y-2">
-                {!params.canReply && !review.reply && (
-                  <p className="text-sm text-slate-500">
-                    返信は組織管理者のみ操作できます。
-                  </p>
-                )}
+            <div className="space-y-2">
+              {!canReplyProvider && (
+                <Card tone="amber">
+                  <CardContent className="text-sm text-amber-900">
+                    <p className="font-semibold">このコメントは準備中です</p>
+                    <p className="mt-1">
+                      現在はGoogle口コミとSNSコメントに対応しています。
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+              {unknownChannel && (
+                <Card tone="amber">
+                  <CardContent className="text-sm text-amber-900">
+                    <p className="font-semibold">コメントの種類が不明です</p>
+                    <p className="mt-1">
+                      連携設定を確認し、再読み込みしてください。
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+              {!params.canReply && !review.reply && (
+                <p className="text-sm text-slate-500">
+                  返信は組織管理者のみ操作できます。
+                </p>
+              )}
+              {canReplyProvider && !unknownChannel && (
                 <ReviewInboxReplyForm
                   locationId={review.locationId}
                   reviewId={review.id}
                   canEdit={params.canReply}
                   existingReply={review.reply}
                 />
-              </div>
-            ) : (
-              <Card tone="amber">
-                <CardContent className="text-sm text-amber-100">
-                  <p className="font-semibold">Metaのコメント返信は準備中</p>
-                  <p className="mt-1 text-amber-100/80">
-                    現時点ではGoogleの口コミのみ返信できます。
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+              )}
+            </div>
           </DetailsDisclosure>
         );
       },
