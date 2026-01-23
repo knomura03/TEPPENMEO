@@ -9,7 +9,8 @@
 | 初期設定 | `/app/setup` | テナント | 初期導線 | 進捗/KPI/完了チェック、接続/紐付け/投稿テストのリンク集、自動同期設定 | app-setup-owner-friendly |
 | 口コミ・コメント受信箱 | `/app/reviews` | テナント | 口コミ対応 | 横断一覧/フィルタ/検索/返信（Google/FB/IGコメント） | app-reviews-inbox-with-social-comments / app-reviews-inbox-real-mode-guidance |
 | 店舗一覧 | `/app/locations` | テナント | 店舗管理 | 作成/一覧/検索 | app-locations-ui-primitives |
-| 店舗詳細 | `/app/locations/[id]` | テナント | 連携/口コミ/投稿 | 接続/切断/紐付け/投稿（Meta/Google）/画像アップロード/投稿履歴（検索/フィルタ/ページング/再実行） | app-location-detail-ui-primitives |
+| 店舗詳細 | `/app/locations/[id]` | テナント | 連携/口コミ/投稿 | 連携サービスの接続/店舗選択/口コミ取り込み/投稿（テンプレ対応）/履歴 | app-location-detail-simple / app-location-detail-post-template |
+| 投稿テンプレ | `/app/post-templates` | テナント | 投稿文管理 | テンプレの作成/編集/削除/適用 | app-post-templates |
 | 管理概要 | `/admin` | システム管理 | 全体状況 | 概要表示 | admin-overview-design / admin-theme-light-gray |
 | 管理プロバイダ | `/admin/providers` | システム管理 | 連携状態 | フラグ確認 | - |
 | 監査ログ | `/admin/audit-logs` | システム管理 | 操作履歴 | 期間/actor/action/組織/provider_type/自由検索/CSV出力 | admin-audit-logs-design / admin-audit-logs-table / admin-audit-logs-table-details |

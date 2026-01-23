@@ -568,61 +568,56 @@ test("組織メンバー管理はサインインまたはメンバー一覧が�
   }
 });
 
-test("ロケーション詳細でGoogleセクションが表示される", async ({ page }) => {
-  await page.goto("/app/locations/loc-1", { waitUntil: "domcontentloaded" });
-  const hasGoogleSection = await page
-    .getByRole("heading", { name: "Google Business Profile", exact: true })
-    .isVisible();
-  const hasSignIn = await page
-    .getByRole("heading", { name: "サインイン", exact: true })
-    .isVisible();
+test(
+  "店舗詳細はサインインまたは詳細が表示される",
+  async ({ page }, testInfo) => {
+    await page.goto("/app/locations/loc-1", { waitUntil: "domcontentloaded" });
+    const hasDetail = await page
+      .getByRole("heading", { name: "初めての設定", exact: true })
+      .isVisible();
+    const hasSignIn = await page
+      .getByRole("heading", { name: "サインイン", exact: true })
+      .isVisible();
 
-  if (hasGoogleSection) {
-    const syncButton = page.getByRole("button", { name: "口コミ同期" });
-    await syncButton.click();
-    await expect(
-      page.getByRole("heading", { name: "Google Business Profile", exact: true })
-    ).toBeVisible();
-  } else {
-    expect(hasSignIn).toBeTruthy();
+    const baseShot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("app-location-detail-simple", {
+      body: baseShot,
+      contentType: "image/png",
+    });
+
+    if (hasDetail) {
+      const composerSummary = page.locator("summary", { hasText: "投稿する" }).first();
+      if ((await composerSummary.count()) > 0) {
+        await composerSummary.click();
+      }
+      const composerShot = await page.screenshot({ fullPage: true });
+      await testInfo.attach("app-location-detail-post-template", {
+        body: composerShot,
+        contentType: "image/png",
+      });
+    }
+
+    expect(hasDetail || hasSignIn).toBeTruthy();
   }
-});
+);
 
 test(
-  "ロケーション詳細でMetaセクションが表示される",
+  "投稿テンプレートはサインインまたはテンプレートが表示される",
   async ({ page }, testInfo) => {
-  await page.goto("/app/locations/loc-1", { waitUntil: "domcontentloaded" });
-  const hasMetaSection = await page
-    .getByRole("heading", { name: "Meta（Facebook/Instagram）", exact: true })
-    .isVisible();
-  const hasSignIn = await page
-    .getByRole("heading", { name: "サインイン", exact: true })
-    .isVisible();
+    await page.goto("/app/post-templates", { waitUntil: "domcontentloaded" });
+    const hasTemplates = await page
+      .getByRole("heading", { name: "投稿テンプレート", exact: true })
+      .isVisible();
+    const hasSignIn = await page
+      .getByRole("heading", { name: "サインイン", exact: true })
+      .isVisible();
 
-  if (hasMetaSection) {
-    await expect(
-      page.getByText("Facebookページ紐付け", { exact: true })
-    ).toBeVisible();
-    await expect(page.getByText("Googleに投稿", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "投稿を送信" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "投稿履歴", exact: true })).toBeVisible();
-  } else {
-    expect(hasSignIn).toBeTruthy();
+    const screenshot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("app-post-templates", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+
+    expect(hasTemplates || hasSignIn).toBeTruthy();
   }
-
-  const composerShot = await page.screenshot({ fullPage: true });
-  await testInfo.attach("app-location-post-composer", {
-    body: composerShot,
-    contentType: "image/png",
-  });
-  await testInfo.attach("app-location-detail-ui-primitives", {
-    body: composerShot,
-    contentType: "image/png",
-  });
-
-  const screenshot = await page.screenshot({ fullPage: true });
-  await testInfo.attach("app-location-post-history", {
-    body: screenshot,
-    contentType: "image/png",
-  });
-});
+);
