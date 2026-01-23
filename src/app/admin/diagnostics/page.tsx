@@ -1028,6 +1028,40 @@ export default async function AdminDiagnosticsPage() {
 
         <Card tone="light">
           <CardHeader className="border-slate-200">
+            <p className="text-base font-semibold text-slate-900">
+              受信箱（実機確認）
+            </p>
+            <p className="text-sm text-slate-600">
+              口コミ・コメント受信箱の実機確認手順をまとめています。
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-slate-600">
+            <ul className="list-disc space-y-1 pl-4">
+              <li>Google口コミの取得と返信ができること</li>
+              <li>Metaコメントの取得と返信ができること</li>
+            </ul>
+            <p className="text-sm text-slate-500">
+              まずは診断 → 実機ヘルスチェック → 受信箱の順に確認してください。
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <a href="/admin/provider-health" className={adminActionSecondaryClass}>
+                実機ヘルスチェックを開く
+              </a>
+              <a href="/app/reviews" className={adminActionSecondaryClass}>
+                受信箱を開く
+              </a>
+              <a
+                href="/docs/runbooks/inbox-real-mode-check"
+                className={adminActionSecondaryClass}
+              >
+                受信箱の実機確認手順
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card tone="light">
+          <CardHeader className="border-slate-200">
             <p className="text-base font-semibold text-slate-900">画像アップロード</p>
             <p className="text-sm text-slate-600">
               Supabase Storageの設定状況を確認します。

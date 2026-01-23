@@ -63,31 +63,31 @@ export function parseMetaCommentExternalId(value: string): {
 export function toMetaCommentUiError(error: ProviderError): MetaCommentUiError {
   if (error.code === "auth_required") {
     return {
-      cause: error.message,
-      nextAction: "連携サービスを再接続してください。",
+      cause: "連携サービスの再接続が必要です。",
+      nextAction: "連携サービスをつなぎ直してください。",
     };
   }
   if (error.code === "rate_limited") {
     return {
-      cause: error.message,
-      nextAction: "時間をおいて再実行してください。",
+      cause: "アクセスが集中しています。",
+      nextAction: "時間をおいてもう一度確認してください。",
     };
   }
   if (error.code === "validation_error") {
     return {
-      cause: error.message,
-      nextAction: "連携状態や店舗の紐付けを確認してください。",
+      cause: "連携サービスの設定が足りません。",
+      nextAction: "権限や店舗の紐付けを確認してください。",
     };
   }
   if (error.code === "not_supported") {
     return {
       cause: "このコメントは現在対応できません。",
-      nextAction: "管理者に設定状況を確認してください。",
+      nextAction: "管理者に連携状況を確認してください。",
     };
   }
   return {
-    cause: "コメント取得・返信に失敗しました。",
-    nextAction: "時間をおいて再実行してください。",
+    cause: "コメントの読み込みに失敗しました。",
+    nextAction: "時間をおいてもう一度確認してください。",
   };
 }
 

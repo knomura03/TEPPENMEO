@@ -21,6 +21,8 @@
 5. `/admin/provider-health` を開く
    - 「チェック実行」を押して結果を確認する
 6. `/app/locations/[id]` で投稿/レビューの動作確認を行う
+7. `/app/reviews` で口コミ・コメント受信箱の実機確認を行う
+   - 詳細手順: `/docs/runbooks/inbox-real-mode-check`
 
 ## /app/setup の使い方
 - `/app/setup` で進捗とKPIを確認する

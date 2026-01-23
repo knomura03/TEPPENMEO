@@ -54,6 +54,12 @@ export default function AdminProviderHealthPage() {
               実機チェック手順書
             </a>
             <a
+              href="/docs/runbooks/inbox-real-mode-check"
+              className={adminActionSecondaryClass}
+            >
+              受信箱の実機確認手順
+            </a>
+            <a
               href="/docs/runbooks/switch-mock-to-real"
               className={adminActionSecondaryClass}
             >
