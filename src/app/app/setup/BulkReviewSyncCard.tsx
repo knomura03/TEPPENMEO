@@ -118,22 +118,22 @@ export function BulkReviewSyncCard({
       <CardHeader>
         <div className="flex items-center justify-between">
           <p className="text-base font-semibold text-slate-900">
-            Googleレビューを一括同期
+            Google口コミを一括同期
           </p>
           <Badge variant={latest?.status === "succeeded" ? "success" : "warning"}>
             {statusBadge}
           </Badge>
         </div>
         <p className="text-sm text-slate-600">
-          GBP紐付け済みロケーションのレビューをまとめて同期します。
+          Google店舗（GBP）を紐付け済みの店舗をまとめて同期します。
         </p>
       </CardHeader>
       <CardContent className="space-y-3 text-sm text-slate-700">
         <p>最終実行: {formatDate(latest?.finishedAt ?? latest?.startedAt ?? null)}</p>
-        <p>対象ロケーション: {formatCount(latest?.summary.totalLocations ?? null)}件</p>
+        <p>対象店舗: {formatCount(latest?.summary.totalLocations ?? null)}件</p>
         <p>成功: {formatCount(latest?.summary.successCount ?? null)}件</p>
         <p>失敗: {formatCount(latest?.summary.failedCount ?? null)}件</p>
-        <p>レビュー件数: {formatCount(latest?.summary.reviewCount ?? null)}件</p>
+        <p>口コミ件数: {formatCount(latest?.summary.reviewCount ?? null)}件</p>
         <p>次回予定: {nextRunLabel}</p>
         {latest?.summary.mockMode && (
           <p className="text-sm text-amber-600">
@@ -207,7 +207,7 @@ export function BulkReviewSyncCard({
             href="/docs/runbooks/gbp-bulk-review-sync"
             className="inline-flex items-center text-[color:var(--primary)] underline"
           >
-            Googleレビュー一括同期手順を見る
+            Google口コミ一括同期手順を見る
           </a>
         </div>
       </CardContent>

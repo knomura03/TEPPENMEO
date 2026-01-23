@@ -179,10 +179,10 @@ export default async function LocationDetailPage({
       <Card>
         <CardHeader>
           <h2 className="text-lg font-semibold text-slate-900">
-            プロバイダ連携
+            連携サービス
           </h2>
           <p className="text-sm text-slate-500">
-            プロバイダごとに接続して同期します。
+            連携サービスごとに接続して同期します。
           </p>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
@@ -233,7 +233,7 @@ export default async function LocationDetailPage({
                     <Badge variant="warning">再認可</Badge>
                   )}
                   {provider.capabilities.canReadReviews && (
-                    <Badge variant="default">レビュー</Badge>
+                    <Badge variant="default">口コミ</Badge>
                   )}
                   {provider.capabilities.canCreatePosts && (
                     <Badge variant="default">投稿</Badge>
@@ -244,7 +244,7 @@ export default async function LocationDetailPage({
                   {!provider.capabilities.canReadReviews &&
                     !provider.capabilities.canCreatePosts &&
                     !provider.capabilities.canSearchPlaces && (
-                      <Badge variant="muted">スタブ</Badge>
+                      <Badge variant="muted">準備中</Badge>
                     )}
                 </div>
                 {connectionMessage && (
@@ -302,7 +302,7 @@ export default async function LocationDetailPage({
             Google Business Profile
           </h2>
           <p className="text-sm text-slate-500">
-            GBPロケーションの紐付けとレビュー同期を行います。
+            Google店舗（GBP）の紐付けと口コミ同期を行います。
           </p>
         </CardHeader>
         <CardContent>
@@ -379,7 +379,7 @@ export default async function LocationDetailPage({
 
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold text-slate-900">レビュー</h2>
+          <h2 className="text-lg font-semibold text-slate-900">口コミ</h2>
         </CardHeader>
         <CardContent className="space-y-3">
           {reviews.map((review) => (
@@ -418,7 +418,7 @@ export default async function LocationDetailPage({
           ))}
           {reviews.length === 0 && (
             <p className="text-sm text-slate-500">
-              まだレビューがありません。
+              まだ口コミがありません。
             </p>
           )}
         </CardContent>
