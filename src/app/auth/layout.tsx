@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
@@ -5,7 +6,14 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-gradient-to-br from-[color:var(--primary)] via-slate-900 to-slate-800">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center gap-10 px-6 py-12 md:flex-row">
         <div className="max-w-md text-slate-100">
-          <img src="/logo.svg" alt="TEPPEN MEO" className="h-10 w-auto" />
+          <Image
+            src="/logo.svg"
+            alt="TEPPEN MEO"
+            width={180}
+            height={40}
+            className="h-10 w-auto"
+            priority
+          />
           <h1 className="mt-4 text-4xl font-semibold">
             ローカル運用を一つにまとめる。
           </h1>

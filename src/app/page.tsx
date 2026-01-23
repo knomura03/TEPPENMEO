@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +27,14 @@ export default function Home() {
             <Badge variant="warning" className="rounded">
               公開情報
             </Badge>
-            <img src="/logo.svg" alt="TEPPEN MEO" className="h-8 w-auto" />
+            <Image
+              src="/logo.svg"
+              alt="TEPPEN MEO"
+              width={160}
+              height={32}
+              className="h-8 w-auto"
+              priority
+            />
           </div>
           <nav className="flex items-center gap-4">
             <NavLink href="/privacy" label="プライバシー" />
