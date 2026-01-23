@@ -149,18 +149,18 @@ export default async function ReviewsInboxPage({
   if (provider === ProviderType.Meta || provider === "all") {
     if (!metaConnection || metaConnection.status === "not_connected") {
       socialNotice = {
-        cause: "SNSコメントを表示するには連携サービスの接続が必要です。",
-        nextAction: "初期設定からFacebook/Instagramの接続を行ってください。",
+        cause: "SNSコメントを見るには連携サービスの接続が必要です。",
+        nextAction: "初期設定からFacebook/Instagramをつないでください。",
       };
     } else if (metaConnection.status === "reauth_required") {
       socialNotice = {
         cause: "連携サービスの再接続が必要です。",
-        nextAction: "初期設定から再接続を行ってください。",
+        nextAction: "初期設定からつなぎ直してください。",
       };
     } else if (metaLinkCount === 0) {
       socialNotice = {
         cause: "店舗とFacebookページの紐付けが必要です。",
-        nextAction: "店舗詳細から紐付けを設定してください。",
+        nextAction: "店舗詳細で紐付けを設定してください。",
       };
     } else {
       try {
