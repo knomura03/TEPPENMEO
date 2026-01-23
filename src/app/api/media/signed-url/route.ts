@@ -32,8 +32,8 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error: {
-          cause: "ロケーションが指定されていません。",
-          nextAction: "ロケーション詳細から再実行してください。",
+          cause: "店舗が指定されていません。",
+          nextAction: "店舗詳細から再実行してください。",
         },
       },
       { status: 400 }
@@ -45,8 +45,8 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error: {
-          cause: "ロケーションが見つかりません。",
-          nextAction: "ロケーション一覧から選び直してください。",
+          cause: "店舗が見つかりません。",
+          nextAction: "店舗一覧から選び直してください。",
         },
       },
       { status: 404 }
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
       {
         error: {
           cause: "権限がありません。",
-          nextAction: "組織管理者に権限付与を依頼してください。",
+          nextAction: "管理者に権限付与を依頼してください。",
         },
       },
       { status: 403 }
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       {
         error: {
           cause: "画像へのアクセスが許可されていません。",
-          nextAction: "組織管理者に確認してください。",
+          nextAction: "管理者に確認してください。",
         },
       },
       { status: 403 }

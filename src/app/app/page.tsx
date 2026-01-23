@@ -98,7 +98,7 @@ export default async function AppDashboard() {
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold text-slate-900">ダッシュボード</h1>
         <p className="text-sm text-slate-500">
-          所属組織が見つかりません。組織管理者に確認してください。
+          管理者情報が確認できません。管理者に確認してください。
         </p>
       </div>
     );

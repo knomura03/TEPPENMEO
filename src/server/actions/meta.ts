@@ -99,8 +99,8 @@ async function requireLocationAccess(locationId: string): Promise<AccessResult> 
   if (!location || location.organizationId !== org.id) {
     return {
       error: {
-        cause: "ロケーションが見つかりません。",
-        nextAction: "ロケーション一覧から選び直してください。",
+        cause: "店舗が見つかりません。",
+        nextAction: "店舗一覧から選び直してください。",
       },
     };
   }
@@ -150,8 +150,8 @@ export async function linkMetaPageAction(
     return {
       error: null,
       success: isMockMode()
-        ? "モックのページ紐付けを更新しました。"
-        : "Facebookページを紐付けました。",
+        ? "テスト用のつなぎを更新しました。"
+        : "Facebookページをつなぎました。",
     };
   } catch (error) {
     const providerError = toProviderError(ProviderType.Meta, error);
@@ -187,7 +187,7 @@ export async function unlinkMetaPageAction(
     return {
       error: {
         cause: "入力内容が不正です。",
-        nextAction: "ロケーション詳細を開き直してください。",
+        nextAction: "店舗詳細を開き直してください。",
       },
       success: null,
     };
@@ -208,7 +208,7 @@ export async function unlinkMetaPageAction(
     revalidatePath(`/app/locations/${parsed.data.locationId}`);
     return {
       error: null,
-      success: "紐付けを解除しました。",
+      success: "つなぎを解除しました。",
     };
   } catch (error) {
     const providerError = toProviderError(ProviderType.Meta, error);
@@ -344,8 +344,8 @@ export async function publishMetaPostAction(
     if (!link) {
       return {
         error: {
-          cause: "GBPロケーションが未紐付けです。",
-          nextAction: "GBPロケーションを紐付けてから再投稿してください。",
+          cause: "Googleの店舗情報が未設定です。",
+          nextAction: "Googleの店舗情報を選んでから再投稿してください。",
         },
         success: null,
       };

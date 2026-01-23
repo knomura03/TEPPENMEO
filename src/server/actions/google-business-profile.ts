@@ -86,8 +86,8 @@ async function requireLocationAccess(locationId: string): Promise<AccessResult> 
   if (!location || location.organizationId !== org.id) {
     return {
       error: {
-        cause: "ロケーションが見つかりません。",
-        nextAction: "ロケーション一覧から選び直してください。",
+        cause: "店舗が見つかりません。",
+        nextAction: "店舗一覧から選び直してください。",
       },
     };
   }
@@ -111,7 +111,7 @@ export async function linkGoogleLocationAction(
     return {
       error: {
         cause: "入力内容が不正です。",
-        nextAction: "ロケーション候補を選び直してください。",
+        nextAction: "店舗候補を選び直してください。",
       },
       success: null,
     };
@@ -140,8 +140,8 @@ export async function linkGoogleLocationAction(
     return {
       error: null,
       success: isMockMode()
-        ? "モックの紐付けを更新しました。"
-        : "GBPロケーションを紐付けました。",
+        ? "テスト用のつなぎを更新しました。"
+        : "Googleの店舗情報をつなぎました。",
     };
   } catch (error) {
     const providerError = toProviderError(
@@ -180,7 +180,7 @@ export async function syncGoogleReviewsAction(
     return {
       error: {
         cause: "入力内容が不正です。",
-        nextAction: "ロケーション詳細を開き直してください。",
+        nextAction: "店舗詳細を開き直してください。",
       },
       success: null,
     };
