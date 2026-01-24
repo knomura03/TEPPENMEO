@@ -12,11 +12,11 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary:
     "bg-[color:var(--primary)] text-white hover:bg-[color:var(--primary-hover)] focus-visible:outline-[color:var(--primary)]",
   secondary:
-    "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus-visible:outline-slate-400",
+    "border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-default)] hover:bg-[color:var(--surface-muted)] focus-visible:outline-[color:var(--focus-ring)]",
   danger:
     "bg-rose-600 text-white hover:bg-rose-500 focus-visible:outline-rose-400",
   ghost:
-    "bg-transparent text-slate-700 hover:bg-slate-100 focus-visible:outline-slate-300",
+    "bg-transparent text-[color:var(--text-default)] hover:bg-[color:var(--surface-muted)] focus-visible:outline-[color:var(--focus-ring)]",
   link:
     "bg-transparent text-[color:var(--primary)] underline underline-offset-4 hover:text-[color:var(--primary-hover)] focus-visible:outline-[color:var(--primary)]",
 };

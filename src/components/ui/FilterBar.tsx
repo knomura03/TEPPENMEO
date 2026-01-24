@@ -3,12 +3,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 
 export const adminFieldClass =
-  "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-base text-slate-900 placeholder:text-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]";
+  "h-11 w-full rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-base text-[color:var(--text-default)] placeholder:text-[color:var(--text-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--focus-ring)]";
 
 export const adminSelectClass =
-  "h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-base text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--primary)]";
+  "h-11 w-full rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-base text-[color:var(--text-default)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--focus-ring)]";
 
-export const adminLabelClass = "mb-1 block text-sm font-semibold text-slate-700";
+export const adminLabelClass =
+  "mb-1 block text-sm font-semibold text-[color:var(--text-default)]";
 
 export const adminActionPrimaryClass = buttonStyles({
   variant: "primary",
@@ -20,7 +21,8 @@ export const adminActionPrimaryClass = buttonStyles({
 export const adminActionSecondaryClass = buttonStyles({
   variant: "secondary",
   size: "md",
-  className: "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+  className:
+    "border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-default)] hover:bg-[color:var(--surface-muted)]",
 });
 
 type FilterBarProps = {
@@ -44,12 +46,16 @@ export function FilterBar({
 }: FilterBarProps) {
   return (
     <Card tone="light" className={className}>
-      <CardHeader className="border-slate-200">
+      <CardHeader className="border-[color:var(--border-muted)]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+            <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
+              {title}
+            </h2>
             {description && (
-              <p className="text-sm text-slate-600">{description}</p>
+              <p className="text-sm text-[color:var(--text-muted)]">
+                {description}
+              </p>
             )}
           </div>
           {actions && <div className="flex flex-wrap gap-2">{actions}</div>}

@@ -116,7 +116,7 @@ export default async function AdminAuditLogsPage({
   const secondaryLink = buttonStyles({
     variant: "secondary",
     size: "md",
-    className: "border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-50",
+    className: "border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text-strong)] hover:bg-[color:var(--surface-muted)]",
   });
   const columns = createAuditLogColumns({ organizationMap });
 
@@ -238,17 +238,17 @@ export default async function AdminAuditLogsPage({
         />
       ) : (
         <Card tone="light">
-          <CardHeader className="border-slate-200">
+          <CardHeader className="border-[color:var(--border)]">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">
+                <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
                   監査ログ一覧
                 </h2>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-[color:var(--text-muted)]">
                   1ページ {pageSize} 件、最新順で表示します。
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-600">
+              <div className="flex items-center gap-2 text-sm text-[color:var(--text-muted)]">
                 <span>ページ {page}</span>
               </div>
             </div>

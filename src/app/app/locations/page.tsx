@@ -69,18 +69,18 @@ export default async function LocationsPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">店舗</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">店舗</h1>
+        <p className="text-sm text-[color:var(--text-muted)]">
           店舗情報と連携サービスを管理します。
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
             店舗を追加
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-[color:var(--text-muted)]">
             店舗を追加して連携サービスの対象を増やします。
           </p>
         </CardHeader>
@@ -93,7 +93,7 @@ export default async function LocationsPage({
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
                 店舗一覧
               </h2>
               <Badge variant="default">{locations.length}</Badge>
@@ -104,18 +104,18 @@ export default async function LocationsPage({
               <Link
                 key={location.id}
                 href={`/app/locations/${location.id}`}
-                className="block rounded-lg border border-slate-200 bg-white px-4 py-3 transition hover:border-slate-300"
+                className="block rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3 transition hover:border-[color:var(--border-muted)]"
               >
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                   {location.name}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[color:var(--text-muted)]">
                   {location.address ?? "住所が未登録です"}
                 </p>
               </Link>
             ))}
             {locations.length === 0 && (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[color:var(--text-muted)]">
                 まだ店舗がありません。
               </p>
             )}
@@ -124,10 +124,10 @@ export default async function LocationsPage({
 
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
               地図検索
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[color:var(--text-muted)]">
               住所候補を検索して店舗登録を補助します。
             </p>
           </CardHeader>
@@ -158,12 +158,12 @@ export default async function LocationsPage({
               {results.map((result) => (
                 <div
                   key={result.id}
-                  className="rounded-md border border-slate-200 bg-white px-3 py-2"
+                  className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
                 >
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                     {result.name}
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-[color:var(--text-muted)]">
                     {result.address ?? "住所情報なし"}
                   </p>
                 </div>
@@ -172,7 +172,7 @@ export default async function LocationsPage({
                 <p className="text-sm text-amber-600">{searchError}</p>
               )}
               {results.length === 0 && resolvedSearchParams.query && (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[color:var(--text-muted)]">
                   結果がありません。別のキーワードを試してください。
                 </p>
               )}

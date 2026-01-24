@@ -46,12 +46,12 @@ export function ReviewInboxReplyForm(props: {
 
   if (props.existingReply) {
     return (
-      <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
-        <p className="font-semibold text-slate-700">返信済み</p>
+      <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3 text-sm text-[color:var(--text-default)]">
+        <p className="font-semibold text-[color:var(--text-strong)]">返信済み</p>
         <p className="mt-2 whitespace-pre-wrap">
           {props.existingReply.replyText}
         </p>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-[color:var(--text-muted)]">
           返信日時: {props.existingReply.createdAt}
         </p>
       </div>

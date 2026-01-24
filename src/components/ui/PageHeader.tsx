@@ -3,8 +3,14 @@ import { cn } from "@/lib/cn";
 type PageHeaderTone = "light" | "dark";
 
 const toneStyles: Record<PageHeaderTone, { title: string; description: string }> = {
-  light: { title: "text-slate-900", description: "text-slate-600" },
-  dark: { title: "text-slate-100", description: "text-slate-300" },
+  light: {
+    title: "text-[color:var(--text-default)]",
+    description: "text-[color:var(--text-muted)]",
+  },
+  dark: {
+    title: "text-white",
+    description: "text-slate-200",
+  },
 };
 
 type PageHeaderProps = {

@@ -26,7 +26,7 @@ type AdminShellProps = {
 export function AdminShell({ children, userEmail, active }: AdminShellProps) {
   return (
     <div className="min-h-screen bg-[color:var(--admin-bg)] text-[color:var(--text-default)]">
-      <header className="border-b border-slate-200/80 bg-white/80 backdrop-blur">
+      <header className="border-b border-[color:var(--border)] bg-[color:var(--surface)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <Image
@@ -54,11 +54,7 @@ export function AdminShell({ children, userEmail, active }: AdminShellProps) {
               </p>
             </div>
             <form action={signOutAction}>
-              <Button
-                variant="secondary"
-                type="submit"
-                className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-              >
+              <Button variant="secondary" type="submit">
                 サインアウト
               </Button>
             </form>
@@ -70,7 +66,7 @@ export function AdminShell({ children, userEmail, active }: AdminShellProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/70 hover:text-slate-900",
+                "rounded-full px-4 py-2 text-sm font-medium text-[color:var(--text-muted)] transition hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text-default)]",
                 active === item.label &&
                   "bg-[color:var(--primary)]/10 text-[color:var(--primary)]"
               )}

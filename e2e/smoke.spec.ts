@@ -41,6 +41,10 @@ test("ダッシュボードはサインインまたはダッシュボードが�
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("app-dashboard-polish", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   if (hasDashboard) {
     await expect(
@@ -56,6 +60,7 @@ test("公開ページが表示される（トップ/ポリシー/規約/削除�
   const home = await page.screenshot({ fullPage: true });
   await testInfo.attach("public-home", { body: home, contentType: "image/png" });
   await testInfo.attach("public-home-branding", { body: home, contentType: "image/png" });
+  await testInfo.attach("public-home-polish", { body: home, contentType: "image/png" });
 
   await page.goto("/privacy", { waitUntil: "domcontentloaded" });
   const privacy = await page.screenshot({ fullPage: true });
@@ -156,6 +161,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("admin-release-acceptance", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-release-polish", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -279,6 +288,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-setup-polish", {
+      body: screenshot,
+      contentType: "image/png",
+    });
     await testInfo.attach("app-setup-kpis-media", {
       body: screenshot,
       contentType: "image/png",
@@ -398,6 +411,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-reviews-polish", {
+      body: screenshot,
+      contentType: "image/png",
+    });
     await testInfo.attach("app-reviews-ui-primitives", {
       body: screenshot,
       contentType: "image/png",
@@ -453,6 +470,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("admin-users-ui-primitives", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("admin-users-polish", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -601,6 +622,10 @@ test(
 
     const baseShot = await page.screenshot({ fullPage: true });
     await testInfo.attach("app-location-detail-simple", {
+      body: baseShot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-location-detail-polish", {
       body: baseShot,
       contentType: "image/png",
     });

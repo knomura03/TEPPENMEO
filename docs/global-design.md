@@ -37,10 +37,12 @@ Do:
 - 通常テキストは 4.5:1 以上、見出しは 3:1 以上を目安にする
 - 状態色は色だけで伝えず、ラベルや文言を併記する
 - primary は `#001976` を基準とし、リンク/ボタン/強調色に使用する
+- 色はトークン経由で指定する（例: `--text-default`, `--text-muted`, `--surface`, `--border`）
 
 Don't:
 - 背景と文字色が近い組み合わせを使わない
 - 色だけで「成功/失敗」を表現しない
+- 画面ごとに `text-slate-*` を乱用して色が揺れる状態にしない
 
 ## ボタン/リンク
 Do:
@@ -72,6 +74,7 @@ Don't:
 Do:
 - `var(--primary)` を参照し、直書きの色指定を避ける
 - ボタン/リンク/ヘッダーの強調色は primary に統一する
+- 背景/本文/枠線はトークンで統一する（例: `--background`, `--surface`, `--border`）
 
 Don't:
 - primary をページごとに別の色で代用しない
@@ -83,6 +86,7 @@ Do:
 - Button は variant/size を指定し、md は 44px 以上を満たす
 - 重要導線は Button を使い、Link には buttonStyles を使う
 - 送信中は loading 表示、無効時は disabled 表示を統一する
+- Input/Select/Textarea の背景/境界/文字色はトークンで統一する
 
 Don't:
 - ラベル無しの入力を置かない

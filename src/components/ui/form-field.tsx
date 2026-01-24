@@ -5,7 +5,11 @@ import { cn } from "@/lib/cn";
 type FormFieldTone = "light" | "dark";
 
 const toneStyles: Record<FormFieldTone, { label: string; hint: string; error: string }> = {
-  light: { label: "text-slate-700", hint: "text-slate-500", error: "text-rose-600" },
+  light: {
+    label: "text-[color:var(--text-default)]",
+    hint: "text-[color:var(--text-muted)]",
+    error: "text-rose-600",
+  },
   dark: { label: "text-slate-200", hint: "text-slate-400", error: "text-rose-300" },
 };
 

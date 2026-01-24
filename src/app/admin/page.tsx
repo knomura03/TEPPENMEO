@@ -20,31 +20,37 @@ export default async function AdminOverviewPage() {
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card tone="light">
-          <CardHeader className="border-slate-200">
-            <p className="text-sm text-slate-600">有効なプロバイダ</p>
+          <CardHeader className="border-[color:var(--border-muted)]">
+            <p className="text-sm text-[color:var(--text-muted)]">
+              有効なプロバイダ
+            </p>
             <h2 className="text-3xl font-semibold">{enabled}</h2>
           </CardHeader>
-          <CardContent className="text-sm text-slate-600">
+          <CardContent className="text-sm text-[color:var(--text-muted)]">
             現在有効な連携数です。
           </CardContent>
         </Card>
         <Card tone="light">
-          <CardHeader className="border-slate-200">
-            <p className="text-sm text-slate-600">監査イベント</p>
+          <CardHeader className="border-[color:var(--border-muted)]">
+            <p className="text-sm text-[color:var(--text-muted)]">
+              監査イベント
+            </p>
             <h2 className="text-3xl font-semibold">{audits.length}</h2>
           </CardHeader>
-          <CardContent className="text-sm text-slate-600">
+          <CardContent className="text-sm text-[color:var(--text-muted)]">
             直近50件まで表示します。
           </CardContent>
         </Card>
         <Card tone="light">
-          <CardHeader className="border-slate-200">
-            <p className="text-sm text-slate-600">プラットフォーム状態</p>
+          <CardHeader className="border-[color:var(--border-muted)]">
+            <p className="text-sm text-[color:var(--text-muted)]">
+              プラットフォーム状態
+            </p>
             <div className="mt-2">
               <Badge variant="success">安定</Badge>
             </div>
           </CardHeader>
-          <CardContent className="text-sm text-slate-600">
+          <CardContent className="text-sm text-[color:var(--text-muted)]">
             主要機能は稼働中です。
           </CardContent>
         </Card>

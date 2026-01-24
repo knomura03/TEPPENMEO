@@ -81,10 +81,10 @@ export default async function SetupChecklistPage() {
   if (!user) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">
           初期設定
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-[color:var(--text-muted)]">
           ログイン後に初期設定を進められます。
         </p>
         <Link
@@ -101,10 +101,10 @@ export default async function SetupChecklistPage() {
   if (!org) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">
           初期設定
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-[color:var(--text-muted)]">
           管理者情報が確認できません。管理者に確認してください。
         </p>
       </div>
@@ -193,24 +193,24 @@ export default async function SetupChecklistPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">
           初期設定
         </h1>
-        <p className="text-base text-slate-600 leading-relaxed">
+        <p className="text-base text-[color:var(--text-muted)] leading-relaxed">
           状況を集計して、次にやることを案内します。
         </p>
       </div>
 
       <Card tone="light">
         <CardHeader>
-          <p className="text-base font-semibold text-slate-900">進捗</p>
-          <p className="text-sm text-slate-600">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">進捗</p>
+          <p className="text-sm text-[color:var(--text-muted)]">
             完了 {status.progress.completedSteps} / {status.progress.totalSteps}（
             {status.progress.percent}%）
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="h-2 w-full rounded-full bg-slate-200">
+          <div className="h-2 w-full rounded-full bg-[color:var(--surface-contrast)]">
             <div
               className="h-2 rounded-full bg-emerald-500"
               style={{ width: `${status.progress.percent}%` }}
@@ -231,14 +231,14 @@ export default async function SetupChecklistPage() {
       {isAdmin && (
         <Card tone="light">
           <CardHeader>
-            <p className="text-base font-semibold text-slate-900">
+            <p className="text-base font-semibold text-[color:var(--text-strong)]">
               連携の動作確認（管理者向け）
             </p>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[color:var(--text-muted)]">
               実運用前の最短確認手順です。管理者のみ参照してください。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-700">
+          <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
             <p>
               Google接続→店舗紐付け→投稿→口コミ同期→返信、Meta接続→ページ紐付け→投稿（画像含む）、
               ジョブ実行/スケジュール、監査ログ確認までをクリック単位でまとめています。
@@ -259,16 +259,16 @@ export default async function SetupChecklistPage() {
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-slate-900">店舗</p>
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">店舗</p>
               <Badge variant={status.locationsCount > 0 ? "success" : "warning"}>
                 {status.locationsCount}件
               </Badge>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[color:var(--text-muted)]">
               連携の対象となる店舗を管理します。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-700">
+          <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
             <p>役割: {role ?? "未判定"}</p>
             <Link
               href="/app/locations"
@@ -282,16 +282,16 @@ export default async function SetupChecklistPage() {
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-slate-900">Google</p>
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">Google</p>
               <Badge variant={status.providerConnected.google ? "success" : "warning"}>
                 {status.providerConnected.google ? "接続済み" : "未接続"}
               </Badge>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[color:var(--text-muted)]">
               接続→Google店舗（GBP）紐付け→投稿テストを順に進めます。
             </p>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-slate-700">
+          <CardContent className="space-y-4 text-sm text-[color:var(--text-default)]">
             <div className="space-y-1">
               <p>紐付け数: {status.linkedCounts.gbpLinked}件</p>
               <p>投稿回数: {formatCount(status.postsSummary.google.total)}件</p>
@@ -332,14 +332,14 @@ export default async function SetupChecklistPage() {
                 return (
                   <div
                     key={step.key}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2"
+                    className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                           {step.label}
                         </p>
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-[color:var(--text-muted)]">
                           {step.description}
                         </p>
                       </div>
@@ -383,16 +383,16 @@ export default async function SetupChecklistPage() {
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-slate-900">Meta</p>
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">Meta</p>
               <Badge variant={status.providerConnected.meta ? "success" : "warning"}>
                 {status.providerConnected.meta ? "接続済み" : "未接続"}
               </Badge>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[color:var(--text-muted)]">
               接続→FBページ紐付け→投稿テストを順に進めます。
             </p>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-slate-700">
+          <CardContent className="space-y-4 text-sm text-[color:var(--text-default)]">
             <div className="space-y-1">
               <p>紐付け数: {status.linkedCounts.metaLinked}件</p>
               <p>投稿回数: {formatCount(status.postsSummary.meta.total)}件</p>
@@ -413,14 +413,14 @@ export default async function SetupChecklistPage() {
                 return (
                   <div
                     key={step.key}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2"
+                    className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                           {step.label}
                         </p>
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-[color:var(--text-muted)]">
                           {step.description}
                         </p>
                       </div>
@@ -454,16 +454,16 @@ export default async function SetupChecklistPage() {
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-slate-900">画像アップロード</p>
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">画像アップロード</p>
               <Badge variant={status.mediaSummary.storageReady ? "success" : "warning"}>
                 {status.mediaSummary.storageReady ? "有効" : "未設定"}
               </Badge>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[color:var(--text-muted)]">
               Storageを設定して画像投稿を有効化します。
             </p>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-slate-700">
+          <CardContent className="space-y-4 text-sm text-[color:var(--text-default)]">
             <p>署名URL期限: {status.mediaSummary.signedUrlTtlSeconds}秒</p>
             <p>最大アップロード: {status.mediaSummary.maxUploadMb}MB</p>
             <p>アップロード件数: {formatCount(status.mediaSummary.uploadedCount)}件</p>
@@ -482,14 +482,14 @@ export default async function SetupChecklistPage() {
                 return (
                   <div
                     key={step.key}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2"
+                    className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">
+                        <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                           {step.label}
                         </p>
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-[color:var(--text-muted)]">
                           {step.description}
                         </p>
                       </div>
@@ -523,7 +523,7 @@ export default async function SetupChecklistPage() {
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-slate-900">投稿テンプレ</p>
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">投稿テンプレ</p>
               <Badge
                 variant={
                   postTemplates.count && postTemplates.count > 0
@@ -534,11 +534,11 @@ export default async function SetupChecklistPage() {
                 {postTemplates.count === null ? "不明" : `${postTemplates.count}件`}
               </Badge>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[color:var(--text-muted)]">
               テンプレを用意すると、投稿が短時間で作れます。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-700">
+          <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
             {mapTemplateReason(postTemplates.reason) ? (
               <p className="text-xs text-amber-700">
                 {mapTemplateReason(postTemplates.reason)}
@@ -565,12 +565,12 @@ export default async function SetupChecklistPage() {
         {isAdmin && (
           <Card tone="light">
             <CardHeader>
-              <p className="text-base font-semibold text-slate-900">システム管理者向け</p>
-              <p className="text-sm text-slate-600">
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">システム管理者向け</p>
+              <p className="text-sm text-[color:var(--text-muted)]">
                 設定状況と実機チェックをまとめて確認できます。
               </p>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-slate-700">
+            <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
               <Link
                 href="/admin/diagnostics"
                 className={actionLinkPrimary}

@@ -5,8 +5,10 @@ import { cn } from "@/lib/cn";
 type CardTone = "light" | "dark" | "amber";
 
 const toneStyles: Record<CardTone, string> = {
-  light: "border-slate-200 bg-white/90 text-slate-900",
-  dark: "border-slate-200 bg-white text-slate-900",
+  light:
+    "border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-default)]",
+  dark:
+    "border-[color:var(--border-muted)] bg-[color:var(--surface-muted)] text-[color:var(--text-default)]",
   amber: "border-amber-200 bg-amber-50 text-amber-900",
 };
 
@@ -34,7 +36,11 @@ const CardHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("border-b border-slate-100 px-6 py-4", className)} {...props} />
+  <div
+    ref={ref}
+    className={cn("border-b border-[color:var(--border-muted)] px-6 py-4", className)}
+    {...props}
+  />
 ));
 
 CardHeader.displayName = "CardHeader";
