@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { buttonStyles } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -243,14 +244,14 @@ export default async function SetupChecklistPage() {
               Google連携→店舗を選ぶ→投稿→口コミの取り込み→返信、SNS連携→ページを選ぶ→投稿（画像含む）、
               一括取り込み/スケジュール、操作履歴の確認までをクリック単位でまとめています。
             </p>
-            <div className="flex flex-wrap gap-2">
+            <ActionGroup>
               <Link
                 href="/docs/runbooks/real-mode-smoke-test"
                 className={actionLinkSecondary}
               >
                 連携の動作確認手順を見る
               </Link>
-            </div>
+            </ActionGroup>
           </CardContent>
         </Card>
       )}

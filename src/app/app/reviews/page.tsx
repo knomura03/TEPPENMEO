@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -294,7 +295,7 @@ export default async function ReviewsInboxPage({
               />
               未返信のみ
             </label>
-            <div className="flex flex-wrap items-center gap-3 md:col-span-6">
+            <ActionGroup className="md:col-span-6">
               <Button type="submit" size="md">
                 適用
               </Button>
@@ -304,7 +305,7 @@ export default async function ReviewsInboxPage({
               >
                 使い方を見る
               </Link>
-            </div>
+            </ActionGroup>
           </form>
         </CardContent>
       </Card>

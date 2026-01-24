@@ -1,3 +1,4 @@
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
@@ -58,14 +59,14 @@ export function FilterBar({
               </p>
             )}
           </div>
-          {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+          {actions && <ActionGroup>{actions}</ActionGroup>}
         </div>
       </CardHeader>
       <CardContent>
         <div className={cn("grid gap-4 md:grid-cols-6", contentClassName)}>
           {children}
         </div>
-        {footer && <div className="mt-4 flex flex-wrap gap-2">{footer}</div>}
+        {footer && <ActionGroup className="mt-4">{footer}</ActionGroup>}
       </CardContent>
     </Card>
   );
