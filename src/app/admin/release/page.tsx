@@ -433,6 +433,25 @@ export default async function ReleaseDashboardPage() {
 
       <Card tone="light">
         <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">証跡を残す</p>
+          <p className="text-sm text-slate-600">
+            staging/prod の実行結果をテンプレに沿って記録します。
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-slate-700">
+          <p>
+            preflight / provider-health / 実機スモークの結果を「OK/NG」で残します。
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <a className={linkClass} href="/docs/runbooks/staging-real-smoke-evidence">
+              証跡テンプレを見る
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
           <p className="text-base font-semibold text-slate-900">次にやること</p>
           <p className="text-sm text-slate-600">画面遷移とRunbookをまとめています。</p>
         </CardHeader>
