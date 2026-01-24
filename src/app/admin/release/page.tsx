@@ -6,9 +6,41 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { isSystemAdmin } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
+import { listLocations } from "@/server/services/locations";
+import { getPrimaryOrganization } from "@/server/services/organizations";
+import { getReleaseAcceptanceStatus } from "@/server/services/release-acceptance";
 import { getReleaseReadiness } from "@/server/services/release-readiness";
 
 const linkClass = "text-[color:var(--primary)] underline";
+
+type AcceptanceItem = {
+  status: "ok" | "pending" | "unknown";
+  lastSuccessAt: string | null;
+  reason: string | null;
+};
+
+function formatDate(value: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("ja-JP");
+}
+
+function resolveBadge(status: "ok" | "pending" | "unknown") {
+  if (status === "ok") return { label: "OK", variant: "success" as const };
+  if (status === "pending") return { label: "未実施", variant: "warning" as const };
+  return { label: "未判定", variant: "muted" as const };
+}
+
+function normalizeAcceptance(item?: AcceptanceItem | null): AcceptanceItem {
+  return (
+    item ?? {
+      status: "unknown",
+      lastSuccessAt: null,
+      reason: "組織情報を取得できないため未判定です。",
+    }
+  );
+}
 
 export default async function ReleaseDashboardPage() {
   const user = await getSessionUser();
@@ -30,6 +62,14 @@ export default async function ReleaseDashboardPage() {
   }
 
   const readiness = await getReleaseReadiness();
+  const org = user ? await getPrimaryOrganization(user.id) : null;
+  const locations = org ? await listLocations(org.id) : [];
+  const acceptance = org
+    ? await getReleaseAcceptanceStatus({
+        organizationId: org.id,
+        locationIds: locations.map((loc) => loc.id),
+      })
+    : null;
   const envMissing = readiness.env.mockRequired
     .filter((check) => !check.present)
     .map((check) => check.key);
@@ -44,6 +84,50 @@ export default async function ReleaseDashboardPage() {
       ? "不明"
       : `${readiness.postTemplates.count}件`;
   const appBasePlaceholder = "<APP_BASE_URL>";
+  const acceptanceItems = [
+    {
+      key: "google-inbox-fetch",
+      label: "Google 口コミ取得",
+      link: "/app/reviews",
+      item: normalizeAcceptance(acceptance?.googleInboxFetch),
+    },
+    {
+      key: "google-inbox-reply",
+      label: "Google 口コミ返信",
+      link: "/app/reviews",
+      item: normalizeAcceptance(acceptance?.googleInboxReply),
+    },
+    {
+      key: "google-post",
+      label: "Google 投稿",
+      link: "/app/locations",
+      item: normalizeAcceptance(acceptance?.googlePostPublish),
+    },
+    {
+      key: "meta-inbox-fetch",
+      label: "SNSコメント取得（Meta）",
+      link: "/app/reviews",
+      item: normalizeAcceptance(acceptance?.metaInboxFetch),
+    },
+    {
+      key: "meta-inbox-reply",
+      label: "SNSコメント返信（Meta）",
+      link: "/app/reviews",
+      item: normalizeAcceptance(acceptance?.metaInboxReply),
+    },
+    {
+      key: "meta-post",
+      label: "SNS投稿（Meta）",
+      link: "/app/locations",
+      item: normalizeAcceptance(acceptance?.metaPostPublish),
+    },
+    {
+      key: "media-upload",
+      label: "画像アップロード",
+      link: "/app/locations",
+      item: normalizeAcceptance(acceptance?.mediaUpload),
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -399,6 +483,48 @@ export default async function ReleaseDashboardPage() {
             <a className={linkClass} href="/docs/runbooks/switch-mock-to-real">
               モック→実機手順
             </a>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card tone="light">
+        <CardHeader className="border-slate-200">
+          <p className="text-base font-semibold text-slate-900">
+            実機の動作確認（合格状況）
+          </p>
+          <p className="text-sm text-slate-600">
+            直近の成功時刻を自動集計します。未実施/未判定はそのまま表示します。
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-slate-700">
+          <div className="grid gap-3 md:grid-cols-2">
+            {acceptanceItems.map((entry) => {
+              const badge = resolveBadge(entry.item.status);
+              return (
+                <div
+                  key={entry.key}
+                  className="rounded-md border border-slate-200 bg-white px-3 py-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-slate-900">
+                      {entry.label}
+                    </p>
+                    <Badge variant={badge.variant}>{badge.label}</Badge>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    最終成功: {formatDate(entry.item.lastSuccessAt)}
+                  </p>
+                  {entry.item.reason && (
+                    <p className="text-xs text-amber-700">{entry.item.reason}</p>
+                  )}
+                  <div className="pt-1">
+                    <Link className={linkClass} href={entry.link}>
+                      次にやることへ
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
