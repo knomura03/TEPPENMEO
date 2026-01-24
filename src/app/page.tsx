@@ -50,7 +50,7 @@ export default function Home() {
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12">
         <PageHeader
           title="TEPPEN MEO"
-          description="Google Business Profile、Meta、地図検索をまとめて管理し、ロケーション・レビュー・投稿を一元化する最小版です。"
+          description="Google Business Profile、Meta、地図検索をまとめて管理し、店舗の口コミ・投稿を一元化するサービスです。"
           tone="light"
         />
 
@@ -63,34 +63,28 @@ export default function Home() {
               アプリへ進む
             </Button>
           </Link>
-          <Link href="/admin">
-            <Button variant="ghost" size="lg">
-              管理コンソール
-            </Button>
-          </Link>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
           <Card>
             <CardHeader>
               <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
-                プロバイダ統合
+                連携サービスのまとめ管理
               </h2>
             </CardHeader>
             <CardContent className="text-sm text-[color:var(--text-muted)]">
-              GoogleとMetaを中心に、Yahoo!やAppleはパートナー連携前提の
-              スタブとして整備済みです。
+              GoogleとMetaを中心に、Yahoo!やAppleは準備中の連携サービスもあります。
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
               <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
-                レビュー対応
+                口コミ対応
               </h2>
             </CardHeader>
             <CardContent className="text-sm text-[color:var(--text-muted)]">
-              ロケーション単位でレビューを確認し、返信フローを整理します。
-              承認前はモックで検証可能です。
+              店舗ごとの口コミを確認し、返信の流れを整えます。
+              承認前はデモ（仮データ）で確認できます。
             </CardContent>
           </Card>
           <Card>
@@ -100,7 +94,7 @@ export default function Home() {
               </h2>
             </CardHeader>
             <CardContent className="text-sm text-[color:var(--text-muted)]">
-              Bing Maps / Yahoo! YOLP を使い、ロケーション登録の住所候補を
+              Bing Maps / Yahoo! YOLP を使い、店舗登録の住所候補を
               すばやく取得できます。
             </CardContent>
           </Card>

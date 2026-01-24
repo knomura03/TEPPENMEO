@@ -40,8 +40,8 @@ type SearchParams = {
 
 const providerOptions = [
   { value: "all", label: "すべて" },
-  { value: ProviderType.GoogleBusinessProfile, label: "Google口コミ" },
-  { value: ProviderType.Meta, label: "SNSコメント（Facebook/Instagram）" },
+  { value: ProviderType.GoogleBusinessProfile, label: "Googleの口コミ" },
+  { value: ProviderType.Meta, label: "Facebook/Instagramのコメント" },
 ];
 
 const periodOptions = [
@@ -149,7 +149,7 @@ export default async function ReviewsInboxPage({
   if (provider === ProviderType.Meta || provider === "all") {
     if (!metaConnection || metaConnection.status === "not_connected") {
       socialNotice = {
-        cause: "SNSコメントを見るには連携サービスの接続が必要です。",
+        cause: "コメントを見るには連携サービスの接続が必要です。",
         nextAction: "初期設定からFacebook/Instagramをつないでください。",
       };
     } else if (metaConnection.status === "reauth_required") {
@@ -159,8 +159,8 @@ export default async function ReviewsInboxPage({
       };
     } else if (metaLinkCount === 0) {
       socialNotice = {
-        cause: "店舗とFacebookページの紐付けが必要です。",
-        nextAction: "店舗詳細で紐付けを設定してください。",
+        cause: "店舗とFacebookページをつなぐ必要があります。",
+        nextAction: "店舗詳細でページを選んでください。",
       };
     } else {
       try {
@@ -263,7 +263,7 @@ export default async function ReviewsInboxPage({
               </FormField>
             </div>
             <div className="md:col-span-1">
-              <FormField label="連携サービス">
+              <FormField label="種類">
                 <Select name="provider" defaultValue={provider}>
                   {providerOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -302,7 +302,7 @@ export default async function ReviewsInboxPage({
                 href="/docs/runbooks/reviews-inbox"
                 className={actionLinkAccent}
               >
-                運用手順書を見る
+                使い方を見る
               </Link>
             </div>
           </form>

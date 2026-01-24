@@ -22,7 +22,7 @@ export default function PrivacyPage() {
               <h2 className="text-base font-semibold text-slate-900">1. 収集する情報</h2>
               <ul className="list-disc space-y-1 pl-5">
                 <li>アカウント作成時のメールアドレス</li>
-                <li>連携先プロバイダから取得するビジネス情報・投稿・レビュー（必要最小限）</li>
+                <li>連携サービスから取得するビジネス情報・投稿・口コミ（必要最小限）</li>
                 <li>操作ログ（監査目的）</li>
               </ul>
             </section>
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             <section className="space-y-2">
               <h2 className="text-base font-semibold text-slate-900">2. 利用目的</h2>
               <ul className="list-disc space-y-1 pl-5">
-                <li>連携プロバイダの管理、投稿、レビュー対応</li>
+                <li>連携サービスの管理、投稿、口コミ対応</li>
                 <li>監査・障害対応のための操作ログ管理</li>
                 <li>不正利用防止およびセキュリティ向上</li>
               </ul>

@@ -40,7 +40,7 @@ import { ReviewReplyForm } from "./ReviewReplyForm";
 const statusLabels = {
   disabled: "準備中",
   not_configured: "設定が必要",
-  mocked: "テスト運用中",
+  mocked: "デモ（仮データ）",
   enabled: "利用可能",
 };
 
@@ -222,6 +222,9 @@ export default async function LocationDetailPage({
       href: "#post-compose",
     },
   ] as const;
+  const actionableSteps = steps.filter((step) => step.status !== "done");
+  const stepsToShow = actionableSteps.length > 0 ? actionableSteps.slice(0, 3) : [];
+  const allStepsDone = stepsToShow.length === 0;
 
   const mainProviders = providerStatus.filter(
     (provider) =>
@@ -250,7 +253,7 @@ export default async function LocationDetailPage({
   const stepActionClass = buttonStyles({ variant: "primary", size: "sm" });
   const templatesNotice =
     postTemplatesReason
-      ? "テンプレートを使うには管理者側の設定が必要です。"
+      ? "テンプレートを使うには管理者の設定が必要です。"
       : postTemplates.length === 0
       ? "テンプレートはまだありません。必要なら作成してください。"
       : null;
@@ -269,11 +272,29 @@ export default async function LocationDetailPage({
         <CardHeader>
           <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">今日やること</h2>
           <p className="text-sm text-[color:var(--text-muted)]">
-            未完了の項目だけ開いてあります。上から順に進めると迷いません。
+            いま必要な項目だけを表示しています。上から順に進めると迷いません。
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
-          {steps.map((step) => {
+          {allStepsDone && (
+            <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+              <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+                今日は完了しました
+              </p>
+              <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                口コミの返信や投稿を続けていきましょう。
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link className={stepActionClass} href="/app/reviews">
+                  受信箱を開く
+                </Link>
+                <a className={stepActionClass} href="#post-compose">
+                  投稿エリアへ
+                </a>
+              </div>
+            </div>
+          )}
+          {stepsToShow.map((step) => {
             const style = stepStatusStyles[step.status];
             return (
               <details
@@ -311,215 +332,227 @@ export default async function LocationDetailPage({
       </Card>
 
       <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">初めての設定</h2>
-          <p className="text-sm text-[color:var(--text-muted)]">
-            連携サービスをつなぎ、この店舗を選ぶところまで進めます。
-          </p>
-        </div>
-
-        <Card id="connect-services">
-          <CardHeader>
-            <h3 className="text-base font-semibold text-[color:var(--text-strong)]">
-              連携サービスをつなぐ
-            </h3>
+        <details
+          open={!hasAnyConnection || !hasLinkedStore}
+          className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)]"
+        >
+          <summary className="cursor-pointer list-none px-6 py-4">
+            <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
+              はじめての設定
+            </h2>
             <p className="text-sm text-[color:var(--text-muted)]">
-              Google・Facebook・Instagramの連携を開始します。
+              連携サービスをつなぎ、この店舗を選ぶところまで進めます。
             </p>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
-            {mainProviders.map((provider) => {
-              const connection = connections.find(
-                (item) => item.provider === provider.type
-              );
-              const connectionStatus = connection?.status ?? "not_connected";
-              const connectionMessage = connection?.message;
-              const isGoogle = provider.type === ProviderType.GoogleBusinessProfile;
-              const isMeta = provider.type === ProviderType.Meta;
-              const connectHref = isGoogle
-                ? `/api/providers/google/connect?locationId=${location.id}`
-                : isMeta
-                ? `/api/providers/meta/connect?locationId=${location.id}`
-                : null;
-              const disconnectAction = isGoogle
-                ? `/api/providers/google/disconnect?locationId=${location.id}`
-                : isMeta
-                ? `/api/providers/meta/disconnect?locationId=${location.id}`
-                : null;
-              const providerLabel = isGoogle
-                ? "Google"
-                : isMeta
-                ? "Facebook/Instagram"
-                : provider.name;
+          </summary>
+          <div className="space-y-4 border-t border-[color:var(--border)] px-6 py-6">
+            <Card id="connect-services">
+              <CardHeader>
+                <h3 className="text-base font-semibold text-[color:var(--text-strong)]">
+                  連携サービスをつなぐ
+                </h3>
+                <p className="text-sm text-[color:var(--text-muted)]">
+                  Google・Facebook・Instagramの連携を開始します。
+                </p>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2">
+                {mainProviders.map((provider) => {
+                  const connection = connections.find(
+                    (item) => item.provider === provider.type
+                  );
+                  const connectionStatus = connection?.status ?? "not_connected";
+                  const connectionMessage = connection?.message;
+                  const isGoogle = provider.type === ProviderType.GoogleBusinessProfile;
+                  const isMeta = provider.type === ProviderType.Meta;
+                  const connectHref = isGoogle
+                    ? `/api/providers/google/connect?locationId=${location.id}`
+                    : isMeta
+                    ? `/api/providers/meta/connect?locationId=${location.id}`
+                    : null;
+                  const disconnectAction = isGoogle
+                    ? `/api/providers/google/disconnect?locationId=${location.id}`
+                    : isMeta
+                    ? `/api/providers/meta/disconnect?locationId=${location.id}`
+                    : null;
+                  const providerLabel = isGoogle
+                    ? "Google"
+                    : isMeta
+                    ? "Facebook/Instagram"
+                    : provider.name;
 
-              return (
-                <div
-                  key={provider.type}
-                  className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-[color:var(--text-strong)]">
-                        {providerLabel}
-                      </p>
-                      <p className="text-sm text-[color:var(--text-muted)]">
-                        {statusLabels[provider.status]}
-                      </p>
-                    </div>
-                    <Badge
-                      variant={connectionStatus === "connected" ? "success" : "muted"}
-                    >
-                      {connectionLabels[connectionStatus]}
-                    </Badge>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {provider.status === "disabled" && (
-                      <Badge variant="warning">承認待ち</Badge>
-                    )}
-                    {connectionStatus === "reauth_required" && (
-                      <Badge variant="warning">つなぎ直し</Badge>
-                    )}
-                    {provider.capabilities.canReadReviews && (
-                      <Badge variant="default">口コミ</Badge>
-                    )}
-                    {provider.capabilities.canCreatePosts && (
-                      <Badge variant="default">投稿</Badge>
-                    )}
-                    {!provider.capabilities.canReadReviews &&
-                      !provider.capabilities.canCreatePosts && (
-                        <Badge variant="muted">準備中</Badge>
-                      )}
-                  </div>
-                  {connectionMessage && (
-                    <p className="mt-3 text-sm text-amber-700">
-                      {connectionMessage}
-                    </p>
-                  )}
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {connectionStatus !== "connected" && (
-                      <a
-                        className={provider.enabled ? connectLinkClass : connectDisabledClass}
-                        href={provider.enabled ? connectHref ?? undefined : undefined}
-                        aria-disabled={!provider.enabled}
-                      >
-                        {connectionStatus === "reauth_required"
-                          ? "つなぎ直す"
-                          : "つなぐ"}
-                      </a>
-                    )}
-                    {connectionStatus === "connected" && (
-                      <form
-                        action={disconnectAction ?? undefined}
-                        method="post"
-                        className="w-full"
-                      >
-                        <Button variant="secondary" className="w-full">
-                          つなぎを解除
-                        </Button>
-                      </form>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </CardContent>
-          {otherProviders.length > 0 && (
-            <div className="px-6 pb-6">
-              <details className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3">
-                <summary className="cursor-pointer text-sm font-semibold text-[color:var(--text-default)]">
-                  その他の連携サービス（準備中）
-                </summary>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  {otherProviders.map((provider) => (
+                  return (
                     <div
                       key={provider.type}
-                      className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-3"
+                      className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3"
                     >
-                      <p className="text-sm font-semibold text-[color:var(--text-strong)]">
-                        {provider.name}
-                      </p>
-                      <p className="text-xs text-[color:var(--text-muted)]">
-                        {statusLabels[provider.status]}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+                            {providerLabel}
+                          </p>
+                          <p className="text-sm text-[color:var(--text-muted)]">
+                            {statusLabels[provider.status]}
+                          </p>
+                        </div>
+                        <Badge
+                          variant={connectionStatus === "connected" ? "success" : "muted"}
+                        >
+                          {connectionLabels[connectionStatus]}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {provider.status === "disabled" && (
+                          <Badge variant="warning">承認待ち</Badge>
+                        )}
+                        {connectionStatus === "reauth_required" && (
+                          <Badge variant="warning">つなぎ直し</Badge>
+                        )}
+                        {provider.capabilities.canReadReviews && (
+                          <Badge variant="default">口コミ</Badge>
+                        )}
+                        {provider.capabilities.canCreatePosts && (
+                          <Badge variant="default">投稿</Badge>
+                        )}
+                        {!provider.capabilities.canReadReviews &&
+                          !provider.capabilities.canCreatePosts && (
+                            <Badge variant="muted">準備中</Badge>
+                          )}
+                      </div>
+                      {connectionMessage && (
+                        <p className="mt-3 text-sm text-amber-700">
+                          {connectionMessage}
+                        </p>
+                      )}
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {connectionStatus !== "connected" && (
+                          <a
+                            className={provider.enabled ? connectLinkClass : connectDisabledClass}
+                            href={provider.enabled ? connectHref ?? undefined : undefined}
+                            aria-disabled={!provider.enabled}
+                          >
+                            {connectionStatus === "reauth_required"
+                              ? "つなぎ直す"
+                              : "つなぐ"}
+                          </a>
+                        )}
+                        {connectionStatus === "connected" && (
+                          <form
+                            action={disconnectAction ?? undefined}
+                            method="post"
+                            className="w-full"
+                          >
+                            <Button variant="secondary" className="w-full">
+                              つなぎを解除
+                            </Button>
+                          </form>
+                        )}
+                      </div>
                     </div>
-                  ))}
+                  );
+                })}
+              </CardContent>
+              {otherProviders.length > 0 && (
+                <div className="px-6 pb-6">
+                  <details className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3">
+                    <summary className="cursor-pointer text-sm font-semibold text-[color:var(--text-default)]">
+                      その他の連携サービス（準備中）
+                    </summary>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      {otherProviders.map((provider) => (
+                        <div
+                          key={provider.type}
+                          className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-3"
+                        >
+                          <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+                            {provider.name}
+                          </p>
+                          <p className="text-xs text-[color:var(--text-muted)]">
+                            {statusLabels[provider.status]}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
                 </div>
-              </details>
-            </div>
-          )}
-        </Card>
+              )}
+            </Card>
 
-        <Card id="link-store">
-          <CardHeader>
-            <h3 className="text-base font-semibold text-[color:var(--text-strong)]">
-              この店舗を選ぶ
-            </h3>
-            <p className="text-sm text-[color:var(--text-muted)]">
-              Googleの店舗情報やFacebookページを選び、この店舗とつなぎます。
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <GoogleGbpPanel
-              locationId={location.id}
-              canEdit={canEdit}
-              connectionLabel={googleStatusLabel}
-              connectionMessage={googleConnection?.message ?? null}
-              apiAccessWarning={googleApiWarning}
-              link={
-                googleLink
-                  ? {
-                      externalLocationId: googleLink.externalLocationId,
-                      metadata: googleLink.metadata,
-                    }
-                  : null
-              }
-              candidates={googleCandidates}
-              candidatesError={googleCandidatesError}
-              lastSyncAt={lastSyncAt}
-            />
-            <MetaPanel
-              locationId={location.id}
-              canEdit={canEdit}
-              connectionStatus={metaConnection?.status ?? "not_connected"}
-              connectionLabel={metaStatusLabel}
-              connectionMessage={metaConnection?.message ?? null}
-              googleConnectionStatus={googleConnection?.status ?? "not_connected"}
-              googleLink={
-                googleLink
-                  ? {
-                      externalLocationId: googleLink.externalLocationId,
-                      metadata: googleLink.metadata,
-                    }
-                  : null
-              }
-              link={
-                metaLink
-                  ? {
-                      externalLocationId: metaLink.externalLocationId,
-                      metadata: metaLink.metadata,
-                    }
-                  : null
-              }
-              candidates={metaCandidates}
-              candidatesError={metaCandidatesError}
-              maxUploadMb={mediaConfig.maxUploadMb}
-              templates={postTemplates}
-              templatesNotice={templatesNotice}
-              composerDefaultOpen={!hasPosts}
-            />
-          </CardContent>
-        </Card>
+            <Card id="link-store">
+              <CardHeader>
+                <h3 className="text-base font-semibold text-[color:var(--text-strong)]">
+                  この店舗を選ぶ
+                </h3>
+                <p className="text-sm text-[color:var(--text-muted)]">
+                  Googleの店舗情報やFacebookページを選び、この店舗とつなぎます。
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <GoogleGbpPanel
+                  locationId={location.id}
+                  canEdit={canEdit}
+                  connectionLabel={googleStatusLabel}
+                  connectionMessage={googleConnection?.message ?? null}
+                  apiAccessWarning={googleApiWarning}
+                  link={
+                    googleLink
+                      ? {
+                          externalLocationId: googleLink.externalLocationId,
+                          metadata: googleLink.metadata,
+                        }
+                      : null
+                  }
+                  candidates={googleCandidates}
+                  candidatesError={googleCandidatesError}
+                  lastSyncAt={lastSyncAt}
+                />
+                <MetaPanel
+                  locationId={location.id}
+                  canEdit={canEdit}
+                  connectionStatus={metaConnection?.status ?? "not_connected"}
+                  connectionLabel={metaStatusLabel}
+                  connectionMessage={metaConnection?.message ?? null}
+                  googleConnectionStatus={googleConnection?.status ?? "not_connected"}
+                  googleLink={
+                    googleLink
+                      ? {
+                          externalLocationId: googleLink.externalLocationId,
+                          metadata: googleLink.metadata,
+                        }
+                      : null
+                  }
+                  link={
+                    metaLink
+                      ? {
+                          externalLocationId: metaLink.externalLocationId,
+                          metadata: metaLink.metadata,
+                        }
+                      : null
+                  }
+                  candidates={metaCandidates}
+                  candidatesError={metaCandidatesError}
+                  maxUploadMb={mediaConfig.maxUploadMb}
+                  templates={postTemplates}
+                  templatesNotice={templatesNotice}
+                  composerDefaultOpen={!hasPosts}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </details>
       </section>
 
       <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">毎日の運用</h2>
-          <p className="text-sm text-[color:var(--text-muted)]">
-            口コミ・コメントの対応や投稿など、日々の更新を進めます。
-          </p>
-        </div>
-
-        <Card>
+        <details
+          open={!hasReplies || !hasPosts}
+          className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)]"
+        >
+          <summary className="cursor-pointer list-none px-6 py-4">
+            <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">毎日の運用</h2>
+            <p className="text-sm text-[color:var(--text-muted)]">
+              口コミ・コメントの対応や投稿など、日々の更新を進めます。
+            </p>
+          </summary>
+          <div className="space-y-4 border-t border-[color:var(--border)] px-6 py-6">
+            <Card>
           <CardHeader>
             <h3 className="text-base font-semibold text-[color:var(--text-strong)]">
               口コミ・コメント
@@ -595,22 +628,54 @@ export default async function LocationDetailPage({
           </CardContent>
         </Card>
 
-        <details className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
-          <summary className="cursor-pointer list-none text-sm font-semibold text-[color:var(--text-default)]">
-            投稿の履歴を見る
-          </summary>
-          <div className="mt-4">
-            <PostHistoryPanel
-              initialPage={postHistoryPage}
-              locationId={location.id}
-              canEdit={canEdit}
-              isMockMode={isMockMode()}
-              metaConnectionStatus={metaConnection?.status ?? "not_connected"}
-              googleConnectionStatus={googleConnection?.status ?? "not_connected"}
-              googleLinked={Boolean(googleLink)}
-            />
+            <details className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+              <summary className="cursor-pointer list-none text-sm font-semibold text-[color:var(--text-default)]">
+                投稿の履歴を見る
+              </summary>
+              <div className="mt-4">
+                <PostHistoryPanel
+                  initialPage={postHistoryPage}
+                  locationId={location.id}
+                  canEdit={canEdit}
+                  isMockMode={isMockMode()}
+                  metaConnectionStatus={metaConnection?.status ?? "not_connected"}
+                  googleConnectionStatus={googleConnection?.status ?? "not_connected"}
+                  googleLinked={Boolean(googleLink)}
+                />
+              </div>
+            </details>
           </div>
         </details>
+      </section>
+
+      <section className="space-y-4">
+        <Card tone="light">
+          <CardHeader>
+            <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
+              困ったとき
+            </h2>
+            <p className="text-sm text-[color:var(--text-muted)]">
+              迷ったら手順書を確認してください。
+            </p>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Link href="/docs/runbooks/reviews-inbox" className={stepActionClass}>
+              口コミ・コメントの使い方
+            </Link>
+            <Link
+              href="/docs/runbooks/google-gbp-approval-and-oauth-setup"
+              className={stepActionClass}
+            >
+              Google連携の手順
+            </Link>
+            <Link
+              href="/docs/runbooks/meta-app-review-and-oauth-setup"
+              className={stepActionClass}
+            >
+              SNS連携の手順
+            </Link>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

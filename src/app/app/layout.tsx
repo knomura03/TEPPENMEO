@@ -2,7 +2,9 @@ import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/AppShell";
 import { BlockedNotice } from "@/components/BlockedNotice";
+import { getMembershipRole, isSystemAdmin } from "@/server/auth/rbac";
 import { getSessionUser } from "@/server/auth/session";
+import { getPrimaryOrganization } from "@/server/services/organizations";
 import { isSupabaseConfigured } from "@/server/utils/env";
 
 export default async function AppLayout({
@@ -18,5 +20,19 @@ export default async function AppLayout({
     return <BlockedNotice reason={user.blockReason} />;
   }
 
-  return <AppShell userEmail={user?.email}>{children}</AppShell>;
+  const org = user ? await getPrimaryOrganization(user.id) : null;
+  const membershipRole =
+    user && org ? await getMembershipRole(user.id, org.id) : null;
+  const systemAdmin = user ? await isSystemAdmin(user.id) : false;
+
+  return (
+    <AppShell
+      userEmail={user?.email}
+      organizationName={org?.name ?? null}
+      membershipRole={membershipRole}
+      isSystemAdmin={systemAdmin}
+    >
+      {children}
+    </AppShell>
+  );
 }

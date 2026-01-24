@@ -57,7 +57,7 @@ export default async function LocationsPage({
 
   let createDisabledReason: string | null = null;
   if (!supabaseConfigured) {
-    createDisabledReason = "Supabaseが未設定のため作成できません。";
+    createDisabledReason = "設定が未完了のため作成できません。";
   } else if (!user) {
     createDisabledReason = "ログインが必要です。";
   } else if (!org) {

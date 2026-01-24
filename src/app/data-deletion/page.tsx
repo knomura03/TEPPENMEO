@@ -22,7 +22,7 @@ export default function DataDeletionPage() {
               <h2 className="text-base font-semibold text-slate-900">1. 対象データ</h2>
               <ul className="list-disc space-y-1 pl-5">
                 <li>ユーザーアカウントおよびプロファイル情報</li>
-                <li>連携プロバイダのアクセストークン・リフレッシュトークン</li>
+                <li>連携サービスの認証情報（必要最小限）</li>
                 <li>投稿・レビュー・メディアのメタデータ</li>
                 <li>監査ログ（削除実施の証跡は必要に応じて保持）</li>
               </ul>

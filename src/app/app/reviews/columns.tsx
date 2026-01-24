@@ -33,10 +33,10 @@ function formatRating(provider: ProviderType, value: number | null) {
 }
 
 function providerLabel(review: ReviewInboxItem) {
-  if (review.provider === ProviderType.GoogleBusinessProfile) return "Google口コミ";
+  if (review.provider === ProviderType.GoogleBusinessProfile) return "Googleの口コミ";
   if (review.provider === ProviderType.Meta) {
-    if (review.channel === "facebook") return "Facebookコメント";
-    if (review.channel === "instagram") return "Instagramコメント";
+    if (review.channel === "facebook") return "Facebookのコメント";
+    if (review.channel === "instagram") return "Instagramのコメント";
     return "SNSコメント";
   }
   return "未対応";
@@ -145,14 +145,14 @@ export function createReviewColumns(params: {
             <div className="space-y-2">
               {!canReplyProvider && (
                 <Card tone="amber">
-                  <CardContent className="text-sm text-amber-900">
-                    <p className="font-semibold">このコメントは準備中です</p>
-                    <p className="mt-1">
-                      現在はGoogle口コミとSNSコメントに対応しています。
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
+                <CardContent className="text-sm text-amber-900">
+                  <p className="font-semibold">このコメントは準備中です</p>
+                  <p className="mt-1">
+                    現在はGoogleの口コミとSNSコメントに対応しています。
+                  </p>
+                </CardContent>
+              </Card>
+            )}
               {unknownChannel && (
                 <Card tone="amber">
                   <CardContent className="text-sm text-amber-900">

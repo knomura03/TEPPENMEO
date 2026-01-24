@@ -117,18 +117,18 @@ export function BulkReviewSyncCard({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <p className="text-base font-semibold text-slate-900">
-            Google口コミを一括同期
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">
+            口コミをまとめて取り込む
           </p>
           <Badge variant={latest?.status === "succeeded" ? "success" : "warning"}>
             {statusBadge}
           </Badge>
         </div>
-        <p className="text-sm text-slate-600">
-          Google店舗（GBP）を紐付け済みの店舗をまとめて同期します。
+        <p className="text-sm text-[color:var(--text-muted)]">
+          Googleの店舗情報とつないだ店舗をまとめて取り込みます。
         </p>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm text-slate-700">
+      <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
         <p>最終実行: {formatDate(latest?.finishedAt ?? latest?.startedAt ?? null)}</p>
         <p>対象店舗: {formatCount(latest?.summary.totalLocations ?? null)}件</p>
         <p>成功: {formatCount(latest?.summary.successCount ?? null)}件</p>
@@ -136,29 +136,29 @@ export function BulkReviewSyncCard({
         <p>口コミ件数: {formatCount(latest?.summary.reviewCount ?? null)}件</p>
         <p>次回予定: {nextRunLabel}</p>
         {latest?.summary.mockMode && (
-          <p className="text-sm text-amber-600">
-            モック運用のため固定結果です。
+          <p className="text-sm text-amber-700">
+            デモ（仮データ）のため固定結果です。
           </p>
         )}
         {disabledReason && (
-          <p className="text-sm text-amber-600">{disabledReason}</p>
+          <p className="text-sm text-amber-700">{disabledReason}</p>
         )}
         {result && (
-          <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+          <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3 text-sm text-[color:var(--text-muted)]">
             <p>{result.message}</p>
             {result.reason && <p className="mt-1">理由: {result.reason}</p>}
           </div>
         )}
-        <div className="rounded-md border border-slate-200 bg-white p-3">
-          <p className="text-sm font-semibold text-slate-700">自動同期</p>
+        <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-3">
+          <p className="text-sm font-semibold text-[color:var(--text-strong)]">自動取り込み</p>
           <div className="mt-3 flex flex-wrap items-end gap-3">
-            <label className="flex items-center gap-2 text-sm text-slate-600">
+            <label className="flex items-center gap-2 text-sm text-[color:var(--text-muted)]">
               <input
                 type="checkbox"
                 checked={scheduleEnabled}
                 onChange={(event) => setScheduleEnabled(event.target.checked)}
                 disabled={scheduleDisabled || isPending}
-                className="h-4 w-4 rounded border-slate-300"
+                className="h-4 w-4 rounded border-[color:var(--border)]"
               />
               <span>有効にする</span>
             </label>
@@ -184,12 +184,12 @@ export function BulkReviewSyncCard({
             </Button>
           </div>
           {scheduleDisabledReason && (
-            <p className="mt-2 text-sm text-amber-600">
+            <p className="mt-2 text-sm text-amber-700">
               {scheduleDisabledReason}
             </p>
           )}
           {scheduleResult && (
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-[color:var(--text-muted)]">
               {scheduleResult.message}
             </p>
           )}
@@ -201,13 +201,13 @@ export function BulkReviewSyncCard({
             onClick={handleRun}
             disabled={!canRun || isPending}
           >
-            {isPending ? "同期中..." : "一括同期を実行"}
+            {isPending ? "取り込み中..." : "まとめて取り込む"}
           </Button>
           <a
             href="/docs/runbooks/gbp-bulk-review-sync"
             className="inline-flex items-center text-[color:var(--primary)] underline"
           >
-            Google口コミ一括同期手順を見る
+            まとめて取り込む手順を見る
           </a>
         </div>
       </CardContent>

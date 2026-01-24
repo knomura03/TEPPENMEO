@@ -15,7 +15,7 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "TEPPEN MEO",
-  description: "複数プロバイダのMEO/SNS管理 最小版",
+  description: "複数の連携サービスをまとめて管理する最小版",
 };
 
 export default function RootLayout({
