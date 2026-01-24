@@ -6,7 +6,7 @@ type TextareaTone = "light" | "dark";
 
 const toneStyles: Record<TextareaTone, string> = {
   light:
-    "border-slate-200 bg-white text-slate-900 placeholder:text-slate-500 focus-visible:outline-slate-400",
+    "border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-default)] placeholder:text-[color:var(--text-muted)] focus-visible:outline-[color:var(--focus-ring)]",
   dark:
     "border-slate-700 bg-slate-950 text-slate-100 placeholder:text-slate-500 focus-visible:outline-amber-300",
 };

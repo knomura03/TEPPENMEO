@@ -6,7 +6,7 @@ type SelectTone = "light" | "dark";
 
 const toneStyles: Record<SelectTone, string> = {
   light:
-    "border-slate-200 bg-white text-slate-900 focus-visible:outline-slate-400",
+    "border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-default)] focus-visible:outline-[color:var(--focus-ring)]",
   dark:
     "border-slate-700 bg-slate-950 text-slate-100 focus-visible:outline-amber-300",
 };

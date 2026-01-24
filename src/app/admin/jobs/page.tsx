@@ -20,7 +20,7 @@ export default async function AdminJobsPage() {
   const setupLinkClass = buttonStyles({
     variant: "secondary",
     size: "md",
-    className: "border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-50",
+    className: "border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text-strong)] hover:bg-[color:var(--surface-muted)]",
   });
   const columns = createJobColumns();
 
@@ -36,7 +36,7 @@ export default async function AdminJobsPage() {
         title="表示条件"
         description="現在は最新20件を固定で表示しています。"
       >
-        <div className="md:col-span-6 text-sm text-slate-600">
+        <div className="md:col-span-6 text-sm text-[color:var(--text-muted)]">
           フィルタ機能は次の改善で追加予定です。
         </div>
       </FilterBar>
@@ -53,9 +53,9 @@ export default async function AdminJobsPage() {
         />
       ) : (
         <Card tone="light">
-          <CardHeader className="border-slate-200">
-            <p className="text-base font-semibold text-slate-900">最新20件</p>
-            <p className="text-sm text-slate-600">
+          <CardHeader className="border-[color:var(--border)]">
+            <p className="text-base font-semibold text-[color:var(--text-strong)]">最新20件</p>
+            <p className="text-sm text-[color:var(--text-muted)]">
               失敗がある場合はsummary/errorを確認してください。
             </p>
           </CardHeader>

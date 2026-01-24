@@ -20,8 +20,8 @@ const NavLink = ({ href, label }: { href: string; label: string }) => (
 export default function Home() {
   const metadata = getPublicSiteMetadata();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-slate-100 text-slate-900">
-      <header className="border-b border-amber-100 bg-white/70 backdrop-blur">
+    <div className="min-h-screen bg-[color:var(--background)] text-[color:var(--text-default)]">
+      <header className="border-b border-[color:var(--border)] bg-[color:var(--surface)]">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <Badge variant="warning" className="rounded">
@@ -73,41 +73,41 @@ export default function Home() {
         <div className="grid gap-6 md:grid-cols-3">
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
                 プロバイダ統合
               </h2>
             </CardHeader>
-            <CardContent className="text-sm text-slate-600">
+            <CardContent className="text-sm text-[color:var(--text-muted)]">
               GoogleとMetaを中心に、Yahoo!やAppleはパートナー連携前提の
               スタブとして整備済みです。
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
                 レビュー対応
               </h2>
             </CardHeader>
-            <CardContent className="text-sm text-slate-600">
+            <CardContent className="text-sm text-[color:var(--text-muted)]">
               ロケーション単位でレビューを確認し、返信フローを整理します。
               承認前はモックで検証可能です。
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">
                 地図検索
               </h2>
             </CardHeader>
-            <CardContent className="text-sm text-slate-600">
+            <CardContent className="text-sm text-[color:var(--text-muted)]">
               Bing Maps / Yahoo! YOLP を使い、ロケーション登録の住所候補を
               すばやく取得できます。
             </CardContent>
           </Card>
         </div>
 
-        <Callout title="審査・公開に必要な情報" tone="info" className="bg-white">
-          <p className="text-sm text-slate-700">
+        <Callout title="審査・公開に必要な情報" tone="info">
+          <p className="text-sm text-[color:var(--text-default)]">
             プライバシー/利用規約/データ削除案内は公開済みです。審査で要求される場合はこれらのURLを登録してください。
           </p>
           <div className="flex flex-wrap gap-2 pt-2 text-sm">
@@ -126,29 +126,28 @@ export default function Home() {
         <Callout
           title="運営者情報"
           tone={metadata.operatorName && metadata.contactEmail ? "info" : "warning"}
-          className="bg-white"
         >
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-[color:var(--text-default)]">
             運営者: {metadata.operatorName ?? "未指定"} / 連絡先メール:{" "}
             {metadata.contactEmail ?? "未指定"}
           </p>
           {metadata.contactUrl ? (
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-[color:var(--text-default)]">
               問い合わせURL:{" "}
               <Link className="text-[color:var(--primary)] underline" href={metadata.contactUrl}>
                 問い合わせフォーム
               </Link>
             </p>
           ) : (
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-[color:var(--text-default)]">
               問い合わせURL: 未指定（確定後に環境変数で設定してください）
             </p>
           )}
         </Callout>
       </main>
 
-      <footer className="border-t border-amber-100 bg-white/70 py-6">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 text-sm text-slate-600">
+      <footer className="border-t border-[color:var(--border)] bg-[color:var(--surface)] py-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 text-sm text-[color:var(--text-muted)]">
           <div className="flex items-center gap-3">
             <Link className="text-[color:var(--primary)] underline" href="/privacy">
               プライバシーポリシー
@@ -160,7 +159,7 @@ export default function Home() {
               データ削除
             </Link>
           </div>
-          <span className="text-slate-500">© TEPPEN MEO</span>
+          <span className="text-[color:var(--text-muted)]">© TEPPEN MEO</span>
         </div>
       </footer>
     </div>

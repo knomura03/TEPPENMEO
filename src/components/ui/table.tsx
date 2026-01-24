@@ -6,7 +6,7 @@ type TableTone = "light" | "dark";
 
 const toneStyles: Record<TableTone, string> = {
   light:
-    "text-slate-700 [--table-border:theme(colors.slate.200)] [--table-head:theme(colors.slate.500)] [--table-hover:theme(colors.slate.50)]",
+    "text-[color:var(--text-default)] [--table-border:var(--border-muted)] [--table-head:var(--text-muted)] [--table-hover:var(--surface-contrast)]",
   dark:
     "text-slate-200 [--table-border:theme(colors.slate.800)] [--table-head:theme(colors.slate.400)] [--table-hover:theme(colors.slate.900)]",
 };
@@ -90,7 +90,7 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn("mt-2 text-sm text-slate-500", className)}
+    className={cn("mt-2 text-sm text-[color:var(--text-muted)]", className)}
     {...props}
   />
 ));

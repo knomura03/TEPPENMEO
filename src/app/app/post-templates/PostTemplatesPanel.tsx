@@ -64,14 +64,14 @@ function TemplateItem({
   );
 
   return (
-    <details className="rounded-md border border-slate-200 bg-white p-4">
+    <details className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
       <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">{template.name}</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm font-semibold text-[color:var(--text-strong)]">{template.name}</p>
+          <p className="text-xs text-[color:var(--text-muted)]">
             投稿先: {formatTargets(template.defaultTargets)}
           </p>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-[color:var(--text-muted)]">
             {previewBody(template.body)}
           </p>
         </div>
@@ -92,7 +92,7 @@ function TemplateItem({
             />
           </FormField>
           <FormField label="投稿先">
-            <div className="flex flex-wrap gap-4 text-sm text-slate-700">
+            <div className="flex flex-wrap gap-4 text-sm text-[color:var(--text-default)]">
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -173,9 +173,9 @@ export function PostTemplatesPanel({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-md border border-slate-200 bg-white p-4">
-        <h2 className="text-base font-semibold text-slate-900">テンプレを追加</h2>
-        <p className="text-sm text-slate-500">
+      <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+        <h2 className="text-base font-semibold text-[color:var(--text-strong)]">テンプレを追加</h2>
+        <p className="text-sm text-[color:var(--text-muted)]">
           よく使う投稿文を登録して、店舗ごとの投稿で使い回せます。
         </p>
         {disabledReason && (
@@ -198,7 +198,7 @@ export function PostTemplatesPanel({
             />
           </FormField>
           <FormField label="投稿先">
-            <div className="flex flex-wrap gap-4 text-sm text-slate-700">
+            <div className="flex flex-wrap gap-4 text-sm text-[color:var(--text-default)]">
               <label className="flex items-center gap-2">
                 <input type="checkbox" name="targetFacebook" defaultChecked disabled={!canEdit} />
                 Facebook
@@ -231,7 +231,7 @@ export function PostTemplatesPanel({
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-900">登録済みテンプレ</h2>
+          <h2 className="text-base font-semibold text-[color:var(--text-strong)]">登録済みテンプレ</h2>
           <Badge variant="default">{templates.length}</Badge>
         </div>
         {templates.length === 0 ? (

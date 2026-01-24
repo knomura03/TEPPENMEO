@@ -101,7 +101,7 @@ export function InviteTemplatePanel({
               <Button
                 type="button"
                 variant="secondary"
-                className="min-h-[44px] whitespace-nowrap bg-slate-100 px-4 text-sm text-slate-800 hover:bg-slate-200"
+                className="min-h-[44px] whitespace-nowrap bg-[color:var(--surface-contrast)] px-4 text-sm text-[color:var(--text-default)] hover:bg-[color:var(--surface-muted)]"
                 onClick={handleApplyStoredInviteLink}
                 disabled={!storedInviteLink}
               >
@@ -109,7 +109,7 @@ export function InviteTemplatePanel({
               </Button>
             </div>
             {storedInviteLink && (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[color:var(--text-muted)]">
                 直近の招待リンクを読み込み済みです。
               </p>
             )}
@@ -143,9 +143,9 @@ export function InviteTemplatePanel({
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+        <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-700">件名</p>
+            <p className="text-sm font-semibold text-[color:var(--text-default)]">件名</p>
             <Button
               type="button"
               variant="secondary"
@@ -159,12 +159,12 @@ export function InviteTemplatePanel({
           <input
             readOnly
             value={template.subject}
-            className="mt-2 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900"
+            className="mt-2 w-full rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-3 py-2 text-sm text-[color:var(--text-strong)]"
           />
         </div>
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+        <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-700">本文</p>
+            <p className="text-sm font-semibold text-[color:var(--text-default)]">本文</p>
             <Button
               type="button"
               variant="secondary"
@@ -179,7 +179,7 @@ export function InviteTemplatePanel({
             readOnly
             rows={8}
             value={template.body}
-            className="mt-2 w-full resize-none rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900"
+            className="mt-2 w-full resize-none rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-3 py-2 text-sm text-[color:var(--text-strong)]"
           />
         </div>
       </div>

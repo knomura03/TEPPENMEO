@@ -81,8 +81,8 @@ export default async function AppDashboard() {
   if (!user) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-slate-900">ダッシュボード</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">ダッシュボード</h1>
+        <p className="text-sm text-[color:var(--text-muted)]">
           ログイン後に店舗の状況を確認できます。
         </p>
         <Link href="/auth/sign-in" className="text-[color:var(--primary)] underline">
@@ -96,8 +96,8 @@ export default async function AppDashboard() {
   if (!org) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-slate-900">ダッシュボード</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">ダッシュボード</h1>
+        <p className="text-sm text-[color:var(--text-muted)]">
           管理者情報が確認できません。管理者に確認してください。
         </p>
       </div>
@@ -122,8 +122,8 @@ export default async function AppDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">ダッシュボード</h1>
-        <p className="text-base text-slate-600">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">ダッシュボード</h1>
+        <p className="text-base text-[color:var(--text-muted)]">
           {org.name} の状況をまとめて確認できます。
         </p>
       </div>
@@ -131,34 +131,34 @@ export default async function AppDashboard() {
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <Card tone="light">
           <CardHeader>
-            <p className="text-sm text-slate-500">店舗数</p>
-            <h2 className="text-3xl font-semibold text-slate-900">
+            <p className="text-sm text-[color:var(--text-muted)]">店舗数</p>
+            <h2 className="text-3xl font-semibold text-[color:var(--text-strong)]">
               {metrics.locationsCount}
             </h2>
           </CardHeader>
-          <CardContent className="text-xs text-slate-500">
+          <CardContent className="text-xs text-[color:var(--text-muted)]">
             連携対象となる店舗数です。
           </CardContent>
         </Card>
         <Card tone="light">
           <CardHeader>
-            <p className="text-sm text-slate-500">未返信の口コミ</p>
-            <h2 className="text-3xl font-semibold text-slate-900">
+            <p className="text-sm text-[color:var(--text-muted)]">未返信の口コミ</p>
+            <h2 className="text-3xl font-semibold text-[color:var(--text-strong)]">
               {formatCount(metrics.reviews.unrepliedCount)}
             </h2>
           </CardHeader>
-          <CardContent className="text-xs text-slate-500">
+          <CardContent className="text-xs text-[color:var(--text-muted)]">
             返信が必要な口コミの件数です。
           </CardContent>
         </Card>
         <Card tone="light">
           <CardHeader>
-            <p className="text-sm text-slate-500">直近7日口コミ数</p>
-            <h2 className="text-3xl font-semibold text-slate-900">
+            <p className="text-sm text-[color:var(--text-muted)]">直近7日口コミ数</p>
+            <h2 className="text-3xl font-semibold text-[color:var(--text-strong)]">
               {formatCount(metrics.reviews.last7DaysCount)}
             </h2>
           </CardHeader>
-          <CardContent className="text-xs text-slate-500">
+          <CardContent className="text-xs text-[color:var(--text-muted)]">
             {hasSeriesData ? (
               <>
                 <MiniBarChart series={metrics.reviews.series} />
@@ -171,12 +171,12 @@ export default async function AppDashboard() {
         </Card>
         <Card tone="light">
           <CardHeader>
-            <p className="text-sm text-slate-500">最近の投稿結果</p>
-            <h2 className="text-3xl font-semibold text-slate-900">
+            <p className="text-sm text-[color:var(--text-muted)]">最近の投稿結果</p>
+            <h2 className="text-3xl font-semibold text-[color:var(--text-strong)]">
               {mapPostStatus(metrics.posts.lastStatus)}
             </h2>
           </CardHeader>
-          <CardContent className="text-xs text-slate-500">
+          <CardContent className="text-xs text-[color:var(--text-muted)]">
             最終投稿: {formatDate(metrics.posts.lastAt)}
           </CardContent>
         </Card>
@@ -186,16 +186,16 @@ export default async function AppDashboard() {
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">最近の同期</h2>
+              <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">最近の同期</h2>
               <Badge variant={jobBadgeVariant}>
                 {mapJobStatus(metrics.jobs.lastStatus)}
               </Badge>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[color:var(--text-muted)]">
               Google口コミの一括同期の結果です。
             </p>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-slate-600">
+          <CardContent className="space-y-2 text-sm text-[color:var(--text-muted)]">
             <p>最終実行: {formatDate(metrics.jobs.lastFinishedAt)}</p>
             <p>
               次回予定:{" "}
@@ -211,12 +211,12 @@ export default async function AppDashboard() {
 
         <Card tone="light">
           <CardHeader>
-            <h2 className="text-lg font-semibold text-slate-900">次にやること</h2>
-            <p className="text-sm text-slate-600">
+            <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">次にやること</h2>
+            <p className="text-sm text-[color:var(--text-muted)]">
               迷いやすい操作をまとめました。
             </p>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2 text-sm text-slate-600">
+          <CardContent className="flex flex-col gap-2 text-sm text-[color:var(--text-muted)]">
             <Link href="/app/setup" className={primaryLink}>
               初期設定を進める
             </Link>
@@ -232,10 +232,10 @@ export default async function AppDashboard() {
 
       <Card tone="light">
         <CardHeader>
-          <h2 className="text-lg font-semibold text-slate-900">最新の口コミ</h2>
-          <p className="text-sm text-slate-600">直近の口コミを確認できます。</p>
+          <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">最新の口コミ</h2>
+          <p className="text-sm text-[color:var(--text-muted)]">直近の口コミを確認できます。</p>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-slate-600">
+        <CardContent className="space-y-2 text-sm text-[color:var(--text-muted)]">
           {metrics.reviews.latestAt ? (
             <>
               <p>投稿日: {formatDate(metrics.reviews.latestAt)}</p>

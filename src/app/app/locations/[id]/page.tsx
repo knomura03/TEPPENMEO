@@ -245,7 +245,7 @@ export default async function LocationDetailPage({
     variant: "secondary",
     size: "md",
     className:
-      "w-full border-slate-200 bg-slate-200 text-slate-500 hover:bg-slate-200 pointer-events-none",
+      "w-full border-[color:var(--border)] bg-[color:var(--surface-contrast)] text-[color:var(--text-muted)] hover:bg-[color:var(--surface-contrast)] pointer-events-none",
   });
   const stepActionClass = buttonStyles({ variant: "primary", size: "sm" });
   const templatesNotice =
@@ -259,16 +259,16 @@ export default async function LocationDetailPage({
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold text-slate-900">{location.name}</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">{location.name}</h1>
+        <p className="text-sm text-[color:var(--text-muted)]">
           {location.address ?? "住所が未登録です"}
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold text-slate-900">今日やること</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">今日やること</h2>
+          <p className="text-sm text-[color:var(--text-muted)]">
             未完了の項目だけ開いてあります。上から順に進めると迷いません。
           </p>
         </CardHeader>
@@ -279,14 +279,14 @@ export default async function LocationDetailPage({
               <details
                 key={step.key}
                 open={step.status !== "done"}
-                className="rounded-md border border-slate-200 bg-white p-4"
+                className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-4"
               >
                 <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                       {step.title}
                     </p>
-                    <p className="text-sm text-slate-500">{step.description}</p>
+                    <p className="text-sm text-[color:var(--text-muted)]">{step.description}</p>
                   </div>
                   <Badge variant={style.variant}>{style.label}</Badge>
                 </summary>
@@ -300,7 +300,7 @@ export default async function LocationDetailPage({
                       {step.actionLabel}
                     </Link>
                   )}
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-[color:var(--text-muted)]">
                     {step.status === "done" ? "完了済みです。" : "次に進めましょう。"}
                   </span>
                 </div>
@@ -312,18 +312,18 @@ export default async function LocationDetailPage({
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">初めての設定</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">初めての設定</h2>
+          <p className="text-sm text-[color:var(--text-muted)]">
             連携サービスをつなぎ、この店舗を選ぶところまで進めます。
           </p>
         </div>
 
         <Card id="connect-services">
           <CardHeader>
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-base font-semibold text-[color:var(--text-strong)]">
               連携サービスをつなぐ
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[color:var(--text-muted)]">
               Google・Facebook・Instagramの連携を開始します。
             </p>
           </CardHeader>
@@ -355,14 +355,14 @@ export default async function LocationDetailPage({
               return (
                 <div
                   key={provider.type}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-3"
+                  className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                         {providerLabel}
                       </p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm text-[color:var(--text-muted)]">
                         {statusLabels[provider.status]}
                       </p>
                     </div>
@@ -425,20 +425,20 @@ export default async function LocationDetailPage({
           </CardContent>
           {otherProviders.length > 0 && (
             <div className="px-6 pb-6">
-              <details className="rounded-md border border-slate-200 bg-slate-50 p-3">
-                <summary className="cursor-pointer text-sm font-semibold text-slate-700">
+              <details className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3">
+                <summary className="cursor-pointer text-sm font-semibold text-[color:var(--text-default)]">
                   その他の連携サービス（準備中）
                 </summary>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {otherProviders.map((provider) => (
                     <div
                       key={provider.type}
-                      className="rounded-md border border-slate-200 bg-white p-3"
+                      className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-3"
                     >
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                         {provider.name}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-[color:var(--text-muted)]">
                         {statusLabels[provider.status]}
                       </p>
                     </div>
@@ -451,10 +451,10 @@ export default async function LocationDetailPage({
 
         <Card id="link-store">
           <CardHeader>
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-base font-semibold text-[color:var(--text-strong)]">
               この店舗を選ぶ
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[color:var(--text-muted)]">
               Googleの店舗情報やFacebookページを選び、この店舗とつなぎます。
             </p>
           </CardHeader>
@@ -513,25 +513,25 @@ export default async function LocationDetailPage({
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">毎日の運用</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">毎日の運用</h2>
+          <p className="text-sm text-[color:var(--text-muted)]">
             口コミ・コメントの対応や投稿など、日々の更新を進めます。
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-base font-semibold text-[color:var(--text-strong)]">
               口コミ・コメント
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[color:var(--text-muted)]">
               返信や管理は受信箱から行います。
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[color:var(--text-muted)]">
                   {lastSyncAt ? `最終取り込み: ${lastSyncAt}` : "まだ取り込みがありません。"}
                 </p>
               </div>
@@ -539,28 +539,28 @@ export default async function LocationDetailPage({
                 受信箱を開く
               </Link>
             </div>
-            <details className="rounded-md border border-slate-200 bg-white p-3">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-700">
+            <details className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-3">
+              <summary className="cursor-pointer text-sm font-semibold text-[color:var(--text-default)]">
                 最近の口コミを見る
               </summary>
               <div className="mt-3 space-y-3">
                 {recentReviews.map((review) => (
                   <div
                     key={review.id}
-                    className="rounded-lg border border-slate-200 bg-white px-4 py-3"
+                    className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3"
                   >
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                         {review.author ?? "匿名"}
                       </p>
                       <Badge variant="success">
                         {review.rating === null ? "-" : review.rating}
                       </Badge>
                     </div>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-[color:var(--text-muted)]">
                       投稿日時: {review.createdAt}
                     </p>
-                    <p className="text-sm text-slate-500">{review.comment}</p>
+                    <p className="text-sm text-[color:var(--text-muted)]">{review.comment}</p>
                     {review.provider === ProviderType.GoogleBusinessProfile && (
                       <div className="mt-3">
                         <ReviewReplyForm
@@ -581,12 +581,12 @@ export default async function LocationDetailPage({
                   </div>
                 ))}
                 {reviews.length === 0 && (
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-[color:var(--text-muted)]">
                     まだ口コミがありません。
                   </p>
                 )}
                 {reviews.length > recentReviews.length && (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[color:var(--text-muted)]">
                     すべての口コミは受信箱から確認できます。
                   </p>
                 )}
@@ -595,8 +595,8 @@ export default async function LocationDetailPage({
           </CardContent>
         </Card>
 
-        <details className="rounded-md border border-slate-200 bg-white p-4">
-          <summary className="cursor-pointer list-none text-sm font-semibold text-slate-700">
+        <details className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-[color:var(--text-default)]">
             投稿の履歴を見る
           </summary>
           <div className="mt-4">

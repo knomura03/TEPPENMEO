@@ -61,7 +61,7 @@ export default async function AdminUsersPage({
   const secondaryLink = buttonStyles({
     variant: "secondary",
     size: "md",
-    className: "border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-50",
+    className: "border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text-strong)] hover:bg-[color:var(--surface-muted)]",
   });
   const columns = createAdminUserColumns({
     userBlocksReady,
@@ -101,9 +101,9 @@ export default async function AdminUsersPage({
       )}
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">ユーザー作成</p>
-          <p className="text-sm text-slate-600">
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">ユーザー作成</p>
+          <p className="text-sm text-[color:var(--text-muted)]">
             招待メール、招待リンク、仮パスワード方式で作成します。
           </p>
         </CardHeader>
@@ -113,9 +113,9 @@ export default async function AdminUsersPage({
       </Card>
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">招待テンプレ</p>
-          <p className="text-sm text-slate-600">
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">招待テンプレ</p>
+          <p className="text-sm text-[color:var(--text-muted)]">
             招待リンクを差し込んだ件名/本文を生成してコピーします。
           </p>
         </CardHeader>
@@ -179,12 +179,12 @@ export default async function AdminUsersPage({
       </FilterBar>
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
+        <CardHeader className="border-[color:var(--border)]">
           <div className="flex items-center justify-between">
-            <p className="text-base font-semibold text-slate-900">一覧</p>
+            <p className="text-base font-semibold text-[color:var(--text-strong)]">一覧</p>
             <Badge variant="muted">{users.length}件</Badge>
           </div>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-[color:var(--text-muted)]">
             有効/招待中/無効を一覧で確認します。
           </p>
         </CardHeader>

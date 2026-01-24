@@ -14,8 +14,8 @@ export default async function PostTemplatesPage() {
   if (!user) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-slate-900">投稿テンプレート</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">投稿テンプレート</h1>
+        <p className="text-sm text-[color:var(--text-muted)]">
           ログイン後にテンプレートを管理できます。
         </p>
         <Link href="/auth/sign-in" className="text-[color:var(--primary)] underline">
@@ -29,8 +29,8 @@ export default async function PostTemplatesPage() {
   if (!org) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-slate-900">投稿テンプレート</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">投稿テンプレート</h1>
+        <p className="text-sm text-[color:var(--text-muted)]">
           管理者情報が確認できません。管理者に確認してください。
         </p>
       </div>

@@ -3,7 +3,8 @@ import { cn } from "@/lib/cn";
 type CalloutTone = "info" | "warning" | "danger";
 
 const toneStyles: Record<CalloutTone, string> = {
-  info: "border-slate-200 bg-white text-slate-700",
+  info:
+    "border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text-default)]",
   warning: "border-amber-200 bg-amber-50 text-amber-900",
   danger: "border-rose-200 bg-rose-50 text-rose-900",
 };

@@ -20,8 +20,8 @@ type AppShellProps = {
 
 export function AppShell({ children, userEmail, active }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-[#eef2ff]">
-      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur">
+    <div className="min-h-screen bg-[color:var(--background)] text-[color:var(--text-default)]">
+      <header className="border-b border-[color:var(--border)] bg-[color:var(--surface)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <Image
@@ -42,9 +42,9 @@ export function AppShell({ children, userEmail, active }: AppShellProps) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden text-right text-xs text-slate-500 sm:block">
+            <div className="hidden text-right text-xs text-[color:var(--text-muted)] sm:block">
               <p>ログイン中</p>
-              <p className="font-medium text-slate-700">
+              <p className="font-medium text-[color:var(--text-default)]">
                 {userEmail ?? "モックユーザー"}
               </p>
             </div>
@@ -61,7 +61,7 @@ export function AppShell({ children, userEmail, active }: AppShellProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100",
+                "rounded-full px-4 py-2 text-sm font-medium text-[color:var(--text-muted)] transition hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text-default)]",
                 active === item.label &&
                   "bg-[color:var(--primary)]/10 text-[color:var(--primary)]"
               )}

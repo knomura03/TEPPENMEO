@@ -49,7 +49,8 @@ export function createReviewColumns(params: {
     {
       header: "日時",
       cell: (review) => formatDate(review.createdAt),
-      cellClassName: "whitespace-nowrap font-mono text-xs text-slate-600",
+      cellClassName:
+        "whitespace-nowrap font-mono text-xs text-[color:var(--text-muted)]",
       headerClassName: "whitespace-nowrap",
     },
     {
@@ -77,7 +78,7 @@ export function createReviewColumns(params: {
     {
       header: "本文",
       cell: (review) => (
-        <p className="line-clamp-2 whitespace-pre-wrap text-sm text-slate-700">
+        <p className="line-clamp-2 whitespace-pre-wrap text-sm text-[color:var(--text-default)]">
           {review.comment ?? "本文がありません。"}
         </p>
       ),
@@ -163,7 +164,7 @@ export function createReviewColumns(params: {
                 </Card>
               )}
               {!params.canReply && !review.reply && (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[color:var(--text-muted)]">
                   返信は管理者のみ操作できます。
                 </p>
               )}

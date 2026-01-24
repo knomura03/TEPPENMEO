@@ -8,7 +8,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   default: "bg-[color:var(--primary)]/10 text-[color:var(--primary)]",
   success: "bg-emerald-100 text-emerald-800",
   warning: "bg-amber-100 text-amber-800",
-  muted: "bg-slate-50 text-slate-500",
+  muted: "bg-[color:var(--surface-muted)] text-[color:var(--text-muted)]",
 };
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {

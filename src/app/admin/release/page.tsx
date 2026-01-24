@@ -138,13 +138,13 @@ export default async function ReleaseDashboardPage() {
       />
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">環境と公開情報</p>
-          <p className="text-sm text-slate-600">
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">環境と公開情報</p>
+          <p className="text-sm text-[color:var(--text-muted)]">
             モック/実機、APP_BASE_URL、公開情報の設定状況を確認します。
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-700">
+        <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
           <div className="flex items-center justify-between">
             <span>モックモード</span>
             <Badge variant={readiness.env.providerMockMode ? "warning" : "success"}>
@@ -163,7 +163,7 @@ export default async function ReleaseDashboardPage() {
               {readiness.env.publicInfoSet ? "設定済み" : "未設定"}
             </Badge>
           </div>
-          <div className="space-y-1 text-xs text-slate-500">
+          <div className="space-y-1 text-xs text-[color:var(--text-muted)]">
             <p>不足時の手順:</p>
             <p>- preflight: `pnpm preflight --mode mock|real`</p>
             <p>
@@ -206,31 +206,31 @@ export default async function ReleaseDashboardPage() {
       </Card>
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">登録情報テンプレ</p>
-          <p className="text-sm text-slate-600">
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">登録情報テンプレ</p>
+          <p className="text-sm text-[color:var(--text-muted)]">
             staging/prod で使う登録情報のテンプレです。値は表示しません。
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-700">
-          <div className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-3">
-            <p className="text-xs text-slate-500">Redirect URI</p>
-            <p className="font-mono text-xs text-slate-700">
+        <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
+          <div className="space-y-1 rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3">
+            <p className="text-xs text-[color:var(--text-muted)]">Redirect URI</p>
+            <p className="font-mono text-xs text-[color:var(--text-default)]">
               Google: {appBasePlaceholder}/api/providers/google/callback
             </p>
-            <p className="font-mono text-xs text-slate-700">
+            <p className="font-mono text-xs text-[color:var(--text-default)]">
               Meta: {appBasePlaceholder}/api/providers/meta/callback
             </p>
           </div>
-          <div className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-3">
-            <p className="text-xs text-slate-500">公開ページ</p>
-            <p className="font-mono text-xs text-slate-700">
+          <div className="space-y-1 rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3">
+            <p className="text-xs text-[color:var(--text-muted)]">公開ページ</p>
+            <p className="font-mono text-xs text-[color:var(--text-default)]">
               {appBasePlaceholder}/privacy
             </p>
-            <p className="font-mono text-xs text-slate-700">
+            <p className="font-mono text-xs text-[color:var(--text-default)]">
               {appBasePlaceholder}/terms
             </p>
-            <p className="font-mono text-xs text-slate-700">
+            <p className="font-mono text-xs text-[color:var(--text-default)]">
               {appBasePlaceholder}/data-deletion
             </p>
           </div>
@@ -247,24 +247,24 @@ export default async function ReleaseDashboardPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card tone="light">
-          <CardHeader className="border-slate-200">
-            <p className="text-base font-semibold text-slate-900">Supabase</p>
-            <p className="text-sm text-slate-600">
+          <CardHeader className="border-[color:var(--border)]">
+            <p className="text-base font-semibold text-[color:var(--text-strong)]">Supabase</p>
+            <p className="text-sm text-[color:var(--text-muted)]">
               接続可否とマイグレーション適用状況を確認します。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-700">
+          <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
             <div className="flex items-center justify-between">
               <span>接続</span>
               <Badge variant={readiness.supabase.connection ? "success" : "warning"}>
                 {readiness.supabase.connection ? "正常" : "異常"}
               </Badge>
             </div>
-            <div className="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3">
-              <p className="text-xs text-slate-500">マイグレーション</p>
+            <div className="space-y-2 rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3">
+              <p className="text-xs text-[color:var(--text-muted)]">マイグレーション</p>
               {Object.entries(readiness.supabase.migrations).map(([key, status]) => (
                 <div key={key} className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600">{key}</span>
+                  <span className="text-sm text-[color:var(--text-muted)]">{key}</span>
                   <Badge variant={status === "ok" ? "success" : "warning"}>
                     {status === "ok" ? "適用済み" : status === "missing" ? "未適用" : "未判定"}
                   </Badge>
@@ -296,13 +296,13 @@ export default async function ReleaseDashboardPage() {
         </Card>
 
         <Card tone="light">
-          <CardHeader className="border-slate-200">
-            <p className="text-base font-semibold text-slate-900">Storage / Cron / Jobs</p>
-            <p className="text-sm text-slate-600">
+          <CardHeader className="border-[color:var(--border)]">
+            <p className="text-base font-semibold text-[color:var(--text-strong)]">Storage / Cron / Jobs</p>
+            <p className="text-sm text-[color:var(--text-muted)]">
               画像アップロードとジョブスケジュールの準備状況です。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-700">
+          <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
             <div className="flex items-center justify-between">
               <span>バケット</span>
               <Badge variant={readiness.storage.bucket ? "success" : "warning"}>
@@ -353,13 +353,13 @@ export default async function ReleaseDashboardPage() {
         </Card>
 
         <Card tone="light">
-          <CardHeader className="border-slate-200">
-            <p className="text-base font-semibold text-slate-900">投稿テンプレ</p>
-            <p className="text-sm text-slate-600">
+          <CardHeader className="border-[color:var(--border)]">
+            <p className="text-base font-semibold text-[color:var(--text-strong)]">投稿テンプレ</p>
+            <p className="text-sm text-[color:var(--text-muted)]">
               投稿テンプレの準備状況を確認します。
             </p>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-slate-700">
+          <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
             <div className="flex items-center justify-between">
               <span>マイグレーション (post_templates)</span>
               <Badge
@@ -423,13 +423,13 @@ export default async function ReleaseDashboardPage() {
       </div>
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">プロバイダ</p>
-          <p className="text-sm text-slate-600">
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">プロバイダ</p>
+          <p className="text-sm text-[color:var(--text-muted)]">
             接続状況と権限差分を保存済み情報から確認します（値は表示しません）。
           </p>
         </CardHeader>
-        <CardContent className="space-y-4 text-sm text-slate-700">
+        <CardContent className="space-y-4 text-sm text-[color:var(--text-default)]">
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1">
               <p className="font-semibold">Google</p>
@@ -446,7 +446,7 @@ export default async function ReleaseDashboardPage() {
                     ? "再認可"
                     : "未接続/不明"}
               </Badge>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[color:var(--text-muted)]">
                 スコープ差分: {readiness.providers.googlePermissionDiff.state}
               </p>
             </div>
@@ -465,7 +465,7 @@ export default async function ReleaseDashboardPage() {
                     ? "再認可"
                     : "未接続/不明"}
               </Badge>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[color:var(--text-muted)]">
                 権限差分: {readiness.providers.metaPermissionDiff.state}
               </p>
             </div>
@@ -488,30 +488,30 @@ export default async function ReleaseDashboardPage() {
       </Card>
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">
             実機の動作確認（合格状況）
           </p>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-[color:var(--text-muted)]">
             直近の成功時刻を自動集計します。未実施/未判定はそのまま表示します。
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-700">
+        <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
           <div className="grid gap-3 md:grid-cols-2">
             {acceptanceItems.map((entry) => {
               const badge = resolveBadge(entry.item.status);
               return (
                 <div
                   key={entry.key}
-                  className="rounded-md border border-slate-200 bg-white px-3 py-2"
+                  className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
                 >
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                       {entry.label}
                     </p>
                     <Badge variant={badge.variant}>{badge.label}</Badge>
                   </div>
-                  <p className="text-xs text-slate-600">
+                  <p className="text-xs text-[color:var(--text-muted)]">
                     最終成功: {formatDate(entry.item.lastSuccessAt)}
                   </p>
                   {entry.item.reason && (
@@ -530,13 +530,13 @@ export default async function ReleaseDashboardPage() {
       </Card>
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">実機スモーク</p>
-          <p className="text-sm text-slate-600">
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">実機スモーク</p>
+          <p className="text-sm text-[color:var(--text-muted)]">
             real-mode の最短動作確認と合格基準です。Runbookで手順を確認してください。
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-700">
+        <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
           <ul className="list-disc space-y-1 pl-4">
             <li>Google: 接続→紐付け→投稿→レビュー同期→返信が成功</li>
             <li>Meta: 接続→ページ紐付け→投稿（画像含む）が成功</li>
@@ -558,13 +558,13 @@ export default async function ReleaseDashboardPage() {
       </Card>
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">証跡を残す</p>
-          <p className="text-sm text-slate-600">
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">証跡を残す</p>
+          <p className="text-sm text-[color:var(--text-muted)]">
             staging/prod の実行結果をテンプレに沿って記録します。
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-700">
+        <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
           <p>
             preflight / provider-health / 実機スモークの結果を「OK/NG」で残します。
           </p>
@@ -577,11 +577,11 @@ export default async function ReleaseDashboardPage() {
       </Card>
 
       <Card tone="light">
-        <CardHeader className="border-slate-200">
-          <p className="text-base font-semibold text-slate-900">次にやること</p>
-          <p className="text-sm text-slate-600">画面遷移とRunbookをまとめています。</p>
+        <CardHeader className="border-[color:var(--border)]">
+          <p className="text-base font-semibold text-[color:var(--text-strong)]">次にやること</p>
+          <p className="text-sm text-[color:var(--text-muted)]">画面遷移とRunbookをまとめています。</p>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-3 text-sm text-slate-700">
+        <CardContent className="flex flex-wrap gap-3 text-sm text-[color:var(--text-default)]">
           <Link className={linkClass} href="/admin/diagnostics">
             診断を確認
           </Link>
