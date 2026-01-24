@@ -99,6 +99,7 @@
   - Storage/Cron/Jobs: バケット設定、サービスキー、CRON_SECRET、自動同期ON数
   - 登録情報テンプレ: Redirect URI / 公開ページURL のテンプレ表示（<APP_BASE_URL>）
   - Providers: Google/Meta 接続状態と権限差分（保存済み情報ベース）
+  - 実機の動作確認: 口コミ取得/返信、投稿、画像アップロードの最終成功時刻（未実施/未判定は明示）
   - 実機スモーク: Runbookリンクと合格基準
   - 証跡テンプレ: preflight/provider-health/スモークの貼り付けテンプレへのリンク
 - 導線:
