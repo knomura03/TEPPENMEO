@@ -587,7 +587,7 @@ export function PostHistoryPanel(props: {
                                 : null
                               : isGoogleTarget
                               ? !props.googleLinked
-                                ? "Google店舗（GBP）が未紐付けです"
+                                ? "Googleの店舗を選んでいません"
                                 : props.googleConnectionStatus === "reauth_required"
                                 ? "再認可が必要です"
                                 : props.googleConnectionStatus !== "connected"

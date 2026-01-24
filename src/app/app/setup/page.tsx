@@ -139,11 +139,11 @@ export default async function SetupChecklistPage() {
   const bulkDisabledReason = !canManageOrg
     ? "管理者のみ実行できます。"
     : !isSupabaseConfigured()
-      ? "Supabaseが未設定のため実行できません。"
+      ? "準備が整っていないため実行できません。"
       : !isSupabaseAdminConfigured()
-        ? "SUPABASE_SERVICE_ROLE_KEY が未設定のため実行できません。"
+        ? "管理用の設定が不足しているため実行できません。"
         : jobRunsSchema.status !== "ok"
-          ? "job_runs マイグレーションが未適用のため実行できません。"
+          ? "必要な準備が完了していないため実行できません。"
           : null;
   const canManageSchedule =
     canManageOrg &&
@@ -153,11 +153,11 @@ export default async function SetupChecklistPage() {
   const scheduleDisabledReason = !canManageOrg
     ? "管理者のみ保存できます。"
     : !isSupabaseConfigured()
-      ? "Supabaseが未設定のため保存できません。"
+      ? "準備が整っていないため保存できません。"
       : !isSupabaseAdminConfigured()
-        ? "SUPABASE_SERVICE_ROLE_KEY が未設定のため保存できません。"
+        ? "管理用の設定が不足しているため保存できません。"
         : jobSchedulesSchema.status !== "ok"
-          ? "job_schedules マイグレーションが未適用のため保存できません。"
+          ? "必要な準備が完了していないため保存できません。"
           : null;
   const stepMap = new Map(status.steps.map((step) => [step.key, step]));
 
@@ -235,13 +235,13 @@ export default async function SetupChecklistPage() {
               連携の動作確認（管理者向け）
             </p>
             <p className="text-sm text-[color:var(--text-muted)]">
-              実運用前の最短確認手順です。管理者のみ参照してください。
+              最短で確認する手順をまとめています。管理者のみ参照してください。
             </p>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
             <p>
-              Google接続→店舗紐付け→投稿→口コミ同期→返信、Meta接続→ページ紐付け→投稿（画像含む）、
-              ジョブ実行/スケジュール、監査ログ確認までをクリック単位でまとめています。
+              Google連携→店舗を選ぶ→投稿→口コミの取り込み→返信、SNS連携→ページを選ぶ→投稿（画像含む）、
+              一括取り込み/スケジュール、操作履歴の確認までをクリック単位でまとめています。
             </p>
             <div className="flex flex-wrap gap-2">
               <Link
@@ -269,11 +269,7 @@ export default async function SetupChecklistPage() {
             </p>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
-            <p>役割: {role ?? "未判定"}</p>
-            <Link
-              href="/app/locations"
-              className={actionLinkPrimary}
-            >
+            <Link href="/app/locations" className={actionLinkPrimary}>
               店舗一覧を開く
             </Link>
           </CardContent>
@@ -282,21 +278,23 @@ export default async function SetupChecklistPage() {
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-[color:var(--text-strong)]">Google</p>
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">
+                Googleの連携
+              </p>
               <Badge variant={status.providerConnected.google ? "success" : "warning"}>
                 {status.providerConnected.google ? "接続済み" : "未接続"}
               </Badge>
             </div>
             <p className="text-sm text-[color:var(--text-muted)]">
-              接続→Google店舗（GBP）紐付け→投稿テストを順に進めます。
+              連携 → 店舗を選ぶ → 投稿の動作確認を順に進めます。
             </p>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-[color:var(--text-default)]">
             <div className="space-y-1">
-              <p>紐付け数: {status.linkedCounts.gbpLinked}件</p>
+              <p>店舗を選んだ数: {status.linkedCounts.gbpLinked}件</p>
               <p>投稿回数: {formatCount(status.postsSummary.google.total)}件</p>
               <p>最終投稿: {formatDate(status.postsSummary.google.lastAt)}</p>
-              <p>最終ステータス: {mapStatusLabel(status.postsSummary.google.lastStatus)}</p>
+              <p>直近の結果: {mapStatusLabel(status.postsSummary.google.lastStatus)}</p>
               <p>失敗件数: {formatCount(status.postsSummary.google.failedCount)}件</p>
               {status.postsSummary.google.reason && (
                 <p className="text-xs text-amber-700">
@@ -306,22 +304,16 @@ export default async function SetupChecklistPage() {
             </div>
             <div className="space-y-1">
               <p>口コミ件数: {formatCount(status.reviewsSummary.gbp.total)}件</p>
-              <p>最終同期: {formatDate(status.reviewsSummary.gbp.lastSyncAt)}</p>
-              <p>
-                直近結果:{" "}
-                {mapSyncStatus(status.reviewsSummary.gbp.lastSyncStatus)}
-              </p>
+              <p>最終取り込み: {formatDate(status.reviewsSummary.gbp.lastSyncAt)}</p>
+              <p>直近の結果: {mapSyncStatus(status.reviewsSummary.gbp.lastSyncStatus)}</p>
               <p>最終返信: {formatDate(status.reviewsSummary.gbp.lastReplyAt)}</p>
               {status.reviewsSummary.gbp.reason && (
                 <p className="text-xs text-amber-700">
                   {status.reviewsSummary.gbp.reason}
                 </p>
               )}
-              <Link
-                href="/app/locations"
-                className={actionLinkPrimary}
-              >
-                口コミ同期を実行する
+              <Link href="/app/locations" className={actionLinkPrimary}>
+                口コミを取り込む
               </Link>
             </div>
             <div className="space-y-2">
@@ -370,34 +362,38 @@ export default async function SetupChecklistPage() {
           </CardContent>
         </Card>
 
-        <BulkReviewSyncCard
-          key={`${bulkScheduleView.enabled}-${bulkScheduleView.cadenceMinutes}-${bulkScheduleView.nextRunAt ?? "none"}`}
-          canRun={canRunBulk}
-          disabledReason={bulkDisabledReason}
-          latest={bulkSyncView}
-          schedule={bulkScheduleView}
-          canManageSchedule={canManageSchedule}
-          scheduleDisabledReason={scheduleDisabledReason}
-        />
+        {canManageOrg && (
+          <BulkReviewSyncCard
+            key={`${bulkScheduleView.enabled}-${bulkScheduleView.cadenceMinutes}-${bulkScheduleView.nextRunAt ?? "none"}`}
+            canRun={canRunBulk}
+            disabledReason={bulkDisabledReason}
+            latest={bulkSyncView}
+            schedule={bulkScheduleView}
+            canManageSchedule={canManageSchedule}
+            scheduleDisabledReason={scheduleDisabledReason}
+          />
+        )}
 
         <Card tone="light">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-[color:var(--text-strong)]">Meta</p>
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">
+                SNSの連携
+              </p>
               <Badge variant={status.providerConnected.meta ? "success" : "warning"}>
                 {status.providerConnected.meta ? "接続済み" : "未接続"}
               </Badge>
             </div>
             <p className="text-sm text-[color:var(--text-muted)]">
-              接続→FBページ紐付け→投稿テストを順に進めます。
+              連携 → ページを選ぶ → 投稿の動作確認を順に進めます。
             </p>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-[color:var(--text-default)]">
             <div className="space-y-1">
-              <p>紐付け数: {status.linkedCounts.metaLinked}件</p>
+              <p>店舗を選んだ数: {status.linkedCounts.metaLinked}件</p>
               <p>投稿回数: {formatCount(status.postsSummary.meta.total)}件</p>
               <p>最終投稿: {formatDate(status.postsSummary.meta.lastAt)}</p>
-              <p>最終ステータス: {mapStatusLabel(status.postsSummary.meta.lastStatus)}</p>
+              <p>直近の結果: {mapStatusLabel(status.postsSummary.meta.lastStatus)}</p>
               <p>失敗件数: {formatCount(status.postsSummary.meta.failedCount)}件</p>
               {status.postsSummary.meta.reason && (
                 <p className="text-xs text-amber-700">
@@ -565,23 +561,22 @@ export default async function SetupChecklistPage() {
         {isAdmin && (
           <Card tone="light">
             <CardHeader>
-              <p className="text-base font-semibold text-[color:var(--text-strong)]">システム管理者向け</p>
+              <p className="text-base font-semibold text-[color:var(--text-strong)]">
+                運用ツール（管理者向け）
+              </p>
               <p className="text-sm text-[color:var(--text-muted)]">
-                設定状況と実機チェックをまとめて確認できます。
+                設定状況と連携状況の確認に使います。
               </p>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-[color:var(--text-default)]">
-              <Link
-                href="/admin/diagnostics"
-                className={actionLinkPrimary}
-              >
+              <Link href="/admin/release" className={actionLinkPrimary}>
+                リリース準備を開く
+              </Link>
+              <Link href="/admin/diagnostics" className={actionLinkPrimary}>
                 診断を開く
               </Link>
-              <Link
-                href="/admin/provider-health"
-                className={actionLinkPrimary}
-              >
-                実機ヘルスチェックを開く
+              <Link href="/admin/provider-health" className={actionLinkPrimary}>
+                連携状況チェックを開く
               </Link>
             </CardContent>
           </Card>

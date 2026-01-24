@@ -31,7 +31,7 @@ export default function TermsPage() {
             <section className="space-y-2">
               <h2 className="text-base font-semibold text-slate-900">3. 禁止事項</h2>
               <ul className="list-disc space-y-1 pl-5">
-                <li>法令やプロバイダ利用規約に違反する行為</li>
+                <li>法令や連携サービスの利用規約に違反する行為</li>
                 <li>不正アクセス、リバースエンジニアリング</li>
                 <li>第三者の権利侵害</li>
               </ul>
