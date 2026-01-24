@@ -45,6 +45,14 @@ test("ダッシュボードはサインインまたはダッシュボードが�
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("app-shell-nav-mocklike", {
+    body: screenshot,
+    contentType: "image/png",
+  });
+  await testInfo.attach("app-dashboard-mocklike", {
+    body: screenshot,
+    contentType: "image/png",
+  });
 
   if (hasDashboard) {
     await expect(
@@ -312,8 +320,8 @@ test(
     if (hasSetup) {
       await expect(page.getByText("進捗", { exact: true })).toBeVisible();
       await expect(page.getByText("最終アップロード")).toBeVisible();
-      await expect(page.getByText("Google口コミを一括同期")).toBeVisible();
-      await expect(page.getByText("自動同期", { exact: true })).toBeVisible();
+      await expect(page.getByText("口コミをまとめて取り込む")).toBeVisible();
+      await expect(page.getByText("自動取り込み", { exact: true })).toBeVisible();
     }
     expect(hasSetup || hasSignIn).toBeTruthy();
   }
@@ -408,6 +416,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-reviews-inbox-real-mode-guidance", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-reviews-inbox-mocklike", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -614,7 +626,7 @@ test(
   async ({ page }, testInfo) => {
     await page.goto("/app/locations/loc-1", { waitUntil: "domcontentloaded" });
     const hasDetail = await page
-      .getByRole("heading", { name: "初めての設定", exact: true })
+      .getByRole("heading", { name: "はじめての設定", exact: true })
       .isVisible();
     const hasSignIn = await page
       .getByRole("heading", { name: "サインイン", exact: true })
@@ -629,11 +641,27 @@ test(
       body: baseShot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-location-detail-owner-friendly-v2", {
+      body: baseShot,
+      contentType: "image/png",
+    });
 
     if (hasDetail) {
-      const composerSummary = page.locator("summary", { hasText: "投稿する" }).first();
-      if ((await composerSummary.count()) > 0) {
-        await composerSummary.click();
+      const setupDetails = page
+        .locator("details", {
+          has: page.locator("summary", { hasText: "はじめての設定" }),
+        })
+        .first();
+      if ((await setupDetails.count()) > 0) {
+        await setupDetails.evaluate((node) => {
+          (node as HTMLDetailsElement).open = true;
+        });
+      }
+      const composerDetails = page.locator("#post-compose").first();
+      if ((await composerDetails.count()) > 0) {
+        await composerDetails.evaluate((node) => {
+          (node as HTMLDetailsElement).open = true;
+        });
       }
       const composerShot = await page.screenshot({ fullPage: true });
       await testInfo.attach("app-location-detail-post-template", {
