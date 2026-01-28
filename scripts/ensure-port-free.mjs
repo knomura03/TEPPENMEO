@@ -1,6 +1,6 @@
 import net from "node:net";
 import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, unlinkSync } from "node:fs";
 import { platform } from "node:process";
 
 const defaultPort = 3000;
@@ -27,11 +27,7 @@ if (portEnv) {
 }
 
 const lockPath = ".next/dev/lock";
-if (existsSync(lockPath)) {
-  console.error("E2Eの事前チェックに失敗しました: .next/dev/lock が残っています。");
-  console.error("対処: rm -f .next/dev/lock を実行し、再度試してください。");
-  process.exit(1);
-}
+const lockExists = existsSync(lockPath);
 
 const checkPort = (targetPort) =>
   new Promise((resolve) => {
@@ -67,8 +63,22 @@ if (inUse) {
       // lsof が無い場合は無視
     }
   }
+  if (lockExists) {
+    console.error("補足: ロックが残っている可能性があります。サーバー停止後に再実行してください。");
+  }
   console.error("対処: docs/runbooks/dev-server-port-lock.md を確認してください。");
   process.exit(1);
+}
+
+if (lockExists) {
+  try {
+    unlinkSync(lockPath);
+    console.warn("E2E事前チェック: 残っていたロックを自動で解除しました。");
+  } catch {
+    console.error("E2Eの事前チェックに失敗しました: ロック削除に失敗しました。");
+    console.error("対処: 権限/所有者を確認し、手動で削除してから再実行してください。");
+    process.exit(1);
+  }
 }
 
 process.exit(0);
