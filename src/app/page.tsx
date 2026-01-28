@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/Callout";
@@ -54,7 +55,7 @@ export default function Home() {
           tone="light"
         />
 
-        <div className="flex flex-wrap gap-3">
+        <ActionGroup className="gap-3">
           <Link href="/auth/sign-in">
             <Button size="lg">サインイン</Button>
           </Link>
@@ -63,7 +64,7 @@ export default function Home() {
               アプリへ進む
             </Button>
           </Link>
-        </div>
+        </ActionGroup>
 
         <div className="grid gap-6 md:grid-cols-3">
           <Card>

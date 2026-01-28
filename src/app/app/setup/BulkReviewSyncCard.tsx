@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -151,7 +152,7 @@ export function BulkReviewSyncCard({
         )}
         <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-3">
           <p className="text-sm font-semibold text-[color:var(--text-strong)]">自動取り込み</p>
-          <div className="mt-3 flex flex-wrap items-end gap-3">
+          <ActionGroup className="mt-3 items-end">
             <label className="flex items-center gap-2 text-sm text-[color:var(--text-muted)]">
               <input
                 type="checkbox"
@@ -182,7 +183,7 @@ export function BulkReviewSyncCard({
             >
               {isPending ? "保存中..." : "設定を保存"}
             </Button>
-          </div>
+          </ActionGroup>
           {scheduleDisabledReason && (
             <p className="mt-2 text-sm text-amber-700">
               {scheduleDisabledReason}
@@ -194,7 +195,7 @@ export function BulkReviewSyncCard({
             </p>
           )}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <ActionGroup>
           <Button
             type="button"
             variant="secondary"
@@ -209,7 +210,7 @@ export function BulkReviewSyncCard({
           >
             まとめて取り込む手順を見る
           </a>
-        </div>
+        </ActionGroup>
       </CardContent>
     </Card>
   );

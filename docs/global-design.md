@@ -62,6 +62,7 @@ Do:
 - 空状態は「理由 + 次にやること」をセットで表示する
 - フォームは FormField を基本にし、Input/Select/Textarea は共通コンポーネントを使う
 - Button は variant/size を統一し、Link には buttonStyles を使う
+- ボタンを横並びにする場合は ActionGroup を使い、間隔を固定する
 - ロゴは `/logo.svg` を使用し、ヘッダーに表示する
 - 画像は原則 `next/image` を使う（例外がある場合は理由をコメント）
 

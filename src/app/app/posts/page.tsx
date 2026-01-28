@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { Badge } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -78,13 +79,15 @@ export default async function PostsPage() {
               投稿は店舗ごとに作成します。テンプレを使うと入力が簡単です。
             </p>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Link href="/app/locations" className={primaryLink}>
-              店舗を選ぶ
-            </Link>
-            <Link href="/app/post-templates" className={secondaryLink}>
-              テンプレを管理する
-            </Link>
+          <CardContent>
+            <ActionGroup>
+              <Link href="/app/locations" className={primaryLink}>
+                店舗を選ぶ
+              </Link>
+              <Link href="/app/post-templates" className={secondaryLink}>
+                テンプレを管理する
+              </Link>
+            </ActionGroup>
           </CardContent>
         </Card>
       </section>

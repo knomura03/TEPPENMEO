@@ -8,7 +8,7 @@ import { getPublicSiteMetadata } from "@/server/public-site/metadata";
 export default function PrivacyPage() {
   const metadata = getPublicSiteMetadata();
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-[color:var(--background)] text-[color:var(--text-default)]">
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-12">
         <PageHeader
           title="プライバシーポリシー"
@@ -17,9 +17,9 @@ export default function PrivacyPage() {
         />
 
         <Card>
-          <CardContent className="space-y-4 text-sm leading-relaxed text-slate-700">
+          <CardContent className="space-y-4 text-sm leading-relaxed text-[color:var(--text-default)]">
             <section className="space-y-2">
-              <h2 className="text-base font-semibold text-slate-900">1. 収集する情報</h2>
+              <h2 className="text-base font-semibold text-[color:var(--text-strong)]">1. 収集する情報</h2>
               <ul className="list-disc space-y-1 pl-5">
                 <li>アカウント作成時のメールアドレス</li>
                 <li>連携サービスから取得するビジネス情報・投稿・口コミ（必要最小限）</li>
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-base font-semibold text-slate-900">2. 利用目的</h2>
+              <h2 className="text-base font-semibold text-[color:var(--text-strong)]">2. 利用目的</h2>
               <ul className="list-disc space-y-1 pl-5">
                 <li>連携サービスの管理、投稿、口コミ対応</li>
                 <li>監査・障害対応のための操作ログ管理</li>
@@ -37,29 +37,29 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-base font-semibold text-slate-900">3. 第三者提供</h2>
+              <h2 className="text-base font-semibold text-[color:var(--text-strong)]">3. 第三者提供</h2>
               <p>法令に基づく場合を除き、本人の同意なく第三者提供は行いません。</p>
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-base font-semibold text-slate-900">4. 安全管理</h2>
+              <h2 className="text-base font-semibold text-[color:var(--text-strong)]">4. 安全管理</h2>
               <p>暗号化やアクセス制御など、必要な安全管理措置を講じます。</p>
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-base font-semibold text-slate-900">5. 権利</h2>
+              <h2 className="text-base font-semibold text-[color:var(--text-strong)]">5. 権利</h2>
               <p>利用者は自身の情報の開示・訂正・削除を求めることができます。</p>
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-base font-semibold text-slate-900">6. お問い合わせ</h2>
+              <h2 className="text-base font-semibold text-[color:var(--text-strong)]">6. お問い合わせ</h2>
               {metadata.contactEmail ? (
                 <Callout title="お問い合わせ" tone="info">
-                  <p className="text-sm text-slate-700">
+                  <p className="text-sm text-[color:var(--text-default)]">
                     運営者: {metadata.operatorName ?? "未指定"} / 連絡先メール: {metadata.contactEmail}
                   </p>
                   {metadata.contactUrl && (
-                    <p className="text-sm text-slate-700">
+                    <p className="text-sm text-[color:var(--text-default)]">
                       問い合わせURL:{" "}
                       <Link className="text-[color:var(--primary)] underline" href={metadata.contactUrl}>
                         お問い合わせフォーム
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
                 </Callout>
               ) : (
                 <Callout title="連絡先は未指定です" tone="warning">
-                  <p className="text-sm text-slate-700">
+                  <p className="text-sm text-[color:var(--text-default)]">
                     運営者情報と連絡先が未設定です。環境変数で設定してください。
                   </p>
                 </Callout>
@@ -77,16 +77,16 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-base font-semibold text-slate-900">7. 改定</h2>
+              <h2 className="text-base font-semibold text-[color:var(--text-strong)]">7. 改定</h2>
               <p>必要に応じて改定し、本ページで告知します。</p>
               {metadata.privacyEffectiveDate && (
-                <p className="text-xs text-slate-600">施行日: {metadata.privacyEffectiveDate}</p>
+                <p className="text-xs text-[color:var(--text-muted)]">施行日: {metadata.privacyEffectiveDate}</p>
               )}
             </section>
           </CardContent>
         </Card>
 
-        <div className="flex flex-wrap gap-3 text-sm text-slate-700">
+        <div className="flex flex-wrap gap-3 text-sm text-[color:var(--text-default)]">
           <Link className="text-[color:var(--primary)] underline" href="/terms">
             利用規約
           </Link>

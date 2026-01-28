@@ -1,3 +1,4 @@
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { Card, CardContent } from "@/components/ui/card";
 
 type EmptyStateTone = "light" | "dark" | "amber";
@@ -24,7 +25,7 @@ export function EmptyState({
       <CardContent className="space-y-3 text-sm">
         <p className="text-base font-semibold">{title}</p>
         {description && <p className={`text-sm ${descriptionClass}`}>{description}</p>}
-        {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+        {actions && <ActionGroup>{actions}</ActionGroup>}
       </CardContent>
     </Card>
   );

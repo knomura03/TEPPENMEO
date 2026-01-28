@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { Badge } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -222,16 +223,18 @@ export default async function AppDashboard() {
             迷いやすい操作をまとめました。
           </p>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <Link href="/app/setup" className={primaryLink}>
-            初期設定を進める
-          </Link>
-          <Link href="/app/posts" className={secondaryLink}>
-            投稿を作る
-          </Link>
-          <Link href="/app/reviews" className={secondaryLink}>
-            口コミ・コメントを確認する
-          </Link>
+        <CardContent>
+          <ActionGroup>
+            <Link href="/app/setup" className={primaryLink}>
+              初期設定を進める
+            </Link>
+            <Link href="/app/posts" className={secondaryLink}>
+              投稿を作る
+            </Link>
+            <Link href="/app/reviews" className={secondaryLink}>
+              口コミ・コメントを確認する
+            </Link>
+          </ActionGroup>
         </CardContent>
       </Card>
     </div>

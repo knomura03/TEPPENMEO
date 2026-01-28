@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -284,14 +285,14 @@ export default async function LocationDetailPage({
               <p className="mt-1 text-sm text-[color:var(--text-muted)]">
                 口コミの返信や投稿を続けていきましょう。
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <ActionGroup className="mt-3">
                 <Link className={stepActionClass} href="/app/reviews">
                   受信箱を開く
                 </Link>
                 <a className={stepActionClass} href="#post-compose">
                   投稿エリアへ
                 </a>
-              </div>
+              </ActionGroup>
             </div>
           )}
           {stepsToShow.map((step) => {
@@ -422,7 +423,7 @@ export default async function LocationDetailPage({
                           {connectionMessage}
                         </p>
                       )}
-                      <div className="mt-4 flex flex-wrap gap-2">
+                      <ActionGroup className="mt-4">
                         {connectionStatus !== "connected" && (
                           <a
                             className={provider.enabled ? connectLinkClass : connectDisabledClass}
@@ -445,7 +446,7 @@ export default async function LocationDetailPage({
                             </Button>
                           </form>
                         )}
-                      </div>
+                      </ActionGroup>
                     </div>
                   );
                 })}
@@ -658,22 +659,24 @@ export default async function LocationDetailPage({
               迷ったら手順書を確認してください。
             </p>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Link href="/docs/runbooks/reviews-inbox" className={stepActionClass}>
-              口コミ・コメントの使い方
-            </Link>
-            <Link
-              href="/docs/runbooks/google-gbp-approval-and-oauth-setup"
-              className={stepActionClass}
-            >
-              Google連携の手順
-            </Link>
-            <Link
-              href="/docs/runbooks/meta-app-review-and-oauth-setup"
-              className={stepActionClass}
-            >
-              SNS連携の手順
-            </Link>
+          <CardContent>
+            <ActionGroup>
+              <Link href="/docs/runbooks/reviews-inbox" className={stepActionClass}>
+                口コミ・コメントの使い方
+              </Link>
+              <Link
+                href="/docs/runbooks/google-gbp-approval-and-oauth-setup"
+                className={stepActionClass}
+              >
+                Google連携の手順
+              </Link>
+              <Link
+                href="/docs/runbooks/meta-app-review-and-oauth-setup"
+                className={stepActionClass}
+              >
+                SNS連携の手順
+              </Link>
+            </ActionGroup>
           </CardContent>
         </Card>
       </section>

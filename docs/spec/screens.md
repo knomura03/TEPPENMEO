@@ -5,12 +5,12 @@
 | --- | --- | --- | --- | --- | --- |
 | サインイン | `/auth/sign-in` | 全員 | ログイン | サインイン | - |
 | サインアップ | `/auth/sign-up` | 全員 | 新規登録 | アカウント作成 | - |
-| ダッシュボード | `/app` | テナント | 状態把握 | 主要導線の確認 | app-dashboard-enhanced / app-dashboard-polish / app-dashboard-mocklike |
+| ダッシュボード | `/app` | テナント | 状態把握 | 主要導線の確認 | app-dashboard-enhanced / app-dashboard-polish / app-dashboard-mocklike / app-dashboard-polish-2 |
 | アプリナビ（モック寄せ） | `/app` | テナント | 導線確認 | ナビ構成の確認 | app-shell-nav-mocklike |
-| 初期設定 | `/app/setup` | テナント | 初期導線 | 進捗/KPI/完了チェック、接続/紐付け/投稿テストのリンク集、自動同期設定 | app-setup-owner-friendly / app-setup-templates / app-setup-polish |
-| 口コミ・コメント受信箱 | `/app/reviews` | テナント | 口コミ対応 | 横断一覧/フィルタ/検索/返信（Google/FB/IGコメント） | app-reviews-inbox-with-social-comments / app-reviews-inbox-real-mode-guidance / app-reviews-polish / app-reviews-inbox-mocklike |
+| 初期設定 | `/app/setup` | テナント | 初期導線 | 進捗/KPI/完了チェック、接続/紐付け/投稿テストのリンク集、自動同期設定 | app-setup-owner-friendly / app-setup-templates / app-setup-polish / app-setup-polish-2 |
+| 口コミ・コメント受信箱 | `/app/reviews` | テナント | 口コミ対応 | 横断一覧/フィルタ/検索/返信（Google/FB/IGコメント） | app-reviews-inbox-with-social-comments / app-reviews-inbox-real-mode-guidance / app-reviews-polish / app-reviews-inbox-mocklike / app-reviews-polish-2 |
 | 店舗一覧 | `/app/locations` | テナント | 店舗管理 | 作成/一覧/検索 | app-locations-ui-primitives |
-| 店舗詳細 | `/app/locations/[id]` | テナント | 連携/口コミ/投稿 | 連携サービスの接続/店舗選択/口コミ取り込み/投稿（テンプレ対応）/履歴 | app-location-detail-simple / app-location-detail-post-template / app-location-detail-polish / app-location-detail-owner-friendly-v2 |
+| 店舗詳細 | `/app/locations/[id]` | テナント | 連携/口コミ/投稿 | 連携サービスの接続/店舗選択/口コミ取り込み/投稿（テンプレ対応）/履歴 | app-location-detail-simple / app-location-detail-post-template / app-location-detail-polish / app-location-detail-owner-friendly-v2 / app-location-detail-polish-2 |
 | 投稿一覧 | `/app/posts` | テナント | 投稿管理 | 投稿作成/一覧 | - |
 | 投稿テンプレ | `/app/post-templates` | テナント | 投稿文管理 | テンプレの作成/編集/削除/適用 | app-post-templates |
 | カレンダー | `/app/calendar` | テナント | 予定確認 | 準備中案内 | - |
@@ -24,7 +24,7 @@
 | ユーザー管理 | `/admin/users` | システム管理 | ユーザー管理 | 招待/テンプレ/無効化理由/削除/検索/フィルタ | admin-users-design / admin-users-table / admin-users-table-details / admin-users-permissions-ui / admin-users-polish |
 | 組織一覧 | `/admin/organizations` | システム管理 | 組織管理 | 一覧/遷移 | - |
 | 組織メンバー管理 | `/admin/organizations/[id]` | システム管理 | メンバー管理 | 追加/変更/削除 | - |
-| 公開トップ | `/` | 公開 | 概要/ログイン導線 | 公開情報確認 | public-home-branding / public-home-polish |
+| 公開トップ | `/` | 公開 | 概要/ログイン導線 | 公開情報確認 | public-home-branding / public-home-polish / public-home-polish-2 |
 | プライバシーポリシー | `/privacy` | 公開 | プライバシー表示 | 公開確認 | public-privacy |
 | 利用規約 | `/terms` | 公開 | 規約表示 | 公開確認 | public-terms |
 | データ削除 | `/data-deletion` | 公開 | 削除手順案内 | 公開確認 | public-data-deletion |

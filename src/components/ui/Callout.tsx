@@ -1,3 +1,4 @@
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { cn } from "@/lib/cn";
 
 type CalloutTone = "info" | "warning" | "danger";
@@ -34,7 +35,7 @@ export function Callout({
     >
       <p className="text-base font-semibold">{title}</p>
       {children && <div className="mt-2 space-y-2">{children}</div>}
-      {actions && <div className="mt-3 flex flex-wrap gap-2">{actions}</div>}
+      {actions && <ActionGroup className="mt-3">{actions}</ActionGroup>}
     </div>
   );
 }

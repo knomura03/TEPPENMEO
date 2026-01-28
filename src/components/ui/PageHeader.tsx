@@ -1,3 +1,4 @@
+import { ActionGroup } from "@/components/ui/ActionGroup";
 import { cn } from "@/lib/cn";
 
 type PageHeaderTone = "light" | "dark";
@@ -46,7 +47,7 @@ export function PageHeader({
           </p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <ActionGroup align="end">{actions}</ActionGroup>}
     </div>
   );
 }

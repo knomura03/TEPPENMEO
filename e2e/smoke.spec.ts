@@ -45,6 +45,10 @@ test("ダッシュボードはサインインまたはダッシュボードが�
     body: screenshot,
     contentType: "image/png",
   });
+  await testInfo.attach("app-dashboard-polish-2", {
+    body: screenshot,
+    contentType: "image/png",
+  });
   await testInfo.attach("app-shell-nav-mocklike", {
     body: screenshot,
     contentType: "image/png",
@@ -69,6 +73,7 @@ test("公開ページが表示される（トップ/ポリシー/規約/削除�
   await testInfo.attach("public-home", { body: home, contentType: "image/png" });
   await testInfo.attach("public-home-branding", { body: home, contentType: "image/png" });
   await testInfo.attach("public-home-polish", { body: home, contentType: "image/png" });
+  await testInfo.attach("public-home-polish-2", { body: home, contentType: "image/png" });
 
   await page.goto("/privacy", { waitUntil: "domcontentloaded" });
   const privacy = await page.screenshot({ fullPage: true });
@@ -300,6 +305,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("app-setup-polish-2", {
+      body: screenshot,
+      contentType: "image/png",
+    });
     await testInfo.attach("app-setup-kpis-media", {
       body: screenshot,
       contentType: "image/png",
@@ -424,6 +433,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-reviews-polish", {
+      body: screenshot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-reviews-polish-2", {
       body: screenshot,
       contentType: "image/png",
     });
@@ -638,6 +651,10 @@ test(
       contentType: "image/png",
     });
     await testInfo.attach("app-location-detail-polish", {
+      body: baseShot,
+      contentType: "image/png",
+    });
+    await testInfo.attach("app-location-detail-polish-2", {
       body: baseShot,
       contentType: "image/png",
     });
