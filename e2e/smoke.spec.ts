@@ -59,6 +59,14 @@ test("ダッシュボードはサインインまたはダッシュボードが�
   });
 
   if (hasDashboard) {
+    await page.getByTestId("dashboard-range-30d").click();
+    await page.getByTestId("dashboard-compare-toggle").click();
+    await page.getByTestId("dashboard-chart-bar").click();
+    const chartShot = await page.screenshot({ fullPage: true });
+    await testInfo.attach("app-dashboard-charts", {
+      body: chartShot,
+      contentType: "image/png",
+    });
     await expect(
       page.getByRole("heading", { name: "ダッシュボード", exact: true })
     ).toBeVisible();
