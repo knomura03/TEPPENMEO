@@ -4,8 +4,16 @@ import { ActionGroup } from "@/components/ui/ActionGroup";
 import { Badge } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Chart } from "@/components/ui/Chart";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { RangeTabs } from "@/components/ui/RangeTabs";
+import { buildHrefWithParams } from "@/lib/pagination";
 import { getSessionUser } from "@/server/auth/session";
+import {
+  getDashboardTimeseries,
+  type DashboardRange,
+} from "@/server/services/dashboard-timeseries";
 import { getPrimaryOrganization } from "@/server/services/organizations";
 import { getDashboardMetrics } from "@/server/services/dashboard-metrics";
 
@@ -39,47 +47,39 @@ function mapJobStatus(value: string | null) {
   return "不明";
 }
 
-function LineChart({ series }: { series: Array<{ label: string; count: number }> }) {
-  const width = 520;
-  const height = 180;
-  const padding = 24;
-  const maxValue = Math.max(1, ...series.map((item) => item.count));
-  const step = (width - padding * 2) / Math.max(1, series.length - 1);
-  const points = series.map((item, index) => {
-    const x = padding + index * step;
-    const y = height - padding - (item.count / maxValue) * (height - padding * 2);
-    return `${x},${y}`;
-  });
-  const path = `M ${points.join(" L ")}`;
+type DashboardSearchParams = {
+  range?: string | string[];
+  compare?: string | string[];
+  chart?: string | string[];
+};
 
-  return (
-    <svg
-      role="img"
-      aria-label="口コミ数の推移"
-      viewBox={`0 0 ${width} ${height}`}
-      className="h-48 w-full"
-    >
-      <defs>
-        <linearGradient id="lineFill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path
-        d={`${path} L ${padding + (series.length - 1) * step},${height - padding} L ${padding},${height - padding} Z`}
-        fill="url(#lineFill)"
-      />
-      <path
-        d={path}
-        fill="none"
-        stroke="var(--primary)"
-        strokeWidth="2"
-      />
-    </svg>
-  );
+function normalizeParam(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value ?? null;
 }
 
-export default async function AppDashboard() {
+function formatDeltaText(delta: { diff: number; percent: number | null } | null) {
+  if (!delta) return "比較なし";
+  const diffText = delta.diff === 0 ? "±0" : delta.diff > 0 ? `+${delta.diff}` : `${delta.diff}`;
+  if (delta.percent === null) {
+    return `前期間比 ${diffText}件`;
+  }
+  const percentText =
+    delta.percent === 0 ? "±0.0" : delta.percent > 0 ? `+${delta.percent.toFixed(1)}` : delta.percent.toFixed(1);
+  return `前期間比 ${percentText}%（${diffText}件）`;
+}
+
+export default async function AppDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<DashboardSearchParams>;
+}) {
+  const params = await searchParams;
+  const rangeParam = normalizeParam(params.range);
+  const compareParam = normalizeParam(params.compare);
+  const chartParam = normalizeParam(params.chart);
+  const range = (rangeParam === "30d" || rangeParam === "90d" ? rangeParam : "7d") as DashboardRange;
+  const compareEnabled = compareParam === "1";
+  const chartType = chartParam === "bar" ? "bar" : "line";
   const user = await getSessionUser();
   if (!user) {
     return (
@@ -108,6 +108,11 @@ export default async function AppDashboard() {
   }
 
   const metrics = await getDashboardMetrics(org.id);
+  const timeseries = await getDashboardTimeseries({
+    organizationId: org.id,
+    range,
+    compare: compareEnabled,
+  });
   const primaryLink = buttonStyles({ variant: "primary", size: "md" });
   const secondaryLink = buttonStyles({ variant: "secondary", size: "md" });
   const jobBadgeVariant =
@@ -120,6 +125,31 @@ export default async function AppDashboard() {
           : metrics.jobs.lastStatus === "running"
             ? "default"
             : "muted";
+
+  const rangeOptions = [
+    { value: "7d", label: "7日" },
+    { value: "30d", label: "30日" },
+    { value: "90d", label: "90日" },
+  ];
+  const compareHref = buildHrefWithParams("/app", params, {
+    compare: compareEnabled ? null : "1",
+  });
+  const lineHref = buildHrefWithParams("/app", params, { chart: "line" });
+  const barHref = buildHrefWithParams("/app", params, { chart: "bar" });
+  const compareButtonClass = buttonStyles({
+    variant: compareEnabled ? "primary" : "secondary",
+    size: "sm",
+  });
+  const chartButtonClass = (active: boolean) =>
+    buttonStyles({ variant: active ? "primary" : "secondary", size: "sm" });
+  const chartSeries = timeseries.series.map((point) => ({
+    label: point.label,
+    value: point.inboundCount,
+  }));
+  const compareSeries = timeseries.compareSeries?.map((point) => ({
+    label: point.label,
+    value: point.inboundCount,
+  }));
 
   return (
     <div className="space-y-8">
@@ -178,13 +208,94 @@ export default async function AppDashboard() {
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
         <Card tone="light">
           <CardHeader>
-            <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">口コミの推移</h2>
-            <p className="text-sm text-[color:var(--text-muted)]">
-              直近7日間の口コミ数です。
-            </p>
+            <div className="flex flex-col gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-[color:var(--text-strong)]">口コミ・コメントの推移</h2>
+                <p className="text-sm text-[color:var(--text-muted)]">
+                  期間を切り替えて、反応の変化を確認できます。
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-4">
+                <RangeTabs
+                  basePath="/app"
+                  currentParams={params}
+                  options={rangeOptions}
+                  value={range}
+                  testIdPrefix="dashboard-range"
+                />
+                <ActionGroup>
+                  <span className="text-xs font-semibold text-[color:var(--text-muted)]">比較</span>
+                  <Link
+                    href={compareHref}
+                    className={compareButtonClass}
+                    data-testid="dashboard-compare-toggle"
+                  >
+                    前期間と比較: {compareEnabled ? "オン" : "オフ"}
+                  </Link>
+                </ActionGroup>
+                <ActionGroup>
+                  <span className="text-xs font-semibold text-[color:var(--text-muted)]">グラフ</span>
+                  <Link
+                    href={lineHref}
+                    className={chartButtonClass(chartType === "line")}
+                    data-testid="dashboard-chart-line"
+                  >
+                    折れ線
+                  </Link>
+                  <Link
+                    href={barHref}
+                    className={chartButtonClass(chartType === "bar")}
+                    data-testid="dashboard-chart-bar"
+                  >
+                    棒
+                  </Link>
+                </ActionGroup>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <LineChart series={metrics.reviews.series} />
+            {timeseries.hasData ? (
+              <Chart
+                series={chartSeries}
+                compareSeries={compareEnabled ? compareSeries : null}
+                variant={chartType}
+                ariaLabel="口コミ・コメント数の推移"
+              />
+            ) : (
+              <EmptyState
+                title="まだデータがありません"
+                description="口コミ対応や投稿を行うと、ここに推移が表示されます。"
+              />
+            )}
+            <div className="mt-4 grid gap-3 text-sm md:grid-cols-3">
+              <div className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] p-3">
+                <p className="text-xs text-[color:var(--text-muted)]">口コミ・コメント</p>
+                <p className="mt-1 text-lg font-semibold text-[color:var(--text-strong)]">
+                  {timeseries.totals.inboundCount}件
+                </p>
+                <p className="text-xs text-[color:var(--text-muted)]">
+                  {formatDeltaText(timeseries.deltas.inboundCount)}
+                </p>
+              </div>
+              <div className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] p-3">
+                <p className="text-xs text-[color:var(--text-muted)]">返信</p>
+                <p className="mt-1 text-lg font-semibold text-[color:var(--text-strong)]">
+                  {timeseries.totals.replyCount}件
+                </p>
+                <p className="text-xs text-[color:var(--text-muted)]">
+                  {formatDeltaText(timeseries.deltas.replyCount)}
+                </p>
+              </div>
+              <div className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] p-3">
+                <p className="text-xs text-[color:var(--text-muted)]">投稿</p>
+                <p className="mt-1 text-lg font-semibold text-[color:var(--text-strong)]">
+                  {timeseries.totals.postCount}件
+                </p>
+                <p className="text-xs text-[color:var(--text-muted)]">
+                  {formatDeltaText(timeseries.deltas.postCount)}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

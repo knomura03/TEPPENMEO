@@ -5,7 +5,7 @@
 | --- | --- | --- | --- | --- | --- |
 | サインイン | `/auth/sign-in` | 全員 | ログイン | サインイン | - |
 | サインアップ | `/auth/sign-up` | 全員 | 新規登録 | アカウント作成 | - |
-| ダッシュボード | `/app` | テナント | 状態把握 | 主要導線の確認 | app-dashboard-enhanced / app-dashboard-polish / app-dashboard-mocklike / app-dashboard-polish-2 |
+| ダッシュボード | `/app` | テナント | 状態把握 | 主要導線の確認 | app-dashboard-enhanced / app-dashboard-polish / app-dashboard-mocklike / app-dashboard-polish-2 / app-dashboard-charts |
 | アプリナビ（モック寄せ） | `/app` | テナント | 導線確認 | ナビ構成の確認 | app-shell-nav-mocklike |
 | 初期設定 | `/app/setup` | テナント | 初期導線 | 進捗/KPI/完了チェック、接続/紐付け/投稿テストのリンク集、自動同期設定 | app-setup-owner-friendly / app-setup-templates / app-setup-polish / app-setup-polish-2 |
 | 口コミ・コメント受信箱 | `/app/reviews` | テナント | 口コミ対応 | 横断一覧/フィルタ/検索/返信（Google/FB/IGコメント） | app-reviews-inbox-with-social-comments / app-reviews-inbox-real-mode-guidance / app-reviews-polish / app-reviews-inbox-mocklike / app-reviews-polish-2 |
