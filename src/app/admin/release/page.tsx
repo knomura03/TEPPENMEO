@@ -193,6 +193,9 @@ export default async function ReleaseDashboardPage() {
                 </p>
               )}
               <div className="flex flex-wrap gap-2 pt-1">
+                <a className={linkClass} href="/docs/runbooks/staging-cli-bootstrap">
+                  stagingをCLIで始める手順
+                </a>
                 <a className={linkClass} href="/docs/runbooks/release-staging">
                   stagingリリース手順
                 </a>
@@ -202,6 +205,14 @@ export default async function ReleaseDashboardPage() {
               </div>
             </Callout>
           )}
+          <div className="flex flex-wrap gap-2 text-xs text-[color:var(--text-muted)]">
+            <a className={linkClass} href="/docs/runbooks/staging-cli-bootstrap">
+              stagingをCLIで始める手順
+            </a>
+            <a className={linkClass} href="/docs/runbooks/release-master">
+              リリース手順（親Runbook）
+            </a>
+          </div>
         </CardContent>
       </Card>
 
