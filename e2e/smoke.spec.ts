@@ -189,6 +189,10 @@ test(
       body: screenshot,
       contentType: "image/png",
     });
+    await testInfo.attach("admin-release-master-runbook-link", {
+      body: screenshot,
+      contentType: "image/png",
+    });
 
     if (hasRelease) {
       await expect(page.getByText("環境と公開情報")).toBeVisible();

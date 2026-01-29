@@ -4,6 +4,7 @@
 - Supabaseプロジェクト（staging用）が作成済み
 - VercelでGitHub連携が済んでいる
 - `.env.local` の値をそのまま流用せず、staging用の値を用意する（機密は貼らない）
+- CLIで最短に進める場合は `docs/runbooks/staging-cli-bootstrap.md` を参照
 
 ## 1. Supabase（staging）
 1. Supabaseダッシュボードにログイン
