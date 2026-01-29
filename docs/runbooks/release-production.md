@@ -4,6 +4,7 @@
 - stagingでの動作確認が完了している
 - 本番用SupabaseプロジェクトとVercelプロジェクトを用意する
 - 機密値はドキュメントに貼らない（設定済み/未設定のみ扱う）
+- CLI中心で進める考え方は `docs/runbooks/staging-cli-bootstrap.md` を参考にする
 
 ## 1. Supabase（本番）
 1. Supabaseダッシュボードで本番プロジェクトを作成

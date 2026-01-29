@@ -7,6 +7,7 @@
 - Supabase と Vercel のアカウントがある
 - リポジトリがGitHubに連携済み
 - この手順では **値を表示しない**（設定済み/未設定のみ確認）
+- CLIで最短に進めたい場合は `docs/runbooks/staging-cli-bootstrap.md` を参照
 
 ---
 

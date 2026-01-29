@@ -19,8 +19,10 @@
 - `docs/runbooks/` 配下を参照
 - 代表:
   - `docs/runbooks/real-mode-smoke-test.md`
+  - `docs/runbooks/release-master.md`
   - `docs/runbooks/release-staging.md`
   - `docs/runbooks/release-production.md`
+  - `docs/runbooks/staging-cli-bootstrap.md`
   - `docs/runbooks/supabase-migrations-troubleshooting.md`
   - `docs/runbooks/inbox-real-mode-check.md`
 
@@ -33,6 +35,7 @@
   - 動画ファイルはリポジトリにコミットしません
   - 添付が必要な場合はローカル管理とし、Runbookに記録します
 
-## 棚卸し結果（2026-01-24）
+## 棚卸し結果（2026-01-29）
 - 参照されていないmdの削除は見送り（現時点で明確な削除対象なし）
+- staging CLI手順を追加し、既存手順はリンクで集約
 - 大きなファイル（mp4等）はコミット禁止（`.gitignore` で除外）

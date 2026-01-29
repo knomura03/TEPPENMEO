@@ -421,6 +421,12 @@ export default async function AdminDiagnosticsPage() {
             </a>
           </p>
           <p>
+            - stagingをCLIで始める:{" "}
+            <a className="text-[color:var(--primary)] underline" href="/docs/runbooks/staging-cli-bootstrap">
+              docs/runbooks/staging-cli-bootstrap.md
+            </a>
+          </p>
+          <p>
             - 本番リリース手順:{" "}
             <a className="text-[color:var(--primary)] underline" href="/docs/runbooks/release-production">
               docs/runbooks/release-production.md

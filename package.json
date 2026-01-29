@@ -13,7 +13,10 @@
     "seed": "tsx scripts/seed.ts",
     "preflight": "tsx scripts/preflight.ts",
     "e2e": "node scripts/ensure-port-free.mjs && playwright test",
-    "jobs:tick": "tsx scripts/jobs-tick.ts"
+    "jobs:tick": "tsx scripts/jobs-tick.ts",
+    "staging:check": "tsx scripts/staging/check.ts",
+    "staging:vercel:env-push": "tsx scripts/staging/vercel-env-push.ts",
+    "staging:notes": "tsx scripts/staging/notes.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

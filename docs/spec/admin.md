@@ -104,6 +104,7 @@
   - 証跡テンプレ: preflight/provider-health/スモークの貼り付けテンプレへのリンク
 - 導線:
   - 診断・実機ヘルス・リリースRunbook・スモークRunbook・各プロバイダ審査Runbookへのリンク
+  - staging CLI手順（`docs/runbooks/staging-cli-bootstrap.md`）へのリンク
 - 権限:
   - システム管理者のみアクセス可能
 - 受け入れ条件:
